@@ -6,7 +6,7 @@
   "scripts": {
     "start": "electron main.js",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "watch": "watchify app/app.js -t babelify -o public/js/bundle.js --debug --verbose"
+    "watch": "watchify app/app.jsx -t babelify -o public/js/bundle.js --debug --verbose"
   },
   "repository": "https://github.com/jk-gan/ADM",
   "author": "",

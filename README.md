@@ -35,7 +35,7 @@ npm install && npm start
 ```bash
 # Use browserify to bundle up js file into single bundle.js
 # Everytime there is a new change
-browserify -t [ babelify ] app/app.js -o public/js/bundle.js 
+browserify -t [ babelify ] app/app.jsx -o public/js/bundle.js 
 
 # or you can use watchify - just waites for change and re-creates the bundle
 npm run watch
