@@ -17,8 +17,8 @@ sudo npm install -g watchify
 npm install && npm start
 ```
 
+## Directory Structure
 ```
-# Directory Structure
 |---app #All React projects goes here
 |----components # Presentation Component Directory
 |----app.js
@@ -31,6 +31,7 @@ npm install && npm start
 |---package.json
 ```
 
+## Before start the app
 ```bash
 # Use browserify to bundle up js file into single bundle.js
 # Everytime there is a new change
@@ -38,6 +39,11 @@ browserify -t [ babelify ] app/app.js -o public/js/bundle.js
 
 # or you can use watchify - just waites for change and re-creates the bundle
 npm run watch
+```
+
+## Start the app
+```bash
+npm start
 ```
 
 Learn more about Electron and its API in the [documentation](http://electron.atom.io/docs/latest).
