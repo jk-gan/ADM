@@ -12,7 +12,31 @@ git clone git@github.com:jk-gan/ADM.git
 # Go into the repository
 cd ADM
 # Install dependencies and run the app
+npm install -g browserify 
+sudo npm install -g watchify
 npm install && npm start
+```
+
+```
+# Directory Structure
+|---app #All React projects goes here
+|----components # Presentation Component Directory
+|----app.js
+|---public # Client Files here
+|----css
+|----js
+|------bundle.js
+|---index.html # Electron Default View
+|---main.js # Electron entry point
+|---package.json
+```
+
+```bash
+# Use browserify to bundle up js file into single bundle.js
+browserify -t [ babelify ] app/app.js -o public/js/bundle.js 
+
+# or you can use watchify - just waites for change and re-creates the bundle
+npm run watch
 ```
 
 Learn more about Electron and its API in the [documentation](http://electron.atom.io/docs/latest).
