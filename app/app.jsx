@@ -2,19 +2,21 @@
 // Import React and ReactDOM
 import React from 'react';
 import ReactDOM from 'react-dom';
-// Search component created as a class
-class Search extends React.Component {
+
+import Input from './components/input.component.jsx'
+
+class App extends React.Component {
 
     // render method is most important
     // render method returns JSX template
     render() {
         return (
-          <h1>Hello World</h1>
+          <Input />
         );
     }
 }
 
 // Render to ID content in the DOM
-ReactDOM.render( < Search / > ,
+ReactDOM.render( <App /> ,
     document.getElementById('content')
 );
