@@ -21,6 +21,7 @@ npm install && npm start
 ```
 |---app #All React projects goes here
 |----components # Presentation Component Directory
+|----containers # Container Component Directory
 |----app.js
 |---public # Client Files here
 |----css
