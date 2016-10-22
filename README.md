@@ -1,6 +1,6 @@
 #Aria2 Download Manager
 
-This is a download manager is built with [electron](http://electron.atom.io) and [aria2](https://aria2.github.io).
+This is a download manager is built with [electron](http://electron.atom.io), [react](https://facebook.github.io/react/) and [aria2](https://aria2.github.io).
 
 ## To Use
 
@@ -12,8 +12,6 @@ git clone git@github.com:jk-gan/ADM.git
 # Go into the repository
 cd ADM
 # Install dependencies and run the app
-npm install -g browserify 
-sudo npm install -g watchify
 npm install && npm start
 ```
 
@@ -24,19 +22,19 @@ npm install && npm start
 |----containers # Container Component Directory
 |----app.js
 |---public # Client Files here
-|----css
 |----js
-|------bundle.js
+|------bundle.js # The bundle file by webpack
 |---index.html # Electron Default View
 |---main.js # Electron entry point
 |---package.json
+|---webpack.config.js
 ```
 
 ## Before start the app
 ```bash
-# Use browserify to bundle up js file into single bundle.js
+# Use webpack to bundle up js file into single bundle.js
 # Everytime there is a new change
-browserify -t [ babelify ] app/app.jsx -o public/js/bundle.js 
+webpack
 
 # or you can use watchify - just waites for change and re-creates the bundle
 npm run watch
