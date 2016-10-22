@@ -3,7 +3,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 
-import Input from './components/input.component.jsx'
+import Input from './components/input.component'
 
 class App extends React.Component {
 

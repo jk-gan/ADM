@@ -7,7 +7,7 @@ class Input extends React.Component{
   render() {
     // Return JSX via render()
     return (
-      <h1>Hello World</h1>
+      <h1>Hello Worlds</h1>
     );
   }
 
