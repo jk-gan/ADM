@@ -1,8 +1,34 @@
 const electron = require('electron')
+//const aria = require('aria2\\aria2Module.js');
+
 // Module to control application life.
 const app = electron.app
 // Module to create native browser window.
 const BrowserWindow = electron.BrowserWindow
+
+class Aria2Class {
+  constructor() {
+    this.child  = require('child_process')
+  }
+
+  start() {
+    this.child.exec("aria2\\aria2c --enable-rpc --rpc-listen-all=true --rpc-allow-origin-all",
+      (error, stdout, stderr) => {
+        console.log('stdout:', stdout)
+        console.log('stderr:', stderr)
+        if (error) {
+          throw error
+        }
+    });
+  }
+
+  close() {
+    // shutdown using websocket
+    console.log("shutdown function is havent completed. open task manager to force close aria2.");
+  }
+};
+
+var aria = new Aria2Class();
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
@@ -24,13 +50,17 @@ function createWindow () {
     // in an array if your app supports multi windows, this is the time
     // when you should delete the corresponding element.
     mainWindow = null
+    aria.close();
   })
 }
 
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
-app.on('ready', createWindow)
+app.on('ready', () => {
+  createWindow();
+  aria.start();
+})
 
 // Quit when all windows are closed.
 app.on('window-all-closed', function () {
