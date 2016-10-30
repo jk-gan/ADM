@@ -23,7 +23,7 @@ class Aria2Class {
       console.log("close")
     });
 
-    this.socket.on('message', function incoming(message) {
+    this.socket.on('message', (message) => {
       let messageObj = JSON.parse(message)
       console.log(messageObj);
     });
