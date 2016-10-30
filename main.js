@@ -1,5 +1,5 @@
 const electron = require('electron')
-const Aria2Module = require('./aria2Module')
+const Aria2Module = require('./aria2/aria2Module')
 
 // Module to control application life.
 const app = electron.app
@@ -32,13 +32,14 @@ function createWindow () {
     aria.close();
   })
 }
+setInterval(() => { aria.send()}, 2000);
 
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
 app.on('ready', () => {
-  createWindow();
   aria.start();
+  createWindow();
 })
 
 // Quit when all windows are closed.
