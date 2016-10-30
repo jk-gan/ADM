@@ -1,34 +1,13 @@
 const electron = require('electron')
-//const aria = require('aria2\\aria2Module.js');
+const Aria2Module = require('./aria2Module')
 
 // Module to control application life.
 const app = electron.app
 // Module to create native browser window.
 const BrowserWindow = electron.BrowserWindow
 
-class Aria2Class {
-  constructor() {
-    this.child  = require('child_process')
-  }
-
-  start() {
-    this.child.exec("aria2\\aria2c --enable-rpc --rpc-listen-all=true --rpc-allow-origin-all",
-      (error, stdout, stderr) => {
-        console.log('stdout:', stdout)
-        console.log('stderr:', stderr)
-        if (error) {
-          throw error
-        }
-    });
-  }
-
-  close() {
-    // shutdown using websocket
-    console.log("shutdown function is havent completed. open task manager to force close aria2.");
-  }
-};
-
-var aria = new Aria2Class();
+// Initiallize aria class
+var aria = Aria2Module.Aria2Class
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
