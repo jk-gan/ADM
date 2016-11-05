@@ -42,7 +42,7 @@ function createWindow () {
       else {
         aria.close()
       }
-    }, 6000);
+    }, 5000);
   })
 
   mainWindow.on('closed', (e) => {

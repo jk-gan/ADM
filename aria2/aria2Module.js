@@ -6,31 +6,50 @@ class Aria2Class {
     this.isClosed = false;
 
     // list of command
-    this.startCommand = "aria2\\aria2c --enable-rpc --rpc-listen-all=true --rpc-allow-origin-all";
+    switch(process.platform) {
+      case 'win32':
+        this.startCommand = "aria2\\aria2c --enable-rpc --rpc-listen-all=true --rpc-allow-origin-all"
+        break
+      default:
+        this.startCommand = "aria2/aria2c --enable-rpc --rpc-listen-all=true --rpc-allow-origin-all"
+        break
+    }
   }
 
   start() {
-    this.child = this.exec(this.startCommand)
+    this.child = this.exec(this.startCommand, (error, stdout, stderr) => {
+      if (error) {
+        console.error(`exec error: ${error}`)
+        return;
+      }
+      console.log(`stdout: ${stdout}`)
+      console.log(`stderr: ${stderr}`)
+    })
 
     let socketInterval = setInterval(() => {
       if(this.child){
-        this.socket = new this.WebSocket('ws://localhost:6800/jsonrpc')
+        try {
+          this.socket = new this.WebSocket('ws://localhost:6800/jsonrpc')
 
-        // for debuging
-        this.socket.on('message', (message) => {
-          let messageObj = JSON.parse(message)
-          console.log(messageObj);
-        });
+          // for debuging
+          this.socket.on('message', (message) => {
+            let messageObj = JSON.parse(message)
+            console.log(messageObj);
+          });
 
-        this.socket.on('close', () => {
-          console.log("close")
-        });
+          this.socket.on('close', () => {
+            console.log("close")
+          });
 
-        this.socket.on('open', () => {
-          console.log("open")
-        });
+          this.socket.on('open', () => {
+            console.log("open")
+          });
 
-        clearInterval(socketInterval);
+          clearInterval(socketInterval);
+        }
+        catch (err) {
+          console.log('Socket cannot be opened. Make sure aria is placed correctly')
+        }
       }
     }, 1000)
 
