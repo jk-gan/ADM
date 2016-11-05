@@ -37,9 +37,12 @@ function createWindow () {
 
     setInterval(() => {
       if(aria.isClosed){
-        app.quit();
+        app.quit()
       }
-    }, 1000);
+      else {
+        aria.close()
+      }
+    }, 6000);
   })
 
   mainWindow.on('closed', (e) => {

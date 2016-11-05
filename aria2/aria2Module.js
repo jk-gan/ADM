@@ -10,31 +10,39 @@ class Aria2Class {
   }
 
   start() {
-    this.child = this.exec(this.startCommand);
-    this.socket = new this.WebSocket('ws://localhost:6800/jsonrpc')
+    this.child = this.exec(this.startCommand)
+
+    let socketInterval = setInterval(() => {
+      if(this.child){
+        this.socket = new this.WebSocket('ws://localhost:6800/jsonrpc')
+
+        // for debuging
+        this.socket.on('message', (message) => {
+          let messageObj = JSON.parse(message)
+          console.log(messageObj);
+        });
+
+        this.socket.on('close', () => {
+          console.log("close")
+        });
+
+        this.socket.on('open', () => {
+          console.log("open")
+        });
+
+        clearInterval(socketInterval);
+      }
+    }, 1000)
 
     // for debuging
     this.child.stdout.on('data', (data) => {
                       console.log(data.toString());
                     });
 
-    // for debuging
-    this.socket.on('message', (message) => {
-      let messageObj = JSON.parse(message)
-      console.log(messageObj);
-    });
-
     this.child.on('exit', () => {
+      this.socket.close()
       this.isClosed = true;
     })
-
-    this.socket.on('close', () => {
-      console.log("close")
-    });
-
-    this.socket.on('open', () => {
-      console.log("open")
-    });
   }
 
   close() {
@@ -43,7 +51,7 @@ class Aria2Class {
     'id': 'qwer',
     'method': 'aria2.shutdown'}
 
-    this.socket.close(this.socket.send(JSON.stringify(methodJson)));
+    this.socket.send(JSON.stringify(methodJson))
   }
 };
 
