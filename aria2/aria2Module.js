@@ -4,16 +4,25 @@ class Aria2Class {
     this.exec  = require('child_process').exec
     this.WebSocket = require('ws');
     this.isClosed = false;
+
+    // list of command
+    this.startCommand = "aria2\\aria2c --enable-rpc --rpc-listen-all=true --rpc-allow-origin-all";
   }
 
   start() {
-    this.child = this.exec("aria2\\aria2c --enable-rpc --rpc-listen-all=true --rpc-allow-origin-all");
+    this.child = this.exec(this.startCommand);
     this.socket = new this.WebSocket('ws://localhost:6800/jsonrpc')
 
     // for debuging
     this.child.stdout.on('data', (data) => {
                       console.log(data.toString());
                     });
+
+    // for debuging
+    this.socket.on('message', (message) => {
+      let messageObj = JSON.parse(message)
+      console.log(messageObj);
+    });
 
     this.child.on('exit', () => {
       this.isClosed = true;
@@ -23,11 +32,6 @@ class Aria2Class {
       console.log("close")
     });
 
-    this.socket.on('message', (message) => {
-      let messageObj = JSON.parse(message)
-      console.log(messageObj);
-    });
-
     this.socket.on('open', () => {
       console.log("open")
     });
@@ -35,11 +39,11 @@ class Aria2Class {
 
   close() {
     // Shutdown
-    this.json = {'json-rpc': '2.0',
+    let methodJson = {'json-rpc': '2.0',
     'id': 'qwer',
     'method': 'aria2.shutdown'}
 
-    this.socket.close(this.socket.send(JSON.stringify(this.json)));
+    this.socket.close(this.socket.send(JSON.stringify(methodJson)));
   }
 };
 
