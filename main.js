@@ -1,8 +1,13 @@
 const electron = require('electron')
+const Aria2Module = require('./aria2/aria2Module')
+
 // Module to control application life.
 const app = electron.app
 // Module to create native browser window.
 const BrowserWindow = electron.BrowserWindow
+
+// Initiallize aria class
+let aria = Aria2Module.Aria2Class
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
@@ -19,18 +24,44 @@ function createWindow () {
   mainWindow.webContents.openDevTools()
 
   // Emitted when the window is closed.
-  mainWindow.on('closed', function () {
+  mainWindow.on('close', (e) => {
     // Dereference the window object, usually you would store windows
     // in an array if your app supports multi windows, this is the time
     // when you should delete the corresponding element.
+    if (aria.isClosed) return true;
+    aria.close();
+    console.log("closing...");
+
+    e.preventDefault();
+    mainWindow.hide();
+
+    setInterval(() => {
+      if(aria.isClosed){
+        app.quit();
+      }
+    }, 1000);
+  })
+
+  mainWindow.on('closed', (e) => {
+    // Dereference the window object, usually you would store windows
+    // in an array if your app supports multi windows, this is the time
+    // when you should delete the corresponding element.
+
     mainWindow = null
   })
 }
 
+app.on('before-quit', () => {
+  mainWindow.forceClose = true;
+});
+
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
-app.on('ready', createWindow)
+app.on('ready', () => {
+  aria.start();
+  createWindow();
+})
 
 // Quit when all windows are closed.
 app.on('window-all-closed', function () {
