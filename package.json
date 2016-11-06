@@ -5,8 +5,10 @@
   "main": "index.js",
   "scripts": {
     "start": "electron main.js",
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "watch": "webpack --progress --colors --watch"
+    "dev": "concurrently \"npm run watch\" \"electron main.js\"" ,
+    "product": "webpack -p",
+    "watch": "webpack -w --colors",
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": "https://github.com/jk-gan/ADM",
   "author": "",
