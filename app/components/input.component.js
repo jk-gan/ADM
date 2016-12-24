@@ -7,7 +7,10 @@ class Input extends React.Component{
   render() {
     // Return JSX via render()
     return (
-      <h1>Hello Worlds</h1>
+      <form>
+        <input type="text" placeholder="New Download Link" />
+        <button type="submit">Download</button>
+      </form>
     );
   }
 
