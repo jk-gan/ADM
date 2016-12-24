@@ -3,7 +3,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 
-import Input from './components/input.component'
+import Input from './components/Input'
 
 class App extends React.Component {
 
@@ -11,7 +11,10 @@ class App extends React.Component {
     // render method returns JSX template
     render() {
         return (
-          <Input />
+          <div>
+            <Input />
+            <DownloadList />
+          </div>
         );
     }
 }
