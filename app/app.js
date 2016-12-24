@@ -4,6 +4,7 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 
 import Input from './components/Input'
+import DownloadList from './components/DownloadList'
 
 class App extends React.Component {
 
