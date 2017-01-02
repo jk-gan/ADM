@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "start": "electron main.js",
-    "dev": "concurrently \"npm run watch\" \"electron main.js\"" ,
+    "dev": "concurrently \"npm run watch\" \"electron main.js\"",
     "product": "webpack -p",
     "watch": "webpack -w --colors",
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -25,6 +25,7 @@
 
   },
   "dependencies": {
+    "node-gyp": "^3.4.0",
     "react": "^15.3.2",
     "react-dom": "^15.3.2",
     "react-redux": "^4.4.5",
