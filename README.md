@@ -30,6 +30,63 @@ npm install && npm start
 |---webpack.config.js
 ```
 
+## Aria2c Compilation
+```bash
+# Move to aria2 folder
+cd aria2
+
+# Clone aria2 repository
+git clone https://github.com/aria2/aria2.git
+
+# For Windows
+# Install MingW64
+https://mingw-w64.org/
+
+# Run mingw64.exe
+# Using pacman install the following dependencies for MingW64
+|-GCC
+|-tar
+|-libgnutls-dev
+|-nettle-dev
+|-libgmp-dev
+|-libssh2-1-dev
+|-libxml2-dev
+|-zlib1g-dev
+|-libsqlite3-dev
+|-pkg-config
+|-libgcrypt-dev
+|-libexpat1-dev
+|-autoconf
+|-automake
+|-autotools-dev
+|-autopoint
+|-libtool
+
+# Some Useful pacman command
+# Install dependency
+pacman -S module
+
+# Search dependency
+pacman -Ss name
+pacman -Ssq name
+
+# Download c-ares
+http://c-ares.haxx.se/
+
+# Move to c-ares folder and do these commands
+./configure
+make clean
+make
+make install
+
+# Move back to aria2 folder
+autoreconf -fiv
+./configure
+make clean
+make
+make install
+```
+
 ## Before start the app
 ```bash
 # Use webpack to bundle up js file into single bundle.js
@@ -38,6 +95,15 @@ webpack
 
 # or you can use watchify - just waites for change and re-creates the bundle
 npm run watch
+
+# Since electron use different V8, some procedures are needed
+# For using nodejs native addon c++
+# Move to addon folder
+cd aria2/API
+
+# Build the modules
+# Target will be your electron version
+HOME=~/.electron-gyp node-gyp rebuild --target=1.4.13 --arch=x64 --dist-url=https://atom.io/download/atom-shell
 ```
 
 ## Start the app

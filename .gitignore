@@ -1,8 +1,8 @@
 node_modules
 bundle.js
 npm-debug.log
-aria2/aria2c.exe
-aria2c
+aria2/aria2/
+aria2/API/build/
 
 # For macOS
 *.DS_Store
