@@ -6,8 +6,9 @@ const app = electron.app
 // Module to create native browser window.
 const BrowserWindow = electron.BrowserWindow
 
+setTimeout(()=> {Aria2Module.addUrl("https://download.lenovo.com/pccbbs/mobiles/n1mku52w.exe","https://download.lenovo.com/pccbbs/mobiles/n1mku52w.exe")},5000)
+
 // Initiallize aria class
-console.log(Aria2Module.addUrl(1, 2, 3))
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.

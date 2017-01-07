@@ -3,7 +3,6 @@ bundle.js
 npm-debug.log
 aria2/aria2/
 aria2/API/build/
-*.gyp
 
 # For macOS
 *.DS_Store

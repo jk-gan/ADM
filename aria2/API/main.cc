@@ -1,19 +1,18 @@
-#include <aria2/aria2.h>
-#include <chrono>
 #include <node.h>
+#include <chrono>
 #include <iostream>
-
-
-using v8::Exception;
-using v8::FunctionCallbackInfo;
-using v8::Isolate;
-using v8::Local;
-using v8::Number;
-using v8::Object;
-using v8::String;
-using v8::Value;
+#include <aria2/aria2.h>
 
 namespace ariaAPI {
+  using v8::Exception;
+  using v8::FunctionCallbackInfo;
+  using v8::Isolate;
+  using v8::Local;
+  using v8::Number;
+  using v8::Object;
+  using v8::String;
+  using v8::Value;
+
   int downloadEventCallback(aria2::Session* session, aria2::DownloadEvent event,
                             aria2::A2Gid gid, void* userData)
   {
@@ -70,7 +69,6 @@ namespace ariaAPI {
     for (int i = 1; i < args.Length(); ++i) {
       v8::String::Utf8Value params(args[i]->ToString());
       std::string uri = std::string(*params);
-
       std::vector<std::string> uris = {uri};
       aria2::KeyVals options;
       rv = aria2::addUri(session, nullptr, uris, options);

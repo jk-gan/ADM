@@ -8,7 +8,11 @@
     "dev": "concurrently \"npm run watch\" \"electron main.js\"",
     "product": "webpack -p",
     "watch": "webpack -w --colors",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "gyp-rebuild": "cd aria2/API && HOME=~/.electron-gyp node-gyp rebuild --target=1.4.13 --arch=x64 --target_platform=linux --dist-url=https://atom.io/download/atom-shell",
+    "gyp-clean": "cd aria2/API &&  node-gyp clean",
+    "gyp-config": "cd aria2/API && node-gyp configure",
+    "gyp-build": "cd aria2/API && node-gyp build"
   },
   "repository": "https://github.com/jk-gan/ADM",
   "author": "",
