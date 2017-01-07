@@ -29,8 +29,36 @@ npm install && npm start
 |---package.json
 |---webpack.config.js
 ```
+## Aria2c Compilation (Linux)
+```bash
+# Get the dependencies
+|-GCC
+|-tar
+|-libgnutls-dev
+|-nettle-dev
+|-libgmp-dev
+|-libssh2-1-dev
+|-libxml2-dev
+|-zlib1g-dev
+|-libsqlite3-dev
+|-pkg-config
+|-libgcrypt-dev
+|-libexpat1-dev
+|-autoconf
+|-automake
+|-autotools-dev
+|-autopoint
+|-libtool
 
-## Aria2c Compilation
+# Move back to aria2 folder
+autoreconf -fiv
+./configure ARIA2_STATIC=yes --enable-libaria2
+make clean
+make -j4
+make install
+```
+
+## Aria2c Compilation (Windows)
 ```bash
 # Move to aria2 folder
 cd aria2
@@ -102,8 +130,8 @@ npm run watch
 cd aria2/API
 
 # Build the modules
-# Target will be your electron version
-HOME=~/.electron-gyp node-gyp rebuild --target=1.4.13 --arch=x64 --dist-url=https://atom.io/download/atom-shell
+# Target will be your electron version default 1.4.13
+npm run gyp-rebuild
 ```
 
 ## Start the app
