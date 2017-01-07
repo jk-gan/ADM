@@ -1,5 +1,5 @@
 const electron = require('electron')
-const Aria2Module = require('./aria2/aria2Module')
+const Aria2Module = require('./aria2/API/build/Release/main')
 
 // Module to control application life.
 const app = electron.app
@@ -7,7 +7,7 @@ const app = electron.app
 const BrowserWindow = electron.BrowserWindow
 
 // Initiallize aria class
-let aria = Aria2Module.Aria2Class
+console.log(Aria2Module.addUrl(1, 2, 3))
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
@@ -28,21 +28,10 @@ function createWindow () {
     // Dereference the window object, usually you would store windows
     // in an array if your app supports multi windows, this is the time
     // when you should delete the corresponding element.
-    if (aria.isClosed) return true;
-    aria.close();
-    console.log("closing...");
-
-    e.preventDefault();
     mainWindow.hide();
 
-    setInterval(() => {
-      if(aria.isClosed){
-        app.quit()
-      }
-      else {
-        aria.close()
-      }
-    }, 5000);
+    app.quit()
+
   })
 
   mainWindow.on('closed', (e) => {
@@ -62,7 +51,6 @@ app.on('before-quit', () => {
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
 app.on('ready', () => {
-  aria.start();
   createWindow();
 })
 

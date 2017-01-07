@@ -81,7 +81,7 @@ make install
 
 # Move back to aria2 folder
 autoreconf -fiv
-./configure
+./configure --without-gnutls --with-openssl ARIA2_STATIC=yes --without-libxml2 LIBS="-liconv"
 make clean
 make
 make install
