@@ -6,7 +6,10 @@ const app = electron.app
 // Module to create native browser window.
 const BrowserWindow = electron.BrowserWindow
 
-setTimeout(()=> {Aria2Module.addUrl("https://download.lenovo.com/pccbbs/mobiles/n1mku52w.exe","https://download.lenovo.com/pccbbs/mobiles/n1mku52w.exe")},5000)
+
+Aria2Module.addUrl("https://download.lenovo.com/pccbbs/mobiles/n1mku52w.exe","https://download.lenovo.com/pccbbs/mobiles/n1mku52w.exe", (err, result) => {console.log(result);})
+
+setTimeout(() => {Aria2Module.pause((err, result) => {console.log(result);})}, 5000);
 
 // Initiallize aria class
 

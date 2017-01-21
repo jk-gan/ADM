@@ -2,6 +2,7 @@
   "targets": [
     {
       "target_name": "main",
+      "include_dirs": [ "<!(node -e \"require('nan')\")" ],
       "conditions": [
         ['OS=="linux"', {
           "ldflags": [
@@ -11,7 +12,11 @@
         }]
       ],
       "cflags": [ "-Wall -O2 -g -std=c++11" ],
-      "sources": [ "main.cc" ]
+      "sources": [
+                    "main.cc",
+                    "downloadWorker.cc",
+                    "pauseWorker.cc" 
+                 ]
     }
   ]
 }

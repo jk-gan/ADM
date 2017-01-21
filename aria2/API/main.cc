@@ -1,168 +1,48 @@
 #include <node.h>
 #include <chrono>
 #include <iostream>
+#include <nan.h>
 #include <aria2/aria2.h>
+#include "downloadWorker.h"
+#include "pauseWorker.h"
 
-namespace ariaAPI {
-  using v8::Exception;
-  using v8::FunctionCallbackInfo;
-  using v8::Isolate;
-  using v8::Local;
-  using v8::Number;
-  using v8::Object;
-  using v8::String;
-  using v8::Value;
+using v8::Exception;
+using v8::FunctionCallbackInfo;
+using v8::Isolate;
+using v8::Local;
+using v8::Number;
+using v8::Object;
+using v8::String;
+using v8::Value;
 
-  int downloadEventCallback(aria2::Session* session, aria2::DownloadEvent event,
-                            aria2::A2Gid gid, void* userData)
-  {
-    switch (event) {
-    case aria2::EVENT_ON_DOWNLOAD_COMPLETE:
-      std::cerr << "COMPLETE";
-      break;
-    case aria2::EVENT_ON_DOWNLOAD_ERROR:
-      std::cerr << "ERROR";
-      break;
-    default:
-      return 0;
-    }
-    std::cerr << " [" << aria2::gidToHex(gid) << "] ";
-    aria2::DownloadHandle* dh = aria2::getDownloadHandle(session, gid);
-    if (!dh)
-      return 0;
-    if (dh->getNumFiles() > 0) {
-      aria2::FileData f = dh->getFile(1);
-      // Path may be empty if the file name has not been determined yet.
-      if (f.path.empty()) {
-        if (!f.uris.empty()) {
-          std::cerr << f.uris[0].uri;
-        }
-      }
-      else {
-        std::cerr << f.path;
-      }
-    }
-    aria2::deleteDownloadHandle(dh);
-    std::cerr << std::endl;
-    return 0;
-  }
+aria2::Session* session;
 
-  void addUrl(const FunctionCallbackInfo<Value>& args) {
-    int rv;
-    if (args.Length() < 2) {
-      std::cerr << "Usage: libaria2ex URI [URI...]\n"
-                << "\n"
-                << "  Download given URIs in parallel in the current directory."
-                << std::endl;
-      exit(EXIT_SUCCESS);
-    }
-    aria2::libraryInit();
-    // session is actually singleton: 1 session per process
-    aria2::Session* session;
-    // Create default configuration. The libaria2 takes care of signal
-    // handling.
-    aria2::SessionConfig config;
-    // Add event callback
-    config.downloadEventCallback = downloadEventCallback;
-    config.keepRunning = true;
-    session = aria2::sessionNew(aria2::KeyVals(), config);
-    // Add download item to session
-    for (int i = 1; i < args.Length(); ++i) {
-      v8::String::Utf8Value params(args[i]->ToString());
-      std::string uri = std::string(*params);
-      std::vector<std::string> uris = {uri};
-      aria2::KeyVals options;
-      rv = aria2::addUri(session, nullptr, uris, options);
-      if (rv < 0) {
-        std::cerr << "Failed to add download " << uris[0] << std::endl;
-      }
-    }
-    auto start = std::chrono::steady_clock::now();
-    auto firstStart = std::chrono::steady_clock::now();
-    bool isPause = false;
-    for (;;) {
-      rv = aria2::run(session, aria2::RUN_ONCE);
-      aria2::GlobalStat gstat = aria2::getGlobalStat(session);
-      auto num = gstat.numActive;
-      if(num == 0) {
-        aria2::shutdown(session);
-        break;
-      }
+NAN_METHOD(addUrl) {
+  v8::String::Utf8Value* params;
+  params = new v8::String::Utf8Value(info[0]->ToString());
+  std::string uri = std::string(**params);
+  delete params;
 
-      if (rv != 1) {
-        break;
-      }
-      // the application can call aria2 API to add URI or query progress
-      // here
-      auto now = std::chrono::steady_clock::now();
-      auto count =
-          std::chrono::duration_cast<std::chrono::milliseconds>(now - start)
-              .count();
+  params = new v8::String::Utf8Value(info[1]->ToString());
+  std::string uri2 = std::string(**params);
+  delete params;
 
-      auto firstCount = std::chrono::duration_cast<std::chrono::milliseconds>(now - firstStart).count();
+  std::vector<std::string> uris = {uri, uri2};
 
-      if(firstCount >= 10000 && !isPause){
-        std::cout << "Pausing " << firstCount << std::endl;
-        std::vector<aria2::A2Gid> allGids = aria2::getActiveDownload(session);
+  Nan::Callback *callback = new Nan::Callback(info[2].As<v8::Function>());
 
-        for(const auto& gid : allGids){
-          isPause = true;
-          aria2::pauseDownload(session, gid);
-          std::cout << aria2::gidToHex(gid) << std::endl;
-        }
-
-      }
-
-      /*if(firstCount >= 15000){
-
-        std::cout << "Resuming " << firstCount << std::endl;
-        std::vector<aria2::A2Gid> allGids = aria2::getActiveDownload(session);
-
-        for(const auto& gid : allGids){
-          isPause = false;
-          aria2::unpauseDownload(session, gid);
-        }
-        firstStart = now;
-      }*/
-
-      // Print progress information once per 500ms
-      if (count >= 2000) {
-        //int pauseDownload(Session *session, A2Gid gid, bool force = false)
-        start = now;
-        aria2::GlobalStat gstat = aria2::getGlobalStat(session);
-        std::cerr << "Overall #Active:" << gstat.numActive
-                  << " #waiting:" << gstat.numWaiting
-                  << " D:" << gstat.downloadSpeed / 1024 << "KiB/s"
-                  << " U:" << gstat.uploadSpeed / 1024 << "KiB/s " << std::endl;
-        std::vector<aria2::A2Gid> gids = aria2::getActiveDownload(session);
-        for (const auto& gid : gids) {
-          aria2::DownloadHandle* dh = aria2::getDownloadHandle(session, gid);
-          if (dh) {
-            std::cerr << "    [" << aria2::gidToHex(gid) << "] "
-                      << dh->getCompletedLength() << "/" << dh->getTotalLength()
-                      << "(" << (dh->getTotalLength() > 0
-                                     ? (100 * dh->getCompletedLength() /
-                                        dh->getTotalLength())
-                                     : 0)
-                      << "%)"
-                      << " D:" << dh->getDownloadSpeed() / 1024
-                      << "KiB/s, U:" << dh->getUploadSpeed() / 1024 << "KiB/s"
-                      << std::endl;
-            aria2::deleteDownloadHandle(dh);
-          }
-        }
-      }
-    }
-    rv = aria2::sessionFinal(session);
-
-    aria2::libraryDeinit();
-
-    //args.GetReturnValue().Set();
-  }
-
-  void init(Local<Object> exports) {
-    NODE_SET_METHOD(exports, "addUrl", addUrl);
-  }
-
-  NODE_MODULE(addon, init)
+  Nan::AsyncQueueWorker(new AriaDownloadWorker(callback, uris));
 }
+
+NAN_METHOD(pause) {
+  Nan::Callback *callback = new Nan::Callback(info[0].As<v8::Function>());
+
+  Nan::AsyncQueueWorker(new AriaPauseWorker(callback));
+}
+
+NAN_MODULE_INIT(init) {
+  NAN_EXPORT(target, addUrl);
+  NAN_EXPORT(target, pause);
+}
+
+NODE_MODULE(addon, init)
