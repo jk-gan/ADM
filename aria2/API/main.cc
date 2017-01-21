@@ -64,6 +64,7 @@ namespace ariaAPI {
     aria2::SessionConfig config;
     // Add event callback
     config.downloadEventCallback = downloadEventCallback;
+    config.keepRunning = true;
     session = aria2::sessionNew(aria2::KeyVals(), config);
     // Add download item to session
     for (int i = 1; i < args.Length(); ++i) {
@@ -77,8 +78,17 @@ namespace ariaAPI {
       }
     }
     auto start = std::chrono::steady_clock::now();
+    auto firstStart = std::chrono::steady_clock::now();
+    bool isPause = false;
     for (;;) {
       rv = aria2::run(session, aria2::RUN_ONCE);
+      aria2::GlobalStat gstat = aria2::getGlobalStat(session);
+      auto num = gstat.numActive;
+      if(num == 0) {
+        aria2::shutdown(session);
+        break;
+      }
+
       if (rv != 1) {
         break;
       }
@@ -88,8 +98,36 @@ namespace ariaAPI {
       auto count =
           std::chrono::duration_cast<std::chrono::milliseconds>(now - start)
               .count();
+
+      auto firstCount = std::chrono::duration_cast<std::chrono::milliseconds>(now - firstStart).count();
+
+      if(firstCount >= 10000 && !isPause){
+        std::cout << "Pausing " << firstCount << std::endl;
+        std::vector<aria2::A2Gid> allGids = aria2::getActiveDownload(session);
+
+        for(const auto& gid : allGids){
+          isPause = true;
+          aria2::pauseDownload(session, gid);
+          std::cout << aria2::gidToHex(gid) << std::endl;
+        }
+
+      }
+
+      /*if(firstCount >= 15000){
+
+        std::cout << "Resuming " << firstCount << std::endl;
+        std::vector<aria2::A2Gid> allGids = aria2::getActiveDownload(session);
+
+        for(const auto& gid : allGids){
+          isPause = false;
+          aria2::unpauseDownload(session, gid);
+        }
+        firstStart = now;
+      }*/
+
       // Print progress information once per 500ms
-      if (count >= 500) {
+      if (count >= 2000) {
+        //int pauseDownload(Session *session, A2Gid gid, bool force = false)
         start = now;
         aria2::GlobalStat gstat = aria2::getGlobalStat(session);
         std::cerr << "Overall #Active:" << gstat.numActive
@@ -116,7 +154,9 @@ namespace ariaAPI {
       }
     }
     rv = aria2::sessionFinal(session);
+
     aria2::libraryDeinit();
+
     //args.GetReturnValue().Set();
   }
 
