@@ -2,7 +2,6 @@
 #define DOWNLOADWORKER_H
 
 void download(std::vector<std::string>);
-int downloadEventCallback(aria2::Session*, aria2::DownloadEvent, aria2::A2Gid, void*);
 
 extern aria2::Session* session;
 

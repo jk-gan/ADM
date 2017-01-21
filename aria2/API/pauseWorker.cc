@@ -31,7 +31,7 @@ void AriaPauseWorker::Execute () {
 void AriaPauseWorker::HandleOKCallback () {
     Nan:: HandleScope scope;
 
-    v8::Local<v8::String> results = String::NewFromUtf8(v8::Isolate::GetCurrent(), "yeah");
+    v8::Local<v8::String> results = String::NewFromUtf8(v8::Isolate::GetCurrent(), "paused");
 
 
     Local<Value> argv[] = {

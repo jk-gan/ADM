@@ -15,7 +15,8 @@
       "sources": [
                     "main.cc",
                     "downloadWorker.cc",
-                    "pauseWorker.cc" 
+                    "pauseWorker.cc",
+                    "sessionWorker.cc"
                  ]
     }
   ]

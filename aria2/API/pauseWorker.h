@@ -12,10 +12,8 @@ class AriaPauseWorker : public Nan::AsyncWorker {
 
       ~AriaPauseWorker() {}
 
-
       void Execute ();
 
-      // We have the results, and we're back in the event loop.
       void HandleOKCallback ();
   private:
 };

@@ -5,6 +5,7 @@
 #include <aria2/aria2.h>
 #include "downloadWorker.h"
 #include "pauseWorker.h"
+#include "sessionWorker.h"
 
 using v8::Exception;
 using v8::FunctionCallbackInfo;
@@ -16,6 +17,18 @@ using v8::String;
 using v8::Value;
 
 aria2::Session* session;
+
+NAN_METHOD(createSession) {
+  Nan::Callback *callback = new Nan::Callback(info[0].As<v8::Function>());
+
+  Nan::AsyncQueueWorker(new AriaSessionWorker(callback, true));
+}
+
+NAN_METHOD(killSession) {
+  Nan::Callback *callback = new Nan::Callback(info[0].As<v8::Function>());
+
+  Nan::AsyncQueueWorker(new AriaSessionWorker(callback, false));
+}
 
 NAN_METHOD(addUrl) {
   v8::String::Utf8Value* params;
@@ -41,6 +54,8 @@ NAN_METHOD(pause) {
 }
 
 NAN_MODULE_INIT(init) {
+  NAN_EXPORT(target, createSession);
+  NAN_EXPORT(target, killSession);
   NAN_EXPORT(target, addUrl);
   NAN_EXPORT(target, pause);
 }
