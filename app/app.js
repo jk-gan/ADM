@@ -4,14 +4,25 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 
 import Input from './components/input.component'
+import PauseButton from './components/pauseButton'
+
 
 class App extends React.Component {
+    constructor() {
+      super();
 
+      // Will be move to redux after v0.1
+      this.rem = require('electron').remote;
+      this.Aria2Module = this.rem.getGlobal('Aria2Module');
+    }
     // render method is most important
     // render method returns JSX template
     render() {
         return (
-          <Input />
+          <div>
+            <Input />
+            <PauseButton Aria2Module={this.Aria2Module}/>
+          </div>
         );
     }
 }
