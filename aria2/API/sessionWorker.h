@@ -2,15 +2,13 @@
 #define SESSIONWORKER_H
 
 int downloadEventCallback(aria2::Session*, aria2::DownloadEvent, aria2::A2Gid, void*);
-void sessionInit();
-void sessionKill();
 
-extern aria2::Session* session;
+extern std::map<int, aria2::Session*> sessionMap;
 
 class AriaSessionWorker : public Nan::AsyncWorker {
   public:
-      AriaSessionWorker(Nan::Callback *callback, bool isCreate)
-      : Nan::AsyncWorker(callback), isCreate(isCreate){}
+      AriaSessionWorker(Nan::Callback *callback, bool isCreate, int sesMapNum)
+      : Nan::AsyncWorker(callback), isCreate(isCreate), sesMapNum(sesMapNum){}
 
       ~AriaSessionWorker() {}
 
@@ -18,8 +16,16 @@ class AriaSessionWorker : public Nan::AsyncWorker {
 
       void HandleOKCallback ();
 
+      void sessionInit();
+
+      void sessionKill();
+
+      void sessionAllKill();
+
   private:
     bool isCreate;
+    int sesMapNum;
+    aria2::Session* session;
 };
 
 #endif

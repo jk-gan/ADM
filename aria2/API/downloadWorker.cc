@@ -3,6 +3,7 @@
 #include <nan.h>
 #include <iostream>
 #include <chrono>
+#include <map>
 #include "downloadWorker.h"
 
 using v8::Exception;
@@ -33,7 +34,7 @@ void AriaDownloadWorker::HandleOKCallback () {
 
 }
 
-void download(std::vector<std::string> uris) {
+void AriaDownloadWorker::download(std::vector<std::string> uris) {
   int rv;
   if (uris.size() < 2) {
     std::cerr << "Usage: libaria2ex URI [URI...]\n"

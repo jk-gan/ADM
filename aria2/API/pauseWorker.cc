@@ -3,6 +3,7 @@
 #include <nan.h>
 #include <iostream>
 #include <chrono>
+#include <map>
 #include "pauseWorker.h"
 
 using v8::Exception;
@@ -14,13 +15,15 @@ using v8::Object;
 using v8::String;
 using v8::Value;
 
-void pauseAll(){
+void AriaPauseWorker::pauseAll(){
   std::cout << "Pausing " << std::endl;
-  std::vector<aria2::A2Gid> allGids = aria2::getActiveDownload(session);
-
-  for(const auto& gid : allGids){
-    aria2::pauseDownload(session, gid);
-    std::cout << aria2::gidToHex(gid) << std::endl;
+  for(auto ses: sessionMap) {
+    std::vector<aria2::A2Gid> allGids = aria2::getActiveDownload(ses.second);
+    std::cout << "asd" << std::endl;
+    for(const auto& gid : allGids){
+      aria2::pauseDownload(ses.second, gid);
+      std::cout << aria2::gidToHex(gid) << std::endl;
+    }
   }
 }
 

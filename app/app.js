@@ -4,6 +4,7 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 
 import Input from './components/input.component'
+import PauseAllButton from './components/pauseAllButton'
 import PauseButton from './components/pauseButton'
 
 
@@ -21,6 +22,7 @@ class App extends React.Component {
         return (
           <div>
             <Input />
+            <PauseAllButton Aria2Module={this.Aria2Module}/>
             <PauseButton Aria2Module={this.Aria2Module}/>
           </div>
         );
