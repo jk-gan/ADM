@@ -55,8 +55,6 @@ NAN_METHOD(addUrl) {
 NAN_METHOD(pause) {
   int sesMapNum = info[0]->Uint32Value();
   Nan::Callback *callback = new Nan::Callback(info[1].As<v8::Function>());
-  std::cout << sessionMap[1] << std::endl;
-  std::cout << sessionMap[2] << std::endl;
 
   Nan::AsyncQueueWorker(new AriaPauseWorker(callback, sesMapNum));
 }

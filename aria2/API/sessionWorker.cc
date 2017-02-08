@@ -109,6 +109,7 @@ void AriaSessionWorker::sessionAllKill() {
   std::map<int, aria2::Session*>::iterator it;
 
   for(it = sessionMap.begin(); it != sessionMap.end(); it++){
+    aria2::sessionFinal(it->second);
     aria2::shutdown(it->second);
   }
 

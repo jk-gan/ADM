@@ -23,7 +23,8 @@ class App extends React.Component {
           <div>
             <Input />
             <PauseAllButton Aria2Module={this.Aria2Module}/>
-            <PauseButton Aria2Module={this.Aria2Module}/>
+            <PauseButton Aria2Module={this.Aria2Module} downloadId={1}/>
+            <PauseButton Aria2Module={this.Aria2Module} downloadId={2}/>
           </div>
         );
     }

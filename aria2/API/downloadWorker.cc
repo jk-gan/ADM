@@ -55,6 +55,7 @@ void AriaDownloadWorker::download(std::vector<std::string> uris) {
   auto start = std::chrono::steady_clock::now();
 
   for (;;) {
+
     if(!session) {
       break;
     }
@@ -69,7 +70,7 @@ void AriaDownloadWorker::download(std::vector<std::string> uris) {
             .count();
 
     // Print progress information once per 500ms
-    if (count >= 2000) {
+    if (count >= 5000) {
       //int pauseDownload(Session *session, A2Gid gid, bool force = false)
       start = now;
       aria2::GlobalStat gstat = aria2::getGlobalStat(session);

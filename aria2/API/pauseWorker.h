@@ -7,11 +7,14 @@ class AriaPauseWorker : public Nan::AsyncWorker {
   public:
       AriaPauseWorker(Nan::Callback *callback, int sesMapNum)
       : Nan::AsyncWorker(callback), sesMapNum(sesMapNum) {
-        if(sesMapNum != -9999){
+        if(sesMapNum != -9999) {
           std::map<int, aria2::Session*>::iterator it;
 
           it = sessionMap.find(sesMapNum);
           session = it->second;
+        }
+        else {
+          session = nullptr;
         }
       }
 
@@ -22,6 +25,8 @@ class AriaPauseWorker : public Nan::AsyncWorker {
       void HandleOKCallback ();
 
       void pauseAll();
+
+      void pauseSelected();
 
   private:
       aria2::Session* session;

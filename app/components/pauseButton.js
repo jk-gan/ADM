@@ -8,13 +8,13 @@ class PauseButton extends React.Component{
   }
 
   pause() {
-    this.props.Aria2Module.pause((err, result) => {console.log(result);});
+    this.props.Aria2Module.pause(this.downloadId, (err, result) => {console.log(result);});
   }
 
   render() {
     // Return JSX via render()
     return (
-      <button onClick={this.pause} ref={this.downloadId = 123}>Pause</button>
+      <button onClick={this.pause} ref={this.downloadId = this.props.downloadId}>Pause</button>
     );
   }
 }
