@@ -4,6 +4,7 @@ module.exports = {
         path: __dirname + "/public/js",
         filename: "bundle.js"
     },
+    target : 'electron',
     module: {
         loaders: [
             {

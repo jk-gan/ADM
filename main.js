@@ -1,13 +1,28 @@
 const electron = require('electron')
-const Aria2Module = require('./aria2/aria2Module')
 
 // Module to control application life.
 const app = electron.app
 // Module to create native browser window.
 const BrowserWindow = electron.BrowserWindow
+const ipcMain = electron.ipcMain;
+const Aria2Module = require('./aria2/API/build/Release/main')
+
+global.Aria2Module = Aria2Module;
+
+setTimeout(() => {
+  Aria2Module.createSession(1, (err, result) => {
+    Aria2Module.addUrl(result, "https://download.lenovo.com/pccbbs/mobiles/n1mku52w.exe","https://download.lenovo.com/pccbbs/mobiles/n1mku52w.exe", (err, result) => {console.log(result);})
+  });
+  Aria2Module.createSession(2, (err, result) => {
+    Aria2Module.addUrl(result, "http://files2.codecguide.com/K-Lite_Codec_Pack_1290_Mega.exe","http://files2.codecguide.com/K-Lite_Codec_Pack_1290_Mega.exe", (err, result) => {console.log(result);})
+  });
+}, 1000);
+
+//setTimeout(() => {Aria2Module.pause((err, result) => {console.log(result);})}, 5000);
+
+//setTimeout(() => {Aria2Module.killSession((err, result) => {console.log(result);})}, 10000);
 
 // Initiallize aria class
-let aria = Aria2Module.Aria2Class
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
@@ -28,21 +43,10 @@ function createWindow () {
     // Dereference the window object, usually you would store windows
     // in an array if your app supports multi windows, this is the time
     // when you should delete the corresponding element.
-    if (aria.isClosed) return true;
-    aria.close();
-    console.log("closing...");
-
-    e.preventDefault();
     mainWindow.hide();
 
-    setInterval(() => {
-      if(aria.isClosed){
-        app.quit()
-      }
-      else {
-        aria.close()
-      }
-    }, 5000);
+    // save data and quit
+    Aria2Module.killAllSession((err, result) => {console.log(result);app.quit();});
   })
 
   mainWindow.on('closed', (e) => {
@@ -62,7 +66,6 @@ app.on('before-quit', () => {
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
 app.on('ready', () => {
-  aria.start();
   createWindow();
 })
 

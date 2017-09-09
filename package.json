@@ -5,10 +5,14 @@
   "main": "index.js",
   "scripts": {
     "start": "electron main.js",
-    "dev": "concurrently \"npm run watch\" \"electron main.js\"" ,
+    "dev": "concurrently \"npm run watch\" \"electron main.js\"",
     "product": "webpack -p",
     "watch": "webpack -w --colors",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "gyp-rebuild": "cd aria2/API && HOME=~/.electron-gyp node-gyp rebuild --target=1.4.13 --arch=x64 --target_platform=linux --dist-url=https://atom.io/download/atom-shell",
+    "gyp-clean": "cd aria2/API &&  node-gyp clean",
+    "gyp-config": "cd aria2/API && node-gyp configure",
+    "gyp-build": "cd aria2/API && node-gyp build"
   },
   "repository": "https://github.com/jk-gan/ADM",
   "author": "",
@@ -22,9 +26,9 @@
     "electron": "^1.4.5",
     "node-gyp": "^3.4.0",
     "webpack": "^1.13.2"
-
   },
   "dependencies": {
+    "nan": "^2.5.0",
     "react": "^15.3.2",
     "react-dom": "^15.3.2",
     "react-redux": "^4.4.5",
