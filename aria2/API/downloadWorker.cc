@@ -3,6 +3,7 @@
 #include <nan.h>
 #include <iostream>
 #include <chrono>
+#include <map>
 #include "downloadWorker.h"
 
 using v8::Exception;
@@ -33,7 +34,7 @@ void AriaDownloadWorker::HandleOKCallback () {
 
 }
 
-void download(std::vector<std::string> uris) {
+void AriaDownloadWorker::download(std::vector<std::string> uris) {
   int rv;
   if (uris.size() < 2) {
     std::cerr << "Usage: libaria2ex URI [URI...]\n"
@@ -54,6 +55,7 @@ void download(std::vector<std::string> uris) {
   auto start = std::chrono::steady_clock::now();
 
   for (;;) {
+
     if(!session) {
       break;
     }
@@ -68,7 +70,7 @@ void download(std::vector<std::string> uris) {
             .count();
 
     // Print progress information once per 500ms
-    if (count >= 2000) {
+    if (count >= 5000) {
       //int pauseDownload(Session *session, A2Gid gid, bool force = false)
       start = now;
       aria2::GlobalStat gstat = aria2::getGlobalStat(session);

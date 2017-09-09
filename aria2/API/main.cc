@@ -1,6 +1,7 @@
 #include <node.h>
 #include <chrono>
 #include <iostream>
+#include <map>
 #include <nan.h>
 #include <aria2/aria2.h>
 #include "downloadWorker.h"
@@ -16,46 +17,59 @@ using v8::Object;
 using v8::String;
 using v8::Value;
 
-aria2::Session* session;
+std::map<int, aria2::Session*> sessionMap;
 
 NAN_METHOD(createSession) {
-  Nan::Callback *callback = new Nan::Callback(info[0].As<v8::Function>());
+  int sesMapNum = info[0]->Uint32Value();
+  Nan::Callback *callback = new Nan::Callback(info[1].As<v8::Function>());
 
-  Nan::AsyncQueueWorker(new AriaSessionWorker(callback, true));
+  Nan::AsyncQueueWorker(new AriaSessionWorker(callback, true, sesMapNum));
 }
 
-NAN_METHOD(killSession) {
+NAN_METHOD(killAllSession) {
   Nan::Callback *callback = new Nan::Callback(info[0].As<v8::Function>());
+  int sesMapNum = -99999;
 
-  Nan::AsyncQueueWorker(new AriaSessionWorker(callback, false));
+  Nan::AsyncQueueWorker(new AriaSessionWorker(callback, false, sesMapNum));
 }
 
 NAN_METHOD(addUrl) {
+  int sesMapNum = info[0]->Uint32Value();
+
   v8::String::Utf8Value* params;
-  params = new v8::String::Utf8Value(info[0]->ToString());
+  params = new v8::String::Utf8Value(info[1]->ToString());
   std::string uri = std::string(**params);
   delete params;
 
-  params = new v8::String::Utf8Value(info[1]->ToString());
+  params = new v8::String::Utf8Value(info[2]->ToString());
   std::string uri2 = std::string(**params);
   delete params;
 
   std::vector<std::string> uris = {uri, uri2};
 
-  Nan::Callback *callback = new Nan::Callback(info[2].As<v8::Function>());
+  Nan::Callback *callback = new Nan::Callback(info[3].As<v8::Function>());
 
-  Nan::AsyncQueueWorker(new AriaDownloadWorker(callback, uris));
+  Nan::AsyncQueueWorker(new AriaDownloadWorker(callback, uris, sesMapNum));
 }
 
 NAN_METHOD(pause) {
-  Nan::Callback *callback = new Nan::Callback(info[0].As<v8::Function>());
+  int sesMapNum = info[0]->Uint32Value();
+  Nan::Callback *callback = new Nan::Callback(info[1].As<v8::Function>());
 
-  Nan::AsyncQueueWorker(new AriaPauseWorker(callback));
+  Nan::AsyncQueueWorker(new AriaPauseWorker(callback, sesMapNum));
+}
+
+NAN_METHOD(stop) {
+  int sesMapNum = info[0]->Uint32Value();
+  Nan::Callback *callback = new Nan::Callback(info[1].As<v8::Function>());
+
+  Nan::AsyncQueueWorker(new AriaSessionWorker(callback, false, sesMapNum));
 }
 
 NAN_MODULE_INIT(init) {
   NAN_EXPORT(target, createSession);
-  NAN_EXPORT(target, killSession);
+  NAN_EXPORT(target, killAllSession);
+  NAN_EXPORT(target, stop);
   NAN_EXPORT(target, addUrl);
   NAN_EXPORT(target, pause);
 }

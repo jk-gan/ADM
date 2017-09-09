@@ -1,21 +1,36 @@
 #ifndef PAUSEWORKER_H
 #define PAUSEWORKER_H
 
-void pauseAll();
-
-extern aria2::Session* session;
+extern std::map<int, aria2::Session*> sessionMap;
 
 class AriaPauseWorker : public Nan::AsyncWorker {
   public:
-      AriaPauseWorker(Nan::Callback *callback)
-      : Nan::AsyncWorker(callback){}
+      AriaPauseWorker(Nan::Callback *callback, int sesMapNum)
+      : Nan::AsyncWorker(callback), sesMapNum(sesMapNum) {
+        if(sesMapNum != -9999) {
+          std::map<int, aria2::Session*>::iterator it;
+
+          it = sessionMap.find(sesMapNum);
+          session = it->second;
+        }
+        else {
+          session = nullptr;
+        }
+      }
 
       ~AriaPauseWorker() {}
 
       void Execute ();
 
       void HandleOKCallback ();
+
+      void pauseAll();
+
+      void pauseSelected();
+
   private:
+      aria2::Session* session;
+      int sesMapNum;
 };
 
 #endif

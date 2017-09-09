@@ -3,6 +3,7 @@
 #include <nan.h>
 #include <iostream>
 #include <chrono>
+#include <map>
 #include "sessionWorker.h"
 
 using v8::Exception;
@@ -18,6 +19,9 @@ void AriaSessionWorker::Execute () {
   if(isCreate) {
     sessionInit();
   }
+  else if(sesMapNum == -99999) {
+    sessionAllKill();
+  }
   else {
     sessionKill();
   }
@@ -27,7 +31,7 @@ void AriaSessionWorker::Execute () {
 void AriaSessionWorker::HandleOKCallback () {
   Nan:: HandleScope scope;
 
-  v8::Local<v8::String> results = String::NewFromUtf8(v8::Isolate::GetCurrent(), "ses");
+  v8::Local<v8::Number> results = Number::New(v8::Isolate::GetCurrent(), sesMapNum);
 
 
   Local<Value> argv[] = {
@@ -76,7 +80,7 @@ int downloadEventCallback(aria2::Session* session, aria2::DownloadEvent event,
   return 0;
 }
 
-void sessionInit() {
+void AriaSessionWorker::sessionInit() {
   aria2::libraryInit();
 
   aria2::SessionConfig config;
@@ -85,12 +89,30 @@ void sessionInit() {
   config.keepRunning = true;
   session = aria2::sessionNew(aria2::KeyVals(), config);
 
-
+  sessionMap.insert ( std::pair<int, aria2::Session*>(sesMapNum, session) );
 }
 
-void sessionKill() {
+void AriaSessionWorker::sessionKill() {
+  std::map<int, aria2::Session*>::iterator it;
+
+  it = sessionMap.find(sesMapNum);
+  session = it->second;
+
   aria2::shutdown(session);
   aria2::libraryDeinit();
 
+  sessionMap.erase(it);
   session = nullptr;
+}
+
+void AriaSessionWorker::sessionAllKill() {
+  std::map<int, aria2::Session*>::iterator it;
+
+  for(it = sessionMap.begin(); it != sessionMap.end(); it++){
+    aria2::sessionFinal(it->second);
+    aria2::shutdown(it->second);
+  }
+
+  aria2::libraryDeinit();
+  sessionMap.clear();
 }
