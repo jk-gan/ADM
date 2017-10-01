@@ -4,19 +4,23 @@ const electron = require('electron')
 const app = electron.app
 // Module to create native browser window.
 const BrowserWindow = electron.BrowserWindow
-const ipcMain = electron.ipcMain;
-const Aria2Module = require('./aria2/API/build/Release/main')
 
-global.Aria2Module = Aria2Module;
+const path = require('path')
+const url = require('url')
 
-setTimeout(() => {
-  Aria2Module.createSession(1, (err, result) => {
-    Aria2Module.addUrl(result, "https://download.lenovo.com/pccbbs/mobiles/n1mku52w.exe","https://download.lenovo.com/pccbbs/mobiles/n1mku52w.exe", (err, result) => {console.log(result);})
-  });
-  Aria2Module.createSession(2, (err, result) => {
-    Aria2Module.addUrl(result, "http://files2.codecguide.com/K-Lite_Codec_Pack_1290_Mega.exe","http://files2.codecguide.com/K-Lite_Codec_Pack_1290_Mega.exe", (err, result) => {console.log(result);})
-  });
-}, 1000);
+// const ipcMain = electron.ipcMain;
+// const Aria2Module = require('./aria2/API/build/Release/main')
+
+// global.Aria2Module = Aria2Module;
+
+// setTimeout(() => {
+//   Aria2Module.createSession(1, (err, result) => {
+//     Aria2Module.addUrl(result, "https://download.lenovo.com/pccbbs/mobiles/n1mku52w.exe","https://download.lenovo.com/pccbbs/mobiles/n1mku52w.exe", (err, result) => {console.log(result);})
+//   });
+//   Aria2Module.createSession(2, (err, result) => {
+//     Aria2Module.addUrl(result, "http://files2.codecguide.com/K-Lite_Codec_Pack_1290_Mega.exe","http://files2.codecguide.com/K-Lite_Codec_Pack_1290_Mega.exe", (err, result) => {console.log(result);})
+//   });
+// }, 1000);
 
 //setTimeout(() => {Aria2Module.pause((err, result) => {console.log(result);})}, 5000);
 
@@ -31,23 +35,27 @@ let mainWindow
 function createWindow () {
   // Create the browser window.
   mainWindow = new BrowserWindow({width: 800, height: 600})
-
+ 
   // and load the index.html of the app.
-  mainWindow.loadURL(`file://${__dirname}/index.html`)
+  mainWindow.loadURL(url.format({
+    pathname: path.join(__dirname, 'index.html'),
+    protocol: 'file:',
+    slashes: true
+  }))
 
   // Open the DevTools.
   mainWindow.webContents.openDevTools()
 
-  // Emitted when the window is closed.
-  mainWindow.on('close', (e) => {
-    // Dereference the window object, usually you would store windows
-    // in an array if your app supports multi windows, this is the time
-    // when you should delete the corresponding element.
-    mainWindow.hide();
+  // // Emitted when the window is closed.
+  // mainWindow.on('close', (e) => {
+  //   // Dereference the window object, usually you would store windows
+  //   // in an array if your app supports multi windows, this is the time
+  //   // when you should delete the corresponding element.
+  //   mainWindow.hide();
 
-    // save data and quit
-    Aria2Module.killAllSession((err, result) => {console.log(result);app.quit();});
-  })
+  //   // save data and quit
+  //   Aria2Module.killAllSession((err, result) => {console.log(result);app.quit();});
+  // })
 
   mainWindow.on('closed', (e) => {
     // Dereference the window object, usually you would store windows
@@ -65,9 +73,7 @@ app.on('before-quit', () => {
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
-app.on('ready', () => {
-  createWindow();
-})
+app.on('ready', createWindow)
 
 // Quit when all windows are closed.
 app.on('window-all-closed', function () {
