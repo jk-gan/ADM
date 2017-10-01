@@ -22,15 +22,15 @@
     "babel-loader": "^7.1.2",
     "babel-preset-env": "^1.6.0",
     "babel-preset-react": "^6.24.1",
-    "concurrently": "^3.1.0",
+    "concurrently": "^3.5.0",
     "electron": "~1.7.8",
-    "node-gyp": "^3.4.0",
+    "node-gyp": "^3.6.2",
     "webpack": "^3.6.0"
   },
   "dependencies": {
-    "nan": "^2.5.0",
+    "nan": "^2.7.0",
     "react": "^16.0.0",
     "react-dom": "^16.0.0",
-    "ws": "^1.1.1"
+    "ws": "^3.2.0"
   }
 }
