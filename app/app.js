@@ -1,14 +1,14 @@
 // ES6 Component
 // Import React and ReactDOM
-import React from 'react';
-import ReactDOM from 'react-dom';
+import React, {Component} from 'react'
+import ReactDOM from 'react-dom'
 
 import Input from './components/input.component'
 import PauseAllButton from './components/pauseAllButton'
 import PauseButton from './components/pauseButton'
 
 
-class App extends React.Component {
+class App extends Component {
     constructor() {
       super();
 
