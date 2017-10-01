@@ -6,7 +6,7 @@ class Input extends Component {
 
   render() {
     return (
-      <h1>This is inputs</h1>
+      <h1>This should be a input field</h1>
     )
   }
 }
