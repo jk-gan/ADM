@@ -6,17 +6,11 @@ module.exports = {
     },
     target : 'electron',
     module: {
-        loaders: [
+        rules: [
             {
               test: /\.js$/,
-              exclude: /(node_modules|bower_components)/,
-              loader: 'babel',
-              query: {
-                presets: [
-                  'env',
-                  'react'
-                ]
-              }
+              exclude: /node_modules/,
+              use: 'babel-loader'
             }
         ]
     }

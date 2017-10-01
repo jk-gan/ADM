@@ -4,8 +4,8 @@ import React, {Component} from 'react'
 import ReactDOM from 'react-dom'
 
 import Input from './components/input.component'
-import PauseAllButton from './components/pauseAllButton'
-import PauseButton from './components/pauseButton'
+// import PauseAllButton from './components/pauseAllButton'
+// import PauseButton from './components/pauseButton'
 
 
 class App extends Component {

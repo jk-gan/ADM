@@ -5,9 +5,8 @@ import React, {Component} from 'react'
 class Input extends Component {
 
   render() {
-    // Return JSX via render()
     return (
-      <h1>Hello Worlds</h1>
+      <h1>This is inputs</h1>
     )
   }
 }
