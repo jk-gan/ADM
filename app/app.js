@@ -12,9 +12,9 @@ class App extends React.Component {
     constructor() {
       super();
 
-      // Will be move to redux after v0.1
-      this.rem = require('electron').remote;
-      this.Aria2Module = this.rem.getGlobal('Aria2Module');
+      // // Will be move to redux after v0.1
+      // this.rem = require('electron').remote;
+      // this.Aria2Module = this.rem.getGlobal('Aria2Module');
     }
     // render method is most important
     // render method returns JSX template
@@ -22,9 +22,9 @@ class App extends React.Component {
         return (
           <div>
             <Input />
-            <PauseAllButton Aria2Module={this.Aria2Module}/>
+            {/* <PauseAllButton Aria2Module={this.Aria2Module}/>
             <PauseButton Aria2Module={this.Aria2Module} downloadId={1}/>
-            <PauseButton Aria2Module={this.Aria2Module} downloadId={2}/>
+            <PauseButton Aria2Module={this.Aria2Module} downloadId={2}/> */}
           </div>
         );
     }
