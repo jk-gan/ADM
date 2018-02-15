@@ -5,8 +5,8 @@
   "main": "index.js",
   "scripts": {
     "start": "electron main.js",
-    "dev": "concurrently \"npm run watch\" \"electron main.js\"",
-    "product": "webpack -p",
+    "dev": "concurrently \"yarn run watch\" \"electron main.js\"",
+    "build": "webpack -p",
     "watch": "webpack -w --colors",
     "test": "echo \"Error: no test specified\" && exit 1",
     "gyp-rebuild": "cd aria2/API && HOME=~/.electron-gyp node-gyp rebuild --target=1.4.13 --arch=x64 --target_platform=linux --dist-url=https://atom.io/download/atom-shell",
@@ -20,17 +20,25 @@
   "devDependencies": {
     "babel-core": "^6.26.0",
     "babel-loader": "^7.1.2",
-    "babel-preset-env": "^1.6.0",
+    "babel-preset-env": "^1.6.1",
     "babel-preset-react": "^6.24.1",
-    "concurrently": "^3.5.0",
-    "electron": "~1.7.8",
+    "concurrently": "^3.5.1",
+    "css-loader": "^0.28.9",
+    "electron": "^1.8.2",
+    "eslint": "^4.17.0",
+    "eslint-config-airbnb": "^16.1.0",
+    "eslint-plugin-import": "^2.8.0",
+    "eslint-plugin-jsx-a11y": "^6.0.3",
+    "eslint-plugin-react": "^7.6.1",
     "node-gyp": "^3.6.2",
-    "webpack": "^3.6.0"
+    "style-loader": "^0.20.1",
+    "webpack": "^3.11.0"
   },
   "dependencies": {
     "nan": "^2.7.0",
-    "react": "^16.0.0",
-    "react-dom": "^16.0.0",
+    "react": "^16.2.0",
+    "react-dom": "^16.2.0",
+    "styled-components": "^3.1.6",
     "ws": "^3.2.0"
   }
 }
