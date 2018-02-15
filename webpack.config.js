@@ -1,23 +1,20 @@
+const webpack = require('webpack')
+const path = require('path');
+
 module.exports = {
-    entry: "./app/app.js",
-    output: {
-        path: __dirname + "/public/js",
-        filename: "bundle.js"
-    },
-    target : 'electron',
-    module: {
-        loaders: [
-            {
-              test: /\.js$/,
-              exclude: /(node_modules|bower_components)/,
-              loader: 'babel',
-              query: {
-                presets: [
-                  'es2015',
-                  'react'
-                ]
-              }
-            }
-        ]
-    }
+  entry: "./src/app.js",
+  output: {
+    path: path.join(__dirname, "/dist/js"),
+    filename: "bundle.js"
+  },
+  target: 'electron',
+  module: {
+    rules: [
+      {
+        test: /\.js$/,
+        exclude: /node_modules/,
+        use: 'babel-loader'
+      }
+    ]
+  }
 };
