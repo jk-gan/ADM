@@ -1,9 +1,9 @@
 // ES6 Component
 // Import React and ReactDOM
-import React, { Component } from 'react'
-import ReactDOM from 'react-dom'
+import React, { Component } from 'react';
+import ReactDOM from 'react-dom';
 
-import Main from './views/Main'
+import Main from './views/Main';
 
 class App extends Component {
   // constructor() {
@@ -17,14 +17,9 @@ class App extends Component {
   // render method is most important
   // render method returns JSX template
   render() {
-    return (
-      <Main />
-    );
+    return <Main />;
   }
 }
 
 // Render to ID content in the DOM
-ReactDOM.render(
-  <App />,
-  document.getElementById('content'),
-);
+ReactDOM.render(<App />, document.getElementById('content'));

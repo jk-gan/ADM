@@ -1,25 +1,25 @@
 // ES6 Component
 // Import React and ReactDOM
-import React, { Component } from 'react'
-import styled from 'styled-components'
+import React, { Component } from 'react';
+import styled from 'styled-components';
 
-import Input from '../components/Input'
-import Button from '../components/Button'
+import Input from '../components/Input';
+import Button from '../components/Button';
 // import PauseAllButton from './components/pauseAllButton'
 // import PauseButton from './components/pauseButton'
 
 const Container = styled.div`
   padding: 10px;
-  display: flex; 
+  display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-`
+`;
 const Title = styled.div`
   font-family: 'Slabo 27px', serif;
   color: #2c3e50;
   font-size: 100px;
-`
+`;
 
 class Main extends Component {
   // constructor() {
@@ -30,15 +30,15 @@ class Main extends Component {
   // }
 
   onDownload = () => {
-    console.log('Download')
-  }
+    console.log('Download');
+  };
 
   // render method is most important
   // render method returns JSX template
   render() {
     return (
       <Container>
-        <Title>ADM</Title>
+        <Title>ADMz</Title>
         <Input />
         <Button onClick={this.onDownload}>Download</Button>
         {/* <PauseAllButton Aria2Module={this.Aria2Module}/>
@@ -49,4 +49,4 @@ class Main extends Component {
   }
 }
 
-export default Main
+export default Main;
