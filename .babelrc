@@ -1,15 +1,6 @@
 {
   "presets": [
-    [
-      "env",
-      {
-        "modules": false
-      }
-    ],
+    ["env", { "modules": false } ],
     "react"
-  ],
-  "plugins": [
-    "transform-decorators-legacy",
-    "transform-class-properties"
   ]
 }

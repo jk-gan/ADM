@@ -1,5 +1,5 @@
 node_modules
-dist/
+bundle.js
 npm-debug.log
 aria2/aria2/
 aria2/API/build/
