@@ -73,4 +73,4 @@ CMD ["./ADM/start.sh"]
 
 # docker command
 # xhost local:root
-# docker run -it -v /tmp/.X11-unix:/tmp/.X11-unix -e DISPLAY=$DISPLAY --device=/dev/dri:/dev/dri test
+# docker run -it -v /tmp/.X11-unix:/tmp/.X11-unix -e DISPLAY=$DISPLAY --device=/dev/dri:/dev/dri UR_DOCKER_IMG_NAME
