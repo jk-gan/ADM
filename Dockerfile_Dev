@@ -47,24 +47,6 @@ RUN git clone https://github.com/aria2/aria2
 RUN cd aria2 && autoreconf -i && ./configure --enable-libaria2 && make
 RUN && cd aria2 && make install
 
-# Copy ADM
-RUN mkdir ./ADM
-COPY ./ ./ADM
-RUN cd ADM && git checkout develop
-
-# Install node_modules
-RUN cd ADM && $HOME/.yarn/bin/yarn install --ignore-engines
-
-RUN cd ADM && touch start.sh
-RUN cd ADM && printf  "#!/bin/sh\n./ADM/node_modules/.bin/electron ./ADM/main.js" > start.sh
-RUN cd ADM && chmod 777 start.sh
-
-RUN cd ADM && npm run gyp-config
-RUN cd ADM && npm run gyp-build
-RUN cd ADM && npm run build
-
-CMD ["./ADM/start.sh"]
-
 # docker command
 # xhost local:root
-# docker run -it -v /tmp/.X11-unix:/tmp/.X11-unix -e DISPLAY=$DISPLAY --device=/dev/dri:/dev/dri UR_DOCKER_IMG_NAME
+# docker run -it -v /tmp/.X11-unix:/tmp/.X11-unix -v $HOME/ADM:/Docker/ADM -e DISPLAY=$DISPLAY --device=/dev/dri:/dev/dri UR_DOCKER_IMG_NAME bash
