@@ -1,31 +1,49 @@
 #ifndef SESSIONWORKER_H
 #define SESSIONWORKER_H
 
+#include <iostream>
+
+#include <aria2/aria2.h>
+#include <node_api.h>
+
 int downloadEventCallback(aria2::Session*, aria2::DownloadEvent, aria2::A2Gid, void*);
 
-extern std::map<int, aria2::Session*> sessionMap;
+void ExecuteSessionInit(napi_env env, void *data);
+void ExecuteKillAllSession(napi_env env, void *data);
+void ExecuteKillSession(napi_env env, void *data);
 
-class AriaSessionWorker : public Nan::AsyncWorker {
+void CompleteSessionInit(napi_env env, napi_status status, void *data);
+void CompleteKillAllSession(napi_env env, napi_status status, void *data);
+void CompleteKillSession(napi_env env, napi_status status, void *data);
+
+
+class AriaSessionWorker {
   public:
-      AriaSessionWorker(Nan::Callback *callback, bool isCreate, int sesMapNum)
-      : Nan::AsyncWorker(callback), isCreate(isCreate), sesMapNum(sesMapNum){}
+    friend void ExecuteSessionInit(napi_env env, void *data);
+    friend void ExecuteKillAllSession(napi_env env, void *data);
+    friend void ExecuteKillSession(napi_env env, void *data);
 
-      ~AriaSessionWorker() {}
+    friend void CompleteSessionInit(napi_env env, napi_status status, void *data);
+    friend void CompleteKillAllSession(napi_env env, napi_status status, void *data);
+    friend void CompleteKillSession(napi_env env, napi_status status, void *data);
 
-      void Execute ();
+    AriaSessionWorker(napi_env env)
+    : env(env) {}
 
-      void HandleOKCallback ();
+    ~AriaSessionWorker() {}
 
-      void sessionInit();
-
-      void sessionKill();
-
-      void sessionAllKill();
+    napi_value createSession(int sesId, napi_ref callback);
+    napi_value killAllSession(napi_ref callback);
+    napi_value killSession(int sesId, napi_ref callback);
 
   private:
-    bool isCreate;
-    int sesMapNum;
+    int sesId;
+
     aria2::Session* session;
+
+    napi_ref callback;
+    napi_async_work request;
+    napi_env env;
 };
 
 #endif

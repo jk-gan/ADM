@@ -1,77 +1,216 @@
-#include <node.h>
-#include <chrono>
-#include <iostream>
-#include <map>
-#include <nan.h>
-#include <aria2/aria2.h>
-#include "downloadWorker.h"
-#include "pauseWorker.h"
-#include "sessionWorker.h"
+#include <node_api.h>
+#include <vector>
 
-using v8::Exception;
-using v8::FunctionCallbackInfo;
-using v8::Isolate;
-using v8::Local;
-using v8::Number;
-using v8::Object;
-using v8::String;
-using v8::Value;
+//#include "resourceManager.h"
+//#include "downloadManager.h"
+#include "sessionManager.h"
 
-std::map<int, aria2::Session*> sessionMap;
+#include "common.h"
+#include "util.h"
 
-NAN_METHOD(createSession) {
-  int sesMapNum = info[0]->Uint32Value();
-  Nan::Callback *callback = new Nan::Callback(info[1].As<v8::Function>());
+SessionManager* sessionManager = SessionManager::getInstance();
+//ResourceManager resourceManager = ResourceManager::GetInstance();
+//DownloadManager downloadManager = DownloadManager::GetInstance();
 
-  Nan::AsyncQueueWorker(new AriaSessionWorker(callback, true, sesMapNum));
+//MonitoringWorker monitoringWorker = monitoringWorker::GetInstance();
+
+
+
+/**  
+ * Create session for new download. 
+ * Each session can only start one download at the same time.
+ * Unique session ID should be given through function param.
+ *
+ * Function param:
+ * [1] : unique interger : int
+ * [2] : callback function : function
+**/
+napi_value createSession(napi_env env, napi_callback_info args) {
+  size_t argc = 2;
+  napi_value *argv = new napi_value[2];
+
+  std::vector<napi_valuetype> argTypes = {
+    napi_number,
+    napi_function
+  };
+
+  Util::getArguments(env, args, argc, argv, argTypes);
+  sessionManager->createSession(env, argv);
+
+  delete argv;
+
+  return nullptr;
 }
 
-NAN_METHOD(killAllSession) {
-  Nan::Callback *callback = new Nan::Callback(info[0].As<v8::Function>());
-  int sesMapNum = -99999;
+/**
+ * Kill session is used to stop all downloads.
+ *
+ * Function param:
+ * [1] : callback function : function
+**/
+napi_value killAllSession(napi_env env, napi_callback_info args) {
+  size_t argc = 1;
+  napi_value argv[1];
 
-  Nan::AsyncQueueWorker(new AriaSessionWorker(callback, false, sesMapNum));
+  std::vector<napi_valuetype> argTypes = {
+    napi_function
+  };
+
+  Util.GetArguments(env, args, argc, argv, argTypes);
+  sessionManager.killAllSession(env, argv);
+
+  return nullptr;
 }
 
-NAN_METHOD(addUrl) {
-  int sesMapNum = info[0]->Uint32Value();
+/**
+ * Kill session is used to stop a download.
+ *
+ * Function param:
+ * [1] : session ID : int
+ * [2] : callback function : function
+**/
+napi_value killSession(napi_env env, napi_callback_info args) {
+  size_t argc = 2;
+  napi_value argv[2];
 
-  v8::String::Utf8Value* params;
-  params = new v8::String::Utf8Value(info[1]->ToString());
-  std::string uri = std::string(**params);
-  delete params;
+  std::vector<napi_valuetype> argTypes = {
+    napi_number,
+    napi_function
+  };
 
-  params = new v8::String::Utf8Value(info[2]->ToString());
-  std::string uri2 = std::string(**params);
-  delete params;
+  Util.GetArguments(env, args, argc, argv, argTypes);
+  sessionManager.killSession(env, argv);
 
-  std::vector<std::string> uris = {uri, uri2};
-
-  Nan::Callback *callback = new Nan::Callback(info[3].As<v8::Function>());
-
-  Nan::AsyncQueueWorker(new AriaDownloadWorker(callback, uris, sesMapNum));
+  return nullptr;
 }
 
-NAN_METHOD(pause) {
-  int sesMapNum = info[0]->Uint32Value();
-  Nan::Callback *callback = new Nan::Callback(info[1].As<v8::Function>());
+/**
+ * Function param:
+ * [1] : callback function : function
+**/
+/* napi_value pauseAllSession(napi_env env, napi_callback_info args) {
+  size_t argc = 1;
+  napi_value argv[1];
 
-  Nan::AsyncQueueWorker(new AriaPauseWorker(callback, sesMapNum));
+  std::vector<napi_valuetype> argTypes = {
+    napi_function
+  };
+
+  Util.GetArguments(env, args, argc, argv, argTypes);
+  sessionManager.pauseAllSession(env, argv);
+
+  return nullptr;
+} */
+
+/**
+ * Function param:
+ * [1] : session ID : int
+ * [2] : callback function : function
+**/
+/* napi_value pauseSession(napi_env env, napi_callback_info args) {
+  size_t argc = 2;
+  napi_value argv[2];
+
+  std::vector<napi_valuetype> argTypes = {
+    napi_number,
+    napi_function
+  };
+
+  Util.GetArguments(env, args, argc, argv, argTypes);
+  sessionManager.pauseSession(env, argv);
+
+  return nullptr;
+} */
+
+/**
+ * Function param:
+ * [1] : uri : string
+ * [2] : session ID : int
+ * [3] : callback function : function
+**/
+/* napi_value addDownload(napi_env env, napi_callback_info args) {
+  size_t argc = 3;
+  napi_value argv[3];
+
+  std::vector<napi_valuetype> argTypes = {
+    napi_string,
+    napi_number,
+    napi_function
+  };
+
+  Util.GetArguments(env, args, argc, argv, argTypes);
+  downloadManager.addDownload(env, argv);
+
+  return nullptr;
+} */
+
+/**
+ * Function param:
+ * [1] : callback function : function
+**/
+/* napi_value deleteAllDownload(napi_env env, napi_callback_info args) {
+  size_t argc = 1;
+  napi_value argv[1];
+
+  std::vector<napi_valuetype> argTypes = {
+    napi_function
+  };
+
+  Util.GetArguments(env, args, argc, argv, argTypes);
+  downloadManager.deleteAllDownload(env, argv);
+
+  return nullptr;
+} */
+
+/**
+ * Function param:
+ * [1] : session ID : int
+ * [2] : callback function : function
+**/
+/* napi_value deleteDownload(napi_env env, napi_callback_info args) {
+  size_t argc = 2;
+  napi_value argv[2];
+
+  std::vector<napi_valuetype> argTypes = {
+    napi_number,
+    napi_function
+  };
+
+  Util.GetArguments(env, args, argc, argv, argTypes);
+  downloadManager.deleteAllDownload(env, argv);
+
+  return nullptr;
 }
 
-NAN_METHOD(stop) {
-  int sesMapNum = info[0]->Uint32Value();
-  Nan::Callback *callback = new Nan::Callback(info[1].As<v8::Function>());
-
-  Nan::AsyncQueueWorker(new AriaSessionWorker(callback, false, sesMapNum));
+// To be implement
+napi_value startMonitoring(napi_env env, napi_callback_info args) {
+  return nullptr;
 }
 
-NAN_MODULE_INIT(init) {
-  NAN_EXPORT(target, createSession);
-  NAN_EXPORT(target, killAllSession);
-  NAN_EXPORT(target, stop);
-  NAN_EXPORT(target, addUrl);
-  NAN_EXPORT(target, pause);
+// To be implement
+napi_value endMonitoring(napi_env env, napi_callback_info args) {
+  return nullptr;
+} */
+
+// Init functions and objects
+napi_value Init(napi_env env, napi_value exports) {
+  napi_property_descriptor properties[] = {
+      DECLARE_NAPI_PROPERTY("createSession", createSession),
+      DECLARE_NAPI_PROPERTY("killAllSession", killAllSession),
+      DECLARE_NAPI_PROPERTY("killSession", killSession),
+      //DECLARE_NAPI_PROPERTY("pauseAllSession", pauseAllSession),
+      //DECLARE_NAPI_PROPERTY("pauseSession", pauseSession),
+      //DECLARE_NAPI_PROPERTY("addDownload", addDownload),
+      //DECLARE_NAPI_PROPERTY("deleteAllDownload", deleteAllDownload),
+      //DECLARE_NAPI_PROPERTY("deleteDownload", deleteDownload),
+      //DECLARE_NAPI_PROPERTY("startMonitoring", startMonitoring),
+      //DECLARE_NAPI_PROPERTY("endMonitoring", endMonitoring)
+    };
+
+  NAPI_CALL(env, napi_define_properties(
+        env, exports, sizeof(properties) / sizeof(*properties), properties));
+
+  return exports;
 }
 
-NODE_MODULE(addon, init)
+NAPI_MODULE(NODE_GYP_MODULE_NAME, Init);

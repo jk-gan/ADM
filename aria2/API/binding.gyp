@@ -2,7 +2,7 @@
   "targets": [
     {
       "target_name": "main",
-      "include_dirs": [ "<!(node -e \"require('nan')\")" ],
+      "include_dirs": [ "/usr/local/include/node/", "/home/plwai/ADM/aria2/API" , "<!(node -e \"require('nan')\")" ],
       "conditions": [
         ['OS=="linux"', {
           "ldflags": [
@@ -14,9 +14,9 @@
       "cflags": [ "-Wall -O2 -g -std=c++11" ],
       "sources": [
                     "main.cc",
-                    "downloadWorker.cc",
-                    "pauseWorker.cc",
-                    "sessionWorker.cc"
+                    "sessionManager.cc",
+                    "sessionWorker.cc",
+                    "util.cc"
                  ]
     }
   ]

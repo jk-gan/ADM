@@ -8,7 +8,10 @@ const path = require('path');
 const url = require('url');
 
 // const ipcMain = electron.ipcMain;
-// const Aria2Module = require('./aria2/API/build/Release/main')
+const Aria2Module = require('./aria2/API/build/Release/main')
+Aria2Module.createSession(1, function (err, result) {
+  console.log(result);
+});
 
 // global.Aria2Module = Aria2Module;
 
