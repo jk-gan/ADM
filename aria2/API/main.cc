@@ -88,7 +88,7 @@ napi_value killSession(napi_env env, napi_callback_info args) {
  * Function param:
  * [1] : callback function : function
 **/
-/* napi_value pauseAllSession(napi_env env, napi_callback_info args) {
+napi_value pauseAllSession(napi_env env, napi_callback_info args) {
   size_t argc = 1;
   napi_value argv[1];
 
@@ -100,14 +100,14 @@ napi_value killSession(napi_env env, napi_callback_info args) {
   sessionManager.pauseAllSession(env, argv);
 
   return nullptr;
-} */
+}
 
 /**
  * Function param:
  * [1] : session ID : int
  * [2] : callback function : function
 **/
-/* napi_value pauseSession(napi_env env, napi_callback_info args) {
+napi_value pauseSession(napi_env env, napi_callback_info args) {
   size_t argc = 2;
   napi_value argv[2];
 
@@ -120,7 +120,7 @@ napi_value killSession(napi_env env, napi_callback_info args) {
   sessionManager.pauseSession(env, argv);
 
   return nullptr;
-} */
+}
 
 /**
  * Function param:
