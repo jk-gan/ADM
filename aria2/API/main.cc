@@ -128,7 +128,7 @@ napi_value pauseSession(napi_env env, napi_callback_info args) {
  * [2] : session ID : int
  * [3] : callback function : function
 **/
-/* napi_value addDownload(napi_env env, napi_callback_info args) {
+ napi_value addDownload(napi_env env, napi_callback_info args) {
   size_t argc = 3;
   napi_value argv[3];
 
@@ -142,7 +142,7 @@ napi_value pauseSession(napi_env env, napi_callback_info args) {
   downloadManager.addDownload(env, argv);
 
   return nullptr;
-} */
+} 
 
 /**
  * Function param:
@@ -198,8 +198,8 @@ napi_value Init(napi_env env, napi_value exports) {
       DECLARE_NAPI_PROPERTY("createSession", createSession),
       DECLARE_NAPI_PROPERTY("killAllSession", killAllSession),
       DECLARE_NAPI_PROPERTY("killSession", killSession),
-      //DECLARE_NAPI_PROPERTY("pauseAllSession", pauseAllSession),
-      //DECLARE_NAPI_PROPERTY("pauseSession", pauseSession),
+      DECLARE_NAPI_PROPERTY("pauseAllSession", pauseAllSession),
+      DECLARE_NAPI_PROPERTY("pauseSession", pauseSession),
       //DECLARE_NAPI_PROPERTY("addDownload", addDownload),
       //DECLARE_NAPI_PROPERTY("deleteAllDownload", deleteAllDownload),
       //DECLARE_NAPI_PROPERTY("deleteDownload", deleteDownload),

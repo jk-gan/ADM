@@ -1,42 +1,33 @@
-#include <node.h>
 #include <aria2/aria2.h>
-#include <nan.h>
 #include <iostream>
 #include <chrono>
 #include <map>
 #include "downloadWorker.h"
 
-using v8::Exception;
-using v8::FunctionCallbackInfo;
-using v8::Isolate;
-using v8::Local;
-using v8::Number;
-using v8::Object;
-using v8::String;
-using v8::Value;
+void AriaDownloadWorker::download(string uri, int sesId, napi_ref callback) {
+  napi_value resource_name;
 
-void AriaDownloadWorker::Execute () {
-    download(uris);
+  this->uris.insert(uri);
+  this->sesId = sesId;
+  this->callback = callback;
+
+  NAPI_CALL(env, napi_create_string_utf8(env, "DownloadResource", NAPI_AUTO_LENGTH, &resource_name));
+
+  NAPI_CALL(env, napi_create_async_work(env, NULL, resource_name, 
+    ExecuteDownload, CompleteDownload, this, &request));
+
+  NAPI_CALL(env, napi_queue_async_work(env, request));
+
+  return nullptr;
 }
 
-void AriaDownloadWorker::HandleOKCallback () {
-    Nan:: HandleScope scope;
+void ExecuteSessionInit(napi_env env, void *data) {
+  AriaSessionWorker* worker = static_cast<AriaSessionWorker *>(data);
 
-    v8::Local<v8::String> results = String::NewFromUtf8(v8::Isolate::GetCurrent(), "download end");
+  aria2::session session = SessionManager::getSession(worker->sesId);
 
-
-    Local<Value> argv[] = {
-        Nan::Null(),
-        results
-    };
-
-    callback->Call(2, argv);
-
-}
-
-void AriaDownloadWorker::download(std::vector<std::string> uris) {
   int rv;
-  if (uris.size() < 2) {
+  if (worker->uris.size() < 2) {
     std::cerr << "Usage: libaria2ex URI [URI...]\n"
               << "\n"
               << "  Download given URIs in parallel in the current directory."
@@ -45,11 +36,11 @@ void AriaDownloadWorker::download(std::vector<std::string> uris) {
   }
 
   // Add download item to session
-  for (int i = 1; i < uris.size(); ++i) {
+  for (int i = 1; i < worker->uris.size(); ++i) {
     aria2::KeyVals options;
-    rv = aria2::addUri(session, nullptr, uris, options);
+    rv = aria2::addUri(session, nullptr, worker->uris, options);
     if (rv < 0) {
-      std::cerr << "Failed to add download " << uris[0] << std::endl;
+      std::cerr << "Failed to add download " << worker->uris[0] << std::endl;
     }
   }
   auto start = std::chrono::steady_clock::now();
@@ -97,4 +88,27 @@ void AriaDownloadWorker::download(std::vector<std::string> uris) {
       }
     }
   }
+}
+
+void CompleteDownload(napi_env env, napi_status status, void *data) {
+  AriaSessionWorker* worker = static_cast<AriaSessionWorker *>(data);
+
+  napi_value argv[2];
+
+  NAPI_CALL_RETURN_VOID(env, napi_get_null(env, &argv[0]));
+  NAPI_CALL_RETURN_VOID(env, napi_create_int32(env, worker->sesId, &argv[1]));
+
+  napi_value localCallback;
+  NAPI_CALL_RETURN_VOID(env, napi_get_reference_value(env, worker->callback, &localCallback));
+
+  napi_value global;
+  NAPI_CALL_RETURN_VOID(env, napi_get_global(env, &global));
+
+  napi_value result;
+  NAPI_CALL_RETURN_VOID(env, napi_call_function(env, global, localCallback, 2, argv, &result));
+
+  NAPI_CALL_RETURN_VOID(env, napi_delete_reference(env, worker->callback));
+  NAPI_CALL_RETURN_VOID(env, napi_delete_async_work(env, worker->request));
+
+  delete worker;
 }

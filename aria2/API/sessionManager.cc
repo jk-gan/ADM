@@ -1,4 +1,3 @@
-#include <node.h>
 #include "sessionManager.h"
 #include "sessionWorker.h"
 #include "common.h"
