@@ -2,15 +2,15 @@
 #include <vector>
 
 //#include "resourceManager.h"
-//#include "downloadManager.h"
+#include "downloadManager.h"
 #include "sessionManager.h"
 
 #include "common.h"
 #include "util.h"
 
 SessionManager* sessionManager = SessionManager::getInstance();
+DownloadManager* downloadManager = DownloadManager::getInstance();
 //ResourceManager resourceManager = ResourceManager::GetInstance();
-//DownloadManager downloadManager = DownloadManager::GetInstance();
 
 //MonitoringWorker monitoringWorker = monitoringWorker::GetInstance();
 
@@ -27,7 +27,7 @@ SessionManager* sessionManager = SessionManager::getInstance();
 **/
 napi_value createSession(napi_env env, napi_callback_info args) {
   size_t argc = 2;
-  napi_value *argv = new napi_value[2];
+  napi_value* argv = new napi_value[2];
 
   std::vector<napi_valuetype> argTypes = {
     napi_number,
@@ -50,14 +50,16 @@ napi_value createSession(napi_env env, napi_callback_info args) {
 **/
 napi_value killAllSession(napi_env env, napi_callback_info args) {
   size_t argc = 1;
-  napi_value argv[1];
+  napi_value* argv = new napi_value[1];
 
   std::vector<napi_valuetype> argTypes = {
     napi_function
   };
 
-  Util.GetArguments(env, args, argc, argv, argTypes);
-  sessionManager.killAllSession(env, argv);
+  Util::getArguments(env, args, argc, argv, argTypes);
+  sessionManager->killAllSession(env, argv);
+
+  delete argv;
 
   return nullptr;
 }
@@ -71,15 +73,17 @@ napi_value killAllSession(napi_env env, napi_callback_info args) {
 **/
 napi_value killSession(napi_env env, napi_callback_info args) {
   size_t argc = 2;
-  napi_value argv[2];
+  napi_value* argv = new napi_value[2];
 
   std::vector<napi_valuetype> argTypes = {
     napi_number,
     napi_function
   };
 
-  Util.GetArguments(env, args, argc, argv, argTypes);
-  sessionManager.killSession(env, argv);
+  Util::getArguments(env, args, argc, argv, argTypes);
+  sessionManager->killSession(env, argv);
+
+  delete argv;
 
   return nullptr;
 }
@@ -90,14 +94,16 @@ napi_value killSession(napi_env env, napi_callback_info args) {
 **/
 napi_value pauseAllSession(napi_env env, napi_callback_info args) {
   size_t argc = 1;
-  napi_value argv[1];
+  napi_value* argv = new napi_value[1];
 
   std::vector<napi_valuetype> argTypes = {
     napi_function
   };
 
-  Util.GetArguments(env, args, argc, argv, argTypes);
-  sessionManager.pauseAllSession(env, argv);
+  Util::getArguments(env, args, argc, argv, argTypes);
+  sessionManager->pauseAllSession(env, argv);
+
+  delete argv;
 
   return nullptr;
 }
@@ -109,15 +115,17 @@ napi_value pauseAllSession(napi_env env, napi_callback_info args) {
 **/
 napi_value pauseSession(napi_env env, napi_callback_info args) {
   size_t argc = 2;
-  napi_value argv[2];
+  napi_value* argv = new napi_value[2];
 
   std::vector<napi_valuetype> argTypes = {
     napi_number,
     napi_function
   };
 
-  Util.GetArguments(env, args, argc, argv, argTypes);
-  sessionManager.pauseSession(env, argv);
+  Util::getArguments(env, args, argc, argv, argTypes);
+  sessionManager->pauseSession(env, argv);
+
+  delete argv;
 
   return nullptr;
 }
@@ -130,7 +138,7 @@ napi_value pauseSession(napi_env env, napi_callback_info args) {
 **/
  napi_value addDownload(napi_env env, napi_callback_info args) {
   size_t argc = 3;
-  napi_value argv[3];
+  napi_value* argv = new napi_value[3];
 
   std::vector<napi_valuetype> argTypes = {
     napi_string,
@@ -138,8 +146,10 @@ napi_value pauseSession(napi_env env, napi_callback_info args) {
     napi_function
   };
 
-  Util.GetArguments(env, args, argc, argv, argTypes);
-  downloadManager.addDownload(env, argv);
+  Util::getArguments(env, args, argc, argv, argTypes);
+  downloadManager->addDownload(env, argv);
+
+  delete argv;
 
   return nullptr;
 } 
@@ -200,7 +210,7 @@ napi_value Init(napi_env env, napi_value exports) {
       DECLARE_NAPI_PROPERTY("killSession", killSession),
       DECLARE_NAPI_PROPERTY("pauseAllSession", pauseAllSession),
       DECLARE_NAPI_PROPERTY("pauseSession", pauseSession),
-      //DECLARE_NAPI_PROPERTY("addDownload", addDownload),
+      DECLARE_NAPI_PROPERTY("addDownload", addDownload),
       //DECLARE_NAPI_PROPERTY("deleteAllDownload", deleteAllDownload),
       //DECLARE_NAPI_PROPERTY("deleteDownload", deleteDownload),
       //DECLARE_NAPI_PROPERTY("startMonitoring", startMonitoring),

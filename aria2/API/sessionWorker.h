@@ -11,8 +11,8 @@ int downloadEventCallback(aria2::Session*, aria2::DownloadEvent, aria2::A2Gid, v
 void ExecuteSessionInit(napi_env env, void *data);
 void ExecuteKillAllSession(napi_env env, void *data);
 void ExecuteKillSession(napi_env env, void *data);
-void ExecutePauseAllSession(napi_env env, napi_status status, void *data);
-void ExecutePauseSession(napi_env env, napi_status status, void *data);
+void ExecutePauseAllSession(napi_env env, void *data);
+void ExecutePauseSession(napi_env env, void *data);
 
 void CompleteSessionInit(napi_env env, napi_status status, void *data);
 void CompleteKillAllSession(napi_env env, napi_status status, void *data);
@@ -25,8 +25,8 @@ class AriaSessionWorker {
     friend void ExecuteSessionInit(napi_env env, void *data);
     friend void ExecuteKillAllSession(napi_env env, void *data);
     friend void ExecuteKillSession(napi_env env, void *data);
-    friend void ExecutePauseAllSession(napi_env env, napi_status status, void *data);
-    friend void ExecutePauseAllSession(napi_env env, napi_status status, void *data);
+    friend void ExecutePauseAllSession(napi_env env, void *data);
+    friend void ExecutePauseSession(napi_env env, void *data);
 
     friend void CompleteSessionInit(napi_env env, napi_status status, void *data);
     friend void CompleteKillAllSession(napi_env env, napi_status status, void *data);

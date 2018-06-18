@@ -1,6 +1,8 @@
 #ifndef DOWNLOADMANAGER_H
 #define DOWNLOADMANAGER_H
 
+#include <string>
+
 #include <aria2/aria2.h>
 #include <node_api.h>
 

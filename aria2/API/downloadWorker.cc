@@ -2,12 +2,15 @@
 #include <iostream>
 #include <chrono>
 #include <map>
-#include "downloadWorker.h"
 
-void AriaDownloadWorker::download(string uri, int sesId, napi_ref callback) {
+#include "downloadWorker.h"
+#include "sessionManager.h"
+#include "common.h"
+
+napi_value AriaDownloadWorker::download(std::string uri, int sesId, napi_ref callback) {
   napi_value resource_name;
 
-  this->uris.insert(uri);
+  this->uris.push_back(uri);
   this->sesId = sesId;
   this->callback = callback;
 
@@ -21,10 +24,12 @@ void AriaDownloadWorker::download(string uri, int sesId, napi_ref callback) {
   return nullptr;
 }
 
-void ExecuteSessionInit(napi_env env, void *data) {
-  AriaSessionWorker* worker = static_cast<AriaSessionWorker *>(data);
+void ExecuteDownload(napi_env env, void *data) {
+  AriaDownloadWorker* worker = static_cast<AriaDownloadWorker *>(data);
 
-  aria2::session session = SessionManager::getSession(worker->sesId);
+  aria2::Session* session = SessionManager::getInstance()->getSession(worker->sesId);
+
+  worker->uris.push_back(worker->uris[0]);
 
   int rv;
   if (worker->uris.size() < 2) {
@@ -65,6 +70,11 @@ void ExecuteSessionInit(napi_env env, void *data) {
       //int pauseDownload(Session *session, A2Gid gid, bool force = false)
       start = now;
       aria2::GlobalStat gstat = aria2::getGlobalStat(session);
+
+      if(gstat.numActive + gstat.numWaiting <= 0) {
+        break;
+      }
+
       std::cerr << "Overall #Active:" << gstat.numActive
                 << " #waiting:" << gstat.numWaiting
                 << " D:" << gstat.downloadSpeed / 1024 << "KiB/s"
@@ -91,7 +101,7 @@ void ExecuteSessionInit(napi_env env, void *data) {
 }
 
 void CompleteDownload(napi_env env, napi_status status, void *data) {
-  AriaSessionWorker* worker = static_cast<AriaSessionWorker *>(data);
+  AriaDownloadWorker* worker = static_cast<AriaDownloadWorker *>(data);
 
   napi_value argv[2];
 
@@ -106,6 +116,7 @@ void CompleteDownload(napi_env env, napi_status status, void *data) {
 
   napi_value result;
   NAPI_CALL_RETURN_VOID(env, napi_call_function(env, global, localCallback, 2, argv, &result));
+  std::cout << "COMPLETE";
 
   NAPI_CALL_RETURN_VOID(env, napi_delete_reference(env, worker->callback));
   NAPI_CALL_RETURN_VOID(env, napi_delete_async_work(env, worker->request));

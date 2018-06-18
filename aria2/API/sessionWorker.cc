@@ -64,7 +64,7 @@ napi_value AriaSessionWorker::pauseAllSession(napi_ref callback) {
   return nullptr;
 }
 
-napi_value pauseSession(int sesId, napi_ref callback) {
+napi_value AriaSessionWorker::pauseSession(int sesId, napi_ref callback) {
   napi_value resource_name;
 
   this->sesId = sesId;
@@ -103,8 +103,10 @@ void ExecuteKillAllSession(napi_env env, void *data) {
     aria2::shutdown(it->second);
   }
 
-  aria2::libraryDeinit();
-  sessionMap.clear();
+  if(sessionMap.size() != 0) {
+    aria2::libraryDeinit();
+    sessionMap.clear();
+  }
 }
 
 void ExecuteKillSession(napi_env env, void *data) {
@@ -114,16 +116,15 @@ void ExecuteKillSession(napi_env env, void *data) {
   std::map<int, aria2::Session*> sessionMap = SessionManager::getInstance()->getSessionMap();
 
   it = sessionMap.find(worker->sesId);
-  session = it->second;
+  aria2::Session* session = it->second;
 
   aria2::shutdown(session);
-  aria2::libraryDeinit();
 
   sessionMap.erase(it);
   session = nullptr;
 }
 
-void ExecutePauseAllSession(napi_env env, napi_status status, void *data) {
+void ExecutePauseAllSession(napi_env env, void *data) {
   std::map<int, aria2::Session*> sessionMap = SessionManager::getInstance()->getSessionMap();
   
   for(auto ses: sessionMap) {
@@ -136,11 +137,11 @@ void ExecutePauseAllSession(napi_env env, napi_status status, void *data) {
   }
 }
 
-void ExecutePauseSession(napi_env env, napi_status status, void *data) {
+void ExecutePauseSession(napi_env env, void *data) {
   AriaSessionWorker* worker = static_cast<AriaSessionWorker *>(data);
+  aria2::Session* session = SessionManager::getInstance()->getSession(worker->sesId);
 
-  std::vector<aria2::A2Gid> allGids = aria2::getActiveDownload(
-    SessionManager::getInstance()->getSession(worker->sesId));
+  std::vector<aria2::A2Gid> allGids = aria2::getActiveDownload(session);
   
   for(const auto& gid : allGids){
     aria2::pauseDownload(session, gid);
@@ -176,8 +177,10 @@ void CompleteKillAllSession(napi_env env, napi_status status, void *data) {
 
   napi_value argv[2];
 
+  std::string errorMsg = "Kill All Session Error";
+
   if(status != napi_ok) {
-    NAPI_CALL_RETURN_VOID(env, napi_create_string_utf16(env, "Kill All Session Error", &argv[0]));
+    NAPI_CALL_RETURN_VOID(env, napi_create_string_utf8(env, errorMsg.c_str(), errorMsg.length(), &argv[0]));
     NAPI_CALL_RETURN_VOID(env, napi_create_int32(env, 0, &argv[1]));
   }
   else {

@@ -16,6 +16,8 @@
                     "main.cc",
                     "sessionManager.cc",
                     "sessionWorker.cc",
+                    "downloadManager.cc",
+                    "downloadWorker.cc",
                     "util.cc"
                  ]
     }

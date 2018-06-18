@@ -3,30 +3,31 @@
 
 #include <iostream>
 #include <vector>
+#include <string>
 
 #include <aria2/aria2.h>
 #include <node_api.h>
 
-void ExecuteDownload(napi_env env, napi_status status, void *data);
+void ExecuteDownload(napi_env env, void *data);
 
 void CompleteDownload(napi_env env, napi_status status, void *data);
 
-class AriaDownloadWorker : public Nan::AsyncWorker {
+class AriaDownloadWorker {
   public:
-    friend void ExecuteDownload(napi_env env, napi_status status, void *data);
+    friend void ExecuteDownload(napi_env env, void *data);
     friend void CompleteDownload(napi_env env, napi_status status, void *data);
 
     AriaDownloadWorker(napi_env env)
     : env(env) {}
 
-    ~AriaSessionWorker() {}
+    ~AriaDownloadWorker() {}
 
-    void download(string uri, int sesId, napi_ref callback);
+    napi_value download(std::string uri, int sesId, napi_ref callback);
 
   private:
     int sesId;
 
-    std::vector<string> uris;
+    std::vector<std::string> uris;
 
     aria2::Session* session;
 
