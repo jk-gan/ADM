@@ -13,6 +13,14 @@ SessionManager* SessionManager::getInstance() {
   return instance;
 }
 
+int SessionManager::ariaInit() {
+  return aria2::libraryInit();
+}
+
+int SessionManager::ariaDeInit() {
+  return aria2::libraryDeinit();
+}
+
 napi_value SessionManager::createSession(napi_env &env, napi_value *&argv) {
   int sesId;
   napi_ref callback;

@@ -83,8 +83,6 @@ napi_value AriaSessionWorker::pauseSession(int sesId, napi_ref callback) {
 void ExecuteSessionInit(napi_env env, void *data) {
   AriaSessionWorker* worker = static_cast<AriaSessionWorker *>(data);
 
-  aria2::libraryInit();
-
   aria2::SessionConfig config;
 
   config.downloadEventCallback = downloadEventCallback;
@@ -104,7 +102,6 @@ void ExecuteKillAllSession(napi_env env, void *data) {
   }
 
   if(sessionMap.size() != 0) {
-    aria2::libraryDeinit();
     sessionMap.clear();
   }
 }

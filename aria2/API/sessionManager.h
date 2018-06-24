@@ -15,6 +15,9 @@ class SessionManager {
     
     void addSession(std::pair<int, aria2::Session*> session);
 
+    int ariaInit();
+    int ariaDeInit();
+
     napi_value createSession(napi_env &env, napi_value *&argv);
     napi_value killAllSession(napi_env &env, napi_value *&argv);
     napi_value killSession(napi_env &env, napi_value *&argv);

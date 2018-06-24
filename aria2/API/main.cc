@@ -4,6 +4,7 @@
 //#include "resourceManager.h"
 #include "downloadManager.h"
 #include "sessionManager.h"
+#include "monitoringManager.h"
 
 #include "common.h"
 #include "util.h"
@@ -12,9 +13,45 @@ SessionManager* sessionManager = SessionManager::getInstance();
 DownloadManager* downloadManager = DownloadManager::getInstance();
 //ResourceManager resourceManager = ResourceManager::GetInstance();
 
-//MonitoringWorker monitoringWorker = monitoringWorker::GetInstance();
+MonitoringManager* monitoringManager = MonitoringManager::getInstance();
 
+/**  
+ * Initialize Aria2
+ *
+**/
+napi_value ariaInit(napi_env env, napi_callback_info args) {
+  napi_value returnNum;
 
+  int result = sessionManager->ariaInit();
+
+  napi_status status = napi_create_int32(env, result, &returnNum);
+
+  if (status != napi_ok)
+  {
+    napi_throw_error(env, NULL, "Unable to create return value");
+  }
+
+  return returnNum;
+}
+
+/**  
+ * Destroy Aria2
+ *
+**/
+napi_value ariaDeInit(napi_env env, napi_callback_info args) {
+  napi_value returnNum;
+
+  int result = sessionManager->ariaDeInit();
+
+  napi_status status = napi_create_int32(env, result, &returnNum);
+
+  if (status != napi_ok)
+  {
+    napi_throw_error(env, NULL, "Unable to create return value");
+  }
+
+  return returnNum;
+}
 
 /**  
  * Create session for new download. 
@@ -190,21 +227,37 @@ napi_value pauseSession(napi_env env, napi_callback_info args) {
   downloadManager.deleteAllDownload(env, argv);
 
   return nullptr;
-}
+}*/
 
-// To be implement
+
 napi_value startMonitoring(napi_env env, napi_callback_info args) {
-  return nullptr;
+  size_t argc = 1;
+  napi_value* argv = new napi_value[1];
+
+  std::vector<napi_valuetype> argTypes = {
+    napi_function
+  };
+
+  Util::getArguments(env, args, argc, argv, argTypes);
+  napi_value result = monitoringManager->startMonitoring(env, argv);
+
+  delete argv;
+
+  return result;
 }
 
-// To be implement
-napi_value endMonitoring(napi_env env, napi_callback_info args) {
-  return nullptr;
-} */
+
+napi_value stopMonitoring(napi_env env, napi_callback_info args) {
+  napi_value result = monitoringManager->stopMonitoring(env);
+
+  return result;
+} 
 
 // Init functions and objects
 napi_value Init(napi_env env, napi_value exports) {
   napi_property_descriptor properties[] = {
+      DECLARE_NAPI_PROPERTY("ariaInit", ariaInit),
+      DECLARE_NAPI_PROPERTY("ariaDeInit", ariaDeInit),
       DECLARE_NAPI_PROPERTY("createSession", createSession),
       DECLARE_NAPI_PROPERTY("killAllSession", killAllSession),
       DECLARE_NAPI_PROPERTY("killSession", killSession),
@@ -213,8 +266,8 @@ napi_value Init(napi_env env, napi_value exports) {
       DECLARE_NAPI_PROPERTY("addDownload", addDownload),
       //DECLARE_NAPI_PROPERTY("deleteAllDownload", deleteAllDownload),
       //DECLARE_NAPI_PROPERTY("deleteDownload", deleteDownload),
-      //DECLARE_NAPI_PROPERTY("startMonitoring", startMonitoring),
-      //DECLARE_NAPI_PROPERTY("endMonitoring", endMonitoring)
+      DECLARE_NAPI_PROPERTY("startMonitoring", startMonitoring),
+      DECLARE_NAPI_PROPERTY("stopMonitoring", stopMonitoring)
     };
 
   NAPI_CALL(env, napi_define_properties(

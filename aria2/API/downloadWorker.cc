@@ -41,7 +41,7 @@ void ExecuteDownload(napi_env env, void *data) {
   }
 
   // Add download item to session
-  for (int i = 1; i < worker->uris.size(); ++i) {
+  for (int i = 1; i < (int)worker->uris.size(); ++i) {
     aria2::KeyVals options;
     rv = aria2::addUri(session, nullptr, worker->uris, options);
     if (rv < 0) {
@@ -60,9 +60,8 @@ void ExecuteDownload(napi_env env, void *data) {
 
     // the application can call aria2 API to add URI or query progress
     // here
-    auto now = std::chrono::steady_clock::now();
-    auto count =
-        std::chrono::duration_cast<std::chrono::milliseconds>(now - start)
+    /*auto now = std::chrono::steady_clock::now();
+    auto count = std::chrono::duration_cast<std::chrono::milliseconds>(now - start)
             .count();
 
     // Print progress information once per 500ms
@@ -80,7 +79,7 @@ void ExecuteDownload(napi_env env, void *data) {
                 << " D:" << gstat.downloadSpeed / 1024 << "KiB/s"
                 << " U:" << gstat.uploadSpeed / 1024 << "KiB/s " << std::endl;
       std::vector<aria2::A2Gid> gids = aria2::getActiveDownload(session);
-      for (const auto& gid : gids) {
+      /*for (const auto& gid : gids) {
         aria2::DownloadHandle* dh = aria2::getDownloadHandle(session, gid);
         if (dh) {
           std::cerr << "    [" << aria2::gidToHex(gid) << "] "
@@ -96,7 +95,7 @@ void ExecuteDownload(napi_env env, void *data) {
           aria2::deleteDownloadHandle(dh);
         }
       }
-    }
+    }*/
   }
 }
 
@@ -116,7 +115,6 @@ void CompleteDownload(napi_env env, napi_status status, void *data) {
 
   napi_value result;
   NAPI_CALL_RETURN_VOID(env, napi_call_function(env, global, localCallback, 2, argv, &result));
-  std::cout << "COMPLETE";
 
   NAPI_CALL_RETURN_VOID(env, napi_delete_reference(env, worker->callback));
   NAPI_CALL_RETURN_VOID(env, napi_delete_async_work(env, worker->request));

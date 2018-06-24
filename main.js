@@ -9,6 +9,9 @@ const url = require('url');
 
 // const ipcMain = electron.ipcMain;
 const Aria2Module = require('./aria2/API/build/Release/main')
+
+console.log(Aria2Module.ariaInit());
+
 Aria2Module.createSession(1, function (err, result) {
   console.log(result);
   Aria2Module.addDownload("http://103.1.138.206/files2.codecguide.com/K-Lite_Codec_Pack_1425_Mega.exe", result, (err, result) => {
@@ -17,27 +20,19 @@ Aria2Module.createSession(1, function (err, result) {
     setTimeout(() => {
       Aria2Module.killSession(result, (err, result) => {
         console.log(result + ": Done");
+        console.log(Aria2Module.ariaDeInit());
       })
-    });
+    }, 1000);
   });
 });
 
-// global.Aria2Module = Aria2Module;
+console.log(Aria2Module.startMonitoring(function (downloadStats) {
+  console.log(JSON.parse(downloadStats));
+}))
 
-// setTimeout(() => {
-//   Aria2Module.createSession(1, (err, result) => {
-//     Aria2Module.addUrl(result, "https://download.lenovo.com/pccbbs/mobiles/n1mku52w.exe","https://download.lenovo.com/pccbbs/mobiles/n1mku52w.exe", (err, result) => {console.log(result);})
-//   });
-//   Aria2Module.createSession(2, (err, result) => {
-//     Aria2Module.addUrl(result, "http://103.1.138.206/files2.codecguide.com/K-Lite_Codec_Pack_1425_Mega.exe","http://files2.codecguide.com/K-Lite_Codec_Pack_1290_Mega.exe", (err, result) => {console.log(result);})
-//   });
-// }, 1000);
-
-// setTimeout(() => {Aria2Module.pause((err, result) => {console.log(result);})}, 5000);
-
-// setTimeout(() => {Aria2Module.killSession((err, result) => {console.log(result);})}, 10000);
-
-// Initiallize aria class
+setTimeout(() => {
+  Aria2Module.stopMonitoring();
+}, 10000);
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
@@ -65,7 +60,7 @@ function createWindow() {
     //   mainWindow.hide();
 
     // save data and quit
-    Aria2Module.killAllSession((err, result) => { console.log(result); app.quit(); });
+    Aria2Module.killAllSession((err, result) => { Aria2Module.stopMonitoring(); Aria2Module.ariaDeInit(); app.quit(); });
   })
 
   mainWindow.on('closed', (e) => {
