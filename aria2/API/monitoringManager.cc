@@ -16,15 +16,6 @@ using json = nlohmann::json;
 namespace monitoring {
     void to_json(json& j, const SessionData& p) {
         j = {
-          {"id", p.sessionID},
-          {
-            "gStat", {
-              {"gNumActive", p.gStat.gNumActive},
-              {"gNumWaiting", p.gStat.gNumWaiting},
-              {"gDownloadSpeed", p.gStat.gDownloadSpeed},
-              {"gUploadSpeed", p.gStat.gUploadSpeed}
-            }
-          },
           {"Downloads", {}}
         };
 
@@ -36,7 +27,8 @@ namespace monitoring {
               {"completedLength", download.completedLength},
               {"totalLength", download.totalLength},
               {"downloadSpeed", download.downloadSpeed},
-              {"uploadSpeed", download.uploadSpeed}
+              {"uploadSpeed", download.uploadSpeed},
+              {"id", p.sessionID}
             }
           );
         }
@@ -171,10 +163,17 @@ void MonitoringManager::listenAria2() {
   SessionManager* sesMgr = SessionManager::getInstance();
 
   // Reset json data
-  json ariaDataJson;
+  json ariaDataJson = {
+          {"Downloads", {}}
+        };
 
   // Get latest session collection
   std::map<std::string, aria2::Session*> sessionMap = sesMgr->getSessionMap();
+
+  int gNumActive = 0;
+  int gNumWaiting = 0;
+  double gDownloadSpeed = 0;
+  double gUploadSpeed = 0;
 
   // Loop all the session
   for(it = sessionMap.begin(); it != sessionMap.end(); it++) {
@@ -185,6 +184,11 @@ void MonitoringManager::listenAria2() {
 
       // Get global stat
       aria2::GlobalStat gstat = aria2::getGlobalStat(it->second);
+
+      gNumActive += gstat.numActive;
+      gNumWaiting += gstat.numWaiting;
+      gDownloadSpeed += gstat.downloadSpeed;
+      gUploadSpeed += gstat.uploadSpeed;
 
       sessionData.gStat = {
         gstat.numActive,
@@ -227,12 +231,19 @@ void MonitoringManager::listenAria2() {
       // implement tojson
       sessionDataJson = sessionData;
       // Push into json container
-      ariaDataJson.push_back(sessionDataJson);
+      ariaDataJson["Downloads"].push_back(sessionDataJson["Downloads"]);
     }
     catch(std::exception ex) {
       std::cout << ex.what();
     }
   }
+
+  ariaDataJson["gStats"].push_back({
+    {"gNumActive", gNumActive},
+    {"gNumWaiting", gNumWaiting},
+    {"gDownloadSpeed", gDownloadSpeed},
+    {"gUploadSpeed", gUploadSpeed}
+  });
 
   // Serialize json data
   ariaDataSerialized = ariaDataJson.dump();

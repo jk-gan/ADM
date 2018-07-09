@@ -14,8 +14,8 @@ namespace monitoring {
   struct SessionGStatData {
     int gNumActive;
     int gNumWaiting;
-    int gDownloadSpeed;
-    int gUploadSpeed;
+    double gDownloadSpeed;
+    double gUploadSpeed;
   };
 
   struct DownloadStatData {
@@ -23,8 +23,8 @@ namespace monitoring {
     std::string fileName;
     int64_t completedLength;
     int64_t totalLength;
-    int downloadSpeed;
-    int uploadSpeed;
+    double downloadSpeed;
+    double uploadSpeed;
   };
 
   struct SessionData {
