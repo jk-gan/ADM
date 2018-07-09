@@ -22,10 +22,10 @@ class AriaDownloadWorker {
 
     ~AriaDownloadWorker() {}
 
-    napi_value download(std::string uri, int sesId, napi_ref callback);
+    napi_value download(std::string uri, std::string sesId, napi_ref callback);
 
   private:
-    int sesId;
+    std::string sesId;
 
     std::vector<std::string> uris;
 

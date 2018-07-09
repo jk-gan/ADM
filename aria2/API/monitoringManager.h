@@ -28,7 +28,7 @@ namespace monitoring {
   };
 
   struct SessionData {
-    int sessionID;
+    std::string sessionID;
     SessionGStatData gStat;
     std::vector<DownloadStatData> dStat;
   };

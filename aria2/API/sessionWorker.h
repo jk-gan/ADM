@@ -39,14 +39,14 @@ class AriaSessionWorker {
 
     ~AriaSessionWorker() {}
 
-    napi_value createSession(int sesId, napi_ref callback);
+    napi_value createSession(std::string sesId, napi_ref callback);
     napi_value killAllSession(napi_ref callback);
-    napi_value killSession(int sesId, napi_ref callback);
+    napi_value killSession(std::string sesId, napi_ref callback);
     napi_value pauseAllSession(napi_ref callback);
-    napi_value pauseSession(int sesId, napi_ref callback);
+    napi_value pauseSession(std::string sesId, napi_ref callback);
 
   private:
-    int sesId;
+    std::string sesId;
 
     aria2::Session* session;
 

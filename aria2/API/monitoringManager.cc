@@ -16,7 +16,7 @@ using json = nlohmann::json;
 namespace monitoring {
     void to_json(json& j, const SessionData& p) {
         j = {
-          {"SessionID", p.sessionID},
+          {"id", p.sessionID},
           {
             "gStat", {
               {"gNumActive", p.gStat.gNumActive},
@@ -167,14 +167,14 @@ void CompleteMonitoring(napi_env env, napi_status status, void *data) {
 }
 
 void MonitoringManager::listenAria2() {
-  std::map<int, aria2::Session*>::iterator it;
+  std::map<std::string, aria2::Session*>::iterator it;
   SessionManager* sesMgr = SessionManager::getInstance();
 
   // Reset json data
   json ariaDataJson;
 
   // Get latest session collection
-  std::map<int, aria2::Session*> sessionMap = sesMgr->getSessionMap();
+  std::map<std::string, aria2::Session*> sessionMap = sesMgr->getSessionMap();
 
   // Loop all the session
   for(it = sessionMap.begin(); it != sessionMap.end(); it++) {

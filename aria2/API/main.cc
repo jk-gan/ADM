@@ -59,7 +59,7 @@ napi_value ariaDeInit(napi_env env, napi_callback_info args) {
  * Unique session ID should be given through function param.
  *
  * Function param:
- * [1] : unique interger : int
+ * [1] : unique string : string
  * [2] : callback function : function
 **/
 napi_value createSession(napi_env env, napi_callback_info args) {
@@ -67,7 +67,7 @@ napi_value createSession(napi_env env, napi_callback_info args) {
   napi_value* argv = new napi_value[2];
 
   std::vector<napi_valuetype> argTypes = {
-    napi_number,
+    napi_string,
     napi_function
   };
 
@@ -105,7 +105,7 @@ napi_value killAllSession(napi_env env, napi_callback_info args) {
  * Kill session is used to stop a download.
  *
  * Function param:
- * [1] : session ID : int
+ * [1] : session ID : string
  * [2] : callback function : function
 **/
 napi_value killSession(napi_env env, napi_callback_info args) {
@@ -113,7 +113,7 @@ napi_value killSession(napi_env env, napi_callback_info args) {
   napi_value* argv = new napi_value[2];
 
   std::vector<napi_valuetype> argTypes = {
-    napi_number,
+    napi_string,
     napi_function
   };
 
@@ -147,7 +147,7 @@ napi_value pauseAllSession(napi_env env, napi_callback_info args) {
 
 /**
  * Function param:
- * [1] : session ID : int
+ * [1] : session ID : string
  * [2] : callback function : function
 **/
 napi_value pauseSession(napi_env env, napi_callback_info args) {
@@ -155,7 +155,7 @@ napi_value pauseSession(napi_env env, napi_callback_info args) {
   napi_value* argv = new napi_value[2];
 
   std::vector<napi_valuetype> argTypes = {
-    napi_number,
+    napi_string,
     napi_function
   };
 
@@ -170,7 +170,7 @@ napi_value pauseSession(napi_env env, napi_callback_info args) {
 /**
  * Function param:
  * [1] : uri : string
- * [2] : session ID : int
+ * [2] : session ID : string
  * [3] : callback function : function
 **/
  napi_value addDownload(napi_env env, napi_callback_info args) {
@@ -179,7 +179,7 @@ napi_value pauseSession(napi_env env, napi_callback_info args) {
 
   std::vector<napi_valuetype> argTypes = {
     napi_string,
-    napi_number,
+    napi_string,
     napi_function
   };
 
