@@ -41,11 +41,14 @@
   },
   "dependencies": {
     "electron": "^2.0.2",
-    "mobx": "^3.5.1",
-    "mobx-react": "^4.4.1",
+    "mobx": "^5.0.3",
+    "mobx-react": "^5.2.3",
+    "mobx-state-tree": "^2.2.0",
     "node-gyp": "^3.7.0",
     "react": "^16.3.2",
     "react-dom": "^16.3.2",
-    "styled-components": "^3.2.6"
+    "shortid": "^2.2.8",
+    "styled-components": "^3.2.6",
+    "upath": "^1.1.0"
   }
 }

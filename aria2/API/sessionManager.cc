@@ -3,8 +3,7 @@
 #include "common.h"
 
 SessionManager* SessionManager::instance;
-std::map<std::string, aria2::Session*> SessionManager::sessionMap;
-std::vector<std::thread> SessionManager::sessionRunWorker;
+std::map<std::string, SessionContainer*> SessionManager::sessionContainer;
 
 SessionManager* SessionManager::getInstance() {
   if(!instance) {
@@ -43,7 +42,7 @@ napi_value SessionManager::createSession(napi_env &env, napi_value *&argv) {
 
 napi_value SessionManager::killAllSession(napi_env &env, napi_value *&argv) {
   napi_ref callback;
-
+std::cerr << "test";
   NAPI_CALL(env, napi_create_reference(env, argv[0], 1, &callback));
 
   AriaSessionWorker* worker = new AriaSessionWorker(env);
@@ -99,34 +98,44 @@ napi_value SessionManager::pauseSession(napi_env &env, napi_value *&argv) {
   return nullptr;
 }
 
-void SessionManager::addSession(std::pair<std::string, aria2::Session*> session) {
-  sessionMap.insert(session);
+void SessionManager::addSession(std::pair<std::string, SessionContainer*> session) {
+  sessionContainer.insert(session);
 }
 
-void SessionManager::addSessionRunWorker(std::thread runWorker) {
-  sessionRunWorker.push_back(move(runWorker));
+void SessionManager::addSessionRunWorker(std::string sessionId, std::thread runWorker) {
+  sessionContainer[sessionId]->sessionWorker = move(runWorker);
+}
+
+void SessionManager::addExitSignal(std::string sessionId, std::promise<void> exitSignal) {
+  sessionContainer[sessionId]->exitSignal = move(exitSignal);
 }
 
 std::map<std::string, aria2::Session *> SessionManager::getSessionMap() {
-  return sessionMap;
+  std::map<std::string, aria2::Session*> tempSessionMap;
+
+  for(auto sessionObj : sessionContainer) {
+    tempSessionMap[sessionObj.first] = sessionObj.second->session;
+  }
+
+  return tempSessionMap;
+}
+
+std::map<std::string, SessionContainer *> SessionManager::getSessionContainers() {
+  return sessionContainer;
 }
 
 aria2::Session* SessionManager::getSession(std::string sesId) {
-  return sessionMap.find(sesId) != sessionMap.end() ? sessionMap[sesId] : nullptr;
-}
-
-std::vector<std::thread>* SessionManager::getRunWorker() {
-  return &sessionRunWorker;
+  return sessionContainer.find(sesId) != sessionContainer.end() ? sessionContainer[sesId]->session : nullptr;
 }
 
 void SessionManager::clearAllSession() {
-  sessionMap.clear();
+  sessionContainer.clear();
 }
 
 void SessionManager::clearSession(std::string sesId) {
-  std::map<std::string, aria2::Session*>::iterator it;
+  std::map<std::string, SessionContainer*>::iterator it;
 
-  it = sessionMap.find(sesId);
+  it = sessionContainer.find(sesId);
 
-  sessionMap.erase(it);
+  sessionContainer.erase(it);
 }

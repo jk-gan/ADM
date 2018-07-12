@@ -2,11 +2,10 @@
 // Import React and ReactDOM
 import React, { Component } from 'react';
 import styled from 'styled-components';
+import { observer, inject } from 'mobx-react'
 
 import Input from '../components/Input';
 import Button from '../components/Button';
-// import PauseAllButton from './components/pauseAllButton'
-// import PauseButton from './components/pauseButton'
 
 const Container = styled.div`
   padding: 10px;
@@ -21,17 +20,12 @@ const Title = styled.div`
   font-size: 100px;
 `;
 
+@inject('ADM')
+@observer
 class Main extends Component {
-  // constructor() {
-  //   super();
-  // // Will be move to redux after v0.1
-  // this.rem = require('electron').remote;
-  // this.Aria2Module = this.rem.getGlobal('Aria2Module');
-  // }
-
-  onDownload = () => {
-    console.log('Download');
-  };
+  constructor() {
+    super();
+  }
 
   // render method is most important
   // render method returns JSX template
@@ -40,7 +34,7 @@ class Main extends Component {
       <Container>
         <Title>ADMz</Title>
         <Input />
-        <Button onClick={this.onDownload}>Download</Button>
+        <Button onClick={() => this.props.ADM.downloadStore.addDownload('http://103.1.138.206/files2.codecguide.com/K-Lite_Codec_Pack_1425_Mega.exe')}>Download</Button>
         {/* <PauseAllButton Aria2Module={this.Aria2Module}/>
             <PauseButton Aria2Module={this.Aria2Module} downloadId={1}/>
             <PauseButton Aria2Module={this.Aria2Module} downloadId={2}/> */}

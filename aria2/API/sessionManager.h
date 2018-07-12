@@ -3,20 +3,24 @@
 
 #include <map>
 #include <thread>
+#include <future>
 
 #include <aria2/aria2.h>
 #include <node_api.h>
+
+#include <sessionContainer.h>
 
 class SessionManager {
   public:
     static SessionManager* getInstance();
 
     std::map<std::string, aria2::Session *> getSessionMap();
+    std::map<std::string, SessionContainer *> getSessionContainers();
     aria2::Session* getSession(std::string sesId);
-    std::vector<std::thread>* getRunWorker();
     
-    void addSession(std::pair<std::string, aria2::Session*> session);
-    void addSessionRunWorker(std::thread runWorker);
+    void addSession(std::pair<std::string, SessionContainer*> session);
+    void addSessionRunWorker(std::string sessionId, std::thread runWorker);
+    void addExitSignal(std::string sessionId, std::promise<void> exitSignal);
 
     void clearAllSession();
     void clearSession(std::string sesId);
@@ -35,8 +39,7 @@ class SessionManager {
     ~SessionManager() {}
 
     static SessionManager* instance;
-    static std::map<std::string, aria2::Session*> sessionMap;
-    static std::vector<std::thread> sessionRunWorker;
+    static std::map<std::string, SessionContainer*> sessionContainer;
 };
 
 #endif

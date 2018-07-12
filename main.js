@@ -8,31 +8,21 @@ const path = require('path');
 const url = require('url');
 
 // const ipcMain = electron.ipcMain;
-const Aria2Module = require('./aria2/API/build/Release/main')
+const Aria2Module = require('./aria2/API/build/Release/main');
 
+// Initialize Aria2
 console.log(Aria2Module.ariaInit());
 
-Aria2Module.createSession(1, function (err, result) {
-  console.log(result);
-  Aria2Module.addDownload("http://103.1.138.206/files2.codecguide.com/K-Lite_Codec_Pack_1425_Mega.exe", result, (err, result) => {
-    console.log(result + ": Download");
+setTimeout(
+  () => {
+    Aria2Module.killAllSession((err, result) => {
+      console.log("test");
+    })
+  }, 5500
+)
 
-    setTimeout(() => {
-      Aria2Module.killSession(result, (err, result) => {
-        console.log(result + ": Done");
-        console.log(Aria2Module.ariaDeInit());
-      })
-    }, 1000);
-  });
-});
 
-console.log(Aria2Module.startMonitoring(function (downloadStats) {
-  console.log(JSON.parse(downloadStats));
-}))
-
-setTimeout(() => {
-  Aria2Module.stopMonitoring();
-}, 10000);
+global.Aria2Module = Aria2Module;
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
@@ -43,27 +33,33 @@ function createWindow() {
   mainWindow = new BrowserWindow({ width: 800, height: 600 });
 
   // and load the index.html of the app.
-  mainWindow.loadURL(url.format({
-    pathname: path.join(__dirname, 'index.html'),
-    protocol: 'file:',
-    slashes: true,
-  }));
+  mainWindow.loadURL(
+    url.format({
+      pathname: path.join(__dirname, 'index.html'),
+      protocol: 'file:',
+      slashes: true,
+    })
+  );
 
   // Open the DevTools.
   mainWindow.webContents.openDevTools();
 
   // // Emitted when the window is closed.
-  mainWindow.on('close', (e) => {
+  mainWindow.on('close', e => {
     //   // Dereference the window object, usually you would store windows
     //   // in an array if your app supports multi windows, this is the time
     // when you should delete the corresponding element.
     //   mainWindow.hide();
 
     // save data and quit
-    Aria2Module.killAllSession((err, result) => { Aria2Module.stopMonitoring(); Aria2Module.ariaDeInit(); app.quit(); });
-  })
+    Aria2Module.killAllSession((err, result) => {
+      Aria2Module.stopMonitoring();
+      Aria2Module.ariaDeInit();
+      app.quit();
+    });
+  });
 
-  mainWindow.on('closed', (e) => {
+  mainWindow.on('closed', e => {
     // Dereference the window object, usually you would store windows
     // in an array if your app supports multi windows, this is the time
     // when you should delete the corresponding element.

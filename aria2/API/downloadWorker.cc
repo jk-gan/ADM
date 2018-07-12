@@ -30,6 +30,11 @@ void ExecuteDownload(napi_env env, void *data) {
 
   aria2::Session* session = SessionManager::getInstance()->getSession(worker->sesId);
 
+  if(session == nullptr) {
+    std::cerr << "ERROR: session id not found." << std::endl;
+    return;
+  }
+
   worker->uris.push_back(worker->uris[0]);
 
   int rv;
@@ -38,7 +43,6 @@ void ExecuteDownload(napi_env env, void *data) {
               << "\n"
               << "  Download given URIs in parallel in the current directory."
               << std::endl;
-    exit(EXIT_SUCCESS);
   }
 
   // Add download item to session

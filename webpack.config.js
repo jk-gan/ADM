@@ -26,4 +26,5 @@ module.exports = {
       ignored: /node_modules/,
     },
   },
+  target: 'electron-main',
 };

@@ -91,38 +91,45 @@ void ExecuteSessionInit(napi_env env, void *data) {
   config.keepRunning = true;
   worker->session = aria2::sessionNew(aria2::KeyVals(), config);
 
-  SessionManager::getInstance()->addSession(std::pair<std::string, aria2::Session*>(worker->sesId, worker->session));
-  SessionManager::getInstance()->addSessionRunWorker(std::thread([=]() {
+  SessionManager::getInstance()->addSession(std::pair<std::string, SessionContainer*>(worker->sesId, new SessionContainer(worker->session)));
+  SessionManager::getInstance()->addSessionRunWorker(worker->sesId, std::thread([=]() {
     aria2::Session* session = SessionManager::getInstance()->getSession(worker->sesId);
 
-    for (;;) {
-      if(!session) {
-        std::cerr << "testasdasdsada";
-        break;
-      }
+    std::promise<void> exitSignal;
+    std::future<void> futureObj = exitSignal.get_future();
+
+    SessionManager::getInstance()->addExitSignal(worker->sesId, move(exitSignal));
+
+    while (futureObj.wait_for(std::chrono::milliseconds(1)) == std::future_status::timeout) {
       aria2::run(session, aria2::RUN_ONCE);
     } 
+
+    std::cerr << "test in thread end\n\n";
   }));
-  
+  std::cerr << "test in thread start\n\n";
 }
 
 void ExecuteKillAllSession(napi_env env, void *data) {
   std::map<std::string, aria2::Session*>::iterator it;
   std::map<std::string, aria2::Session*> sessionMap = SessionManager::getInstance()->getSessionMap();
+  
+  for(auto session : SessionManager::getInstance()->getSessionContainers()) {
+    session.second->exitSignal.set_value();
+
+    session.second->sessionWorker.join();
+  }
+
+  std::cerr << "test in join\n\n";
 
   for(it = sessionMap.begin(); it != sessionMap.end(); it++){
     aria2::sessionFinal(it->second);
-    aria2::shutdown(it->second);
   }
+
+  std::cerr << "test in shutdown\n\n";
 
   if(sessionMap.size() != 0) {
     SessionManager::getInstance()->clearAllSession();
   }
-
-  std::for_each(SessionManager::getInstance()->getRunWorker()->begin(), SessionManager::getInstance()->getRunWorker()->end(), [](std::thread &t) 
-  {
-    t.join();
-  });
 }
 
 void ExecuteKillSession(napi_env env, void *data) {
@@ -134,7 +141,7 @@ void ExecuteKillSession(napi_env env, void *data) {
   it = sessionMap.find(worker->sesId);
   aria2::Session* session = it->second;
 
-  aria2::shutdown(session);
+  aria2::sessionFinal(it->second);
 
   SessionManager::getInstance()->clearSession(it->first);
   session = nullptr;
@@ -148,7 +155,7 @@ void ExecutePauseAllSession(napi_env env, void *data) {
 
     for(const auto& gid : allGids){
       aria2::pauseDownload(ses.second, gid);
-      std::cout << aria2::gidToHex(gid) << std::endl;
+      std::cerr << aria2::gidToHex(gid) << std::endl;
     }
   }
 }
@@ -161,7 +168,7 @@ void ExecutePauseSession(napi_env env, void *data) {
   
   for(const auto& gid : allGids){
     aria2::pauseDownload(session, gid);
-    std::cout << aria2::gidToHex(gid) << std::endl;
+    std::cerr << aria2::gidToHex(gid) << std::endl;
   }
 }
 

@@ -44,6 +44,15 @@
     "type_traits": "cpp",
     "tuple": "cpp",
     "typeinfo": "cpp",
-    "utility": "cpp"
+    "utility": "cpp",
+    "forward_list": "cpp",
+    "valarray": "cpp",
+    "iomanip": "cpp",
+    "thread": "cpp",
+    "atomic": "cpp",
+    "condition_variable": "cpp",
+    "future": "cpp",
+    "mutex": "cpp",
+    "system_error": "cpp"
   }
 }

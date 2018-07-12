@@ -6,6 +6,8 @@
 #include <aria2/aria2.h>
 #include <node_api.h>
 
+#include <sessionContainer.h>
+
 int downloadEventCallback(aria2::Session*, aria2::DownloadEvent, aria2::A2Gid, void*);
 
 void ExecuteSessionInit(napi_env env, void *data);

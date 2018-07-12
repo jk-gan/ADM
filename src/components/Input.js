@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { useStrict, action, observable } from 'mobx'
+import { configure, action, observable } from 'mobx'
 import { observer } from 'mobx-react'
 import styled from 'styled-components'
 
@@ -18,7 +18,8 @@ const StyledInput = styled.input`
   }
 `
 
-useStrict(true)
+configure({ enforceActions: true })
+
 @observer
 class Input extends Component {
   @action
