@@ -3,6 +3,8 @@
 #include "common.h"
 
 #include <algorithm>
+#include <thread>
+#include <chrono>
 
 napi_value AriaSessionWorker::createSession(std::string sesId, napi_ref callback) {
   napi_value resource_name;
@@ -20,17 +22,23 @@ napi_value AriaSessionWorker::createSession(std::string sesId, napi_ref callback
   return nullptr;
 }
 
-napi_value AriaSessionWorker::killAllSession(napi_ref callback) {
+napi_value AriaSessionWorker::killAllSession() {
   napi_value resource_name;
 
-  this->callback = callback;
+  std::map<std::string, aria2::Session*>::iterator it;
+  std::map<std::string, aria2::Session*> sessionMap = SessionManager::getInstance()->getSessionMap();
+  
+  for(auto session : SessionManager::getInstance()->getSessionContainers()) {
+    session.second->exitSignal.set_value();
 
-  NAPI_CALL(env, napi_create_string_utf8(env, "SessionResource", NAPI_AUTO_LENGTH, &resource_name));
+    session.second->sessionWorker.join();
+  }
 
-  NAPI_CALL(env, napi_create_async_work(env, NULL, resource_name, 
-    ExecuteKillAllSession, CompleteKillAllSession, this, &request));
+  for(it = sessionMap.begin(); it != sessionMap.end(); it++){
+    aria2::sessionFinal(it->second);
+  }
 
-  NAPI_CALL(env, napi_queue_async_work(env, request));
+  SessionManager::getInstance()->clearAllSession();
 
   return nullptr;
 }
@@ -103,33 +111,7 @@ void ExecuteSessionInit(napi_env env, void *data) {
     while (futureObj.wait_for(std::chrono::milliseconds(1)) == std::future_status::timeout) {
       aria2::run(session, aria2::RUN_ONCE);
     } 
-
-    std::cerr << "test in thread end\n\n";
   }));
-  std::cerr << "test in thread start\n\n";
-}
-
-void ExecuteKillAllSession(napi_env env, void *data) {
-  std::map<std::string, aria2::Session*>::iterator it;
-  std::map<std::string, aria2::Session*> sessionMap = SessionManager::getInstance()->getSessionMap();
-  
-  for(auto session : SessionManager::getInstance()->getSessionContainers()) {
-    session.second->exitSignal.set_value();
-
-    session.second->sessionWorker.join();
-  }
-
-  std::cerr << "test in join\n\n";
-
-  for(it = sessionMap.begin(); it != sessionMap.end(); it++){
-    aria2::sessionFinal(it->second);
-  }
-
-  std::cerr << "test in shutdown\n\n";
-
-  if(sessionMap.size() != 0) {
-    SessionManager::getInstance()->clearAllSession();
-  }
 }
 
 void ExecuteKillSession(napi_env env, void *data) {
@@ -177,39 +159,10 @@ void CompleteSessionInit(napi_env env, napi_status status, void *data) {
 
   napi_value argv[2];
 
+  std::cerr << "Session Init";
+
   NAPI_CALL_RETURN_VOID(env, napi_get_null(env, &argv[0]));
   NAPI_CALL_RETURN_VOID(env, napi_create_string_utf8(env, worker->sesId.c_str(), worker->sesId.length() , &argv[1]));
-
-  napi_value localCallback;
-  NAPI_CALL_RETURN_VOID(env, napi_get_reference_value(env, worker->callback, &localCallback));
-
-  napi_value global;
-  NAPI_CALL_RETURN_VOID(env, napi_get_global(env, &global));
-
-  napi_value result;
-  NAPI_CALL_RETURN_VOID(env, napi_call_function(env, global, localCallback, 2, argv, &result));
-
-  NAPI_CALL_RETURN_VOID(env, napi_delete_reference(env, worker->callback));
-  NAPI_CALL_RETURN_VOID(env, napi_delete_async_work(env, worker->request));
-
-  delete worker;
-}
-
-void CompleteKillAllSession(napi_env env, napi_status status, void *data) {
-  AriaSessionWorker* worker = static_cast<AriaSessionWorker *>(data);
-
-  napi_value argv[2];
-
-  std::string errorMsg = "Kill All Session Error";
-
-  if(status != napi_ok) {
-    NAPI_CALL_RETURN_VOID(env, napi_create_string_utf8(env, errorMsg.c_str(), errorMsg.length(), &argv[0]));
-    NAPI_CALL_RETURN_VOID(env, napi_create_int32(env, 0, &argv[1]));
-  }
-  else {
-    NAPI_CALL_RETURN_VOID(env, napi_get_null(env, &argv[0]));
-    NAPI_CALL_RETURN_VOID(env, napi_create_int32(env, 1, &argv[1]));
-  }
 
   napi_value localCallback;
   NAPI_CALL_RETURN_VOID(env, napi_get_reference_value(env, worker->callback, &localCallback));

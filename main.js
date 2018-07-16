@@ -11,15 +11,7 @@ const url = require('url');
 const Aria2Module = require('./aria2/API/build/Release/main');
 
 // Initialize Aria2
-console.log(Aria2Module.ariaInit());
-
-setTimeout(
-  () => {
-    Aria2Module.killAllSession((err, result) => {
-      console.log("test");
-    })
-  }, 5500
-)
+Aria2Module.ariaInit();
 
 
 global.Aria2Module = Aria2Module;
@@ -52,11 +44,9 @@ function createWindow() {
     //   mainWindow.hide();
 
     // save data and quit
-    Aria2Module.killAllSession((err, result) => {
-      Aria2Module.stopMonitoring();
-      Aria2Module.ariaDeInit();
-      app.quit();
-    });
+    Aria2Module.killAllSession();
+    Aria2Module.ariaDeInit();
+    app.quit();
   });
 
   mainWindow.on('closed', e => {

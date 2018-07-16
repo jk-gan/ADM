@@ -11,10 +11,6 @@ class SessionContainer {
       this->session = session;
     }
 
-    ~SessionContainer(){
-      delete this->session;
-    }
-
     std::thread sessionWorker;
     std::promise<void> exitSignal;
     aria2::Session* session;

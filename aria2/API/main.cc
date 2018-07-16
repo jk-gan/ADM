@@ -86,17 +86,7 @@ napi_value createSession(napi_env env, napi_callback_info args) {
  * [1] : callback function : function
 **/
 napi_value killAllSession(napi_env env, napi_callback_info args) {
-  size_t argc = 1;
-  napi_value* argv = new napi_value[1];
-
-  std::vector<napi_valuetype> argTypes = {
-    napi_function
-  };
-
-  Util::getArguments(env, args, argc, argv, argTypes);
-  sessionManager->killAllSession(env, argv);
-
-  delete argv;
+  sessionManager->killAllSession(env);
 
   return nullptr;
 }

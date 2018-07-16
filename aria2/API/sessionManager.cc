@@ -40,14 +40,10 @@ napi_value SessionManager::createSession(napi_env &env, napi_value *&argv) {
   return nullptr;
 }
 
-napi_value SessionManager::killAllSession(napi_env &env, napi_value *&argv) {
-  napi_ref callback;
-std::cerr << "test";
-  NAPI_CALL(env, napi_create_reference(env, argv[0], 1, &callback));
-
+napi_value SessionManager::killAllSession(napi_env &env) {
   AriaSessionWorker* worker = new AriaSessionWorker(env);
 
-  worker->killAllSession(callback);
+  worker->killAllSession();
 
   return nullptr;
 }

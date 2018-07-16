@@ -29,7 +29,7 @@ class SessionManager {
     int ariaDeInit();
 
     napi_value createSession(napi_env &env, napi_value *&argv);
-    napi_value killAllSession(napi_env &env, napi_value *&argv);
+    napi_value killAllSession(napi_env &env);
     napi_value killSession(napi_env &env, napi_value *&argv);
     napi_value pauseAllSession(napi_env &env, napi_value *&argv);
     napi_value pauseSession(napi_env &env, napi_value *&argv);
