@@ -3,6 +3,7 @@
 #include <chrono>
 #include <exception>
 #include <thread>
+#include <memory>
 
 #include <aria2/aria2.h>
 
@@ -37,17 +38,13 @@ namespace monitoring {
 
 bool MonitoringManager::isStopMonitoring;
 
-MonitoringManager* MonitoringManager::instance;
-
 MonitoringManager* MonitoringManager::getInstance() {
-  if(!instance) {
-    instance = new MonitoringManager();
-  }
+  static MonitoringManager instance;
 
-  return instance;
+  return &instance;
 }
 
-napi_value MonitoringManager::startMonitoring(napi_env &env, napi_value *&argv) {
+napi_value MonitoringManager::startMonitoring(napi_env &env, shared_ptr<napi_value> argv) {
   napi_ref callback;
   napi_status status;
   napi_value isSuccess;
@@ -64,7 +61,7 @@ napi_value MonitoringManager::startMonitoring(napi_env &env, napi_value *&argv) 
   }
   
   try {
-    NAPI_CALL(env, napi_create_reference(env, argv[0], 1, &callback));
+    NAPI_CALL(env, napi_create_reference(env, argv.get()[0], 1, &callback));
 
     this->eventHandler = callback;
     this->env = env;
@@ -109,6 +106,8 @@ napi_value MonitoringManager::stopMonitoring(napi_env &env) {
 
   try {
     isStopMonitoring = true;
+
+    this->futureObj.wait_for(std::chrono::seconds(10));
 
     status = napi_create_int32(env, 1, &isSuccess);
   }
@@ -250,4 +249,8 @@ void MonitoringManager::listenAria2() {
 
   // Sleep to limit cycle
   std::this_thread::sleep_for(std::chrono::seconds(1));
+
+  if(MonitoringManager::isStopMonitoring) {
+    this->completeSignal.set_value();
+  }
 }

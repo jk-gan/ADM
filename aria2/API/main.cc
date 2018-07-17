@@ -9,6 +9,9 @@
 #include "common.h"
 #include "util.h"
 
+using std::unique_ptr;
+using std::shared_ptr;
+
 SessionManager* sessionManager = SessionManager::getInstance();
 DownloadManager* downloadManager = DownloadManager::getInstance();
 //ResourceManager resourceManager = ResourceManager::GetInstance();
@@ -64,17 +67,15 @@ napi_value ariaDeInit(napi_env env, napi_callback_info args) {
 **/
 napi_value createSession(napi_env env, napi_callback_info args) {
   size_t argc = 2;
-  napi_value* argv = new napi_value[2];
+  shared_ptr<napi_value> argv(new napi_value[2]);
 
   std::vector<napi_valuetype> argTypes = {
     napi_string,
     napi_function
   };
-
+  
   Util::getArguments(env, args, argc, argv, argTypes);
   sessionManager->createSession(env, argv);
-
-  delete argv;
 
   return nullptr;
 }
@@ -100,7 +101,7 @@ napi_value killAllSession(napi_env env, napi_callback_info args) {
 **/
 napi_value killSession(napi_env env, napi_callback_info args) {
   size_t argc = 2;
-  napi_value* argv = new napi_value[2];
+  shared_ptr<napi_value> argv(new napi_value[2]);
 
   std::vector<napi_valuetype> argTypes = {
     napi_string,
@@ -109,8 +110,6 @@ napi_value killSession(napi_env env, napi_callback_info args) {
 
   Util::getArguments(env, args, argc, argv, argTypes);
   sessionManager->killSession(env, argv);
-
-  delete argv;
 
   return nullptr;
 }
@@ -121,7 +120,7 @@ napi_value killSession(napi_env env, napi_callback_info args) {
 **/
 napi_value pauseAllSession(napi_env env, napi_callback_info args) {
   size_t argc = 1;
-  napi_value* argv = new napi_value[1];
+  shared_ptr<napi_value> argv(new napi_value[1]);
 
   std::vector<napi_valuetype> argTypes = {
     napi_function
@@ -129,8 +128,6 @@ napi_value pauseAllSession(napi_env env, napi_callback_info args) {
 
   Util::getArguments(env, args, argc, argv, argTypes);
   sessionManager->pauseAllSession(env, argv);
-
-  delete argv;
 
   return nullptr;
 }
@@ -142,7 +139,7 @@ napi_value pauseAllSession(napi_env env, napi_callback_info args) {
 **/
 napi_value pauseSession(napi_env env, napi_callback_info args) {
   size_t argc = 2;
-  napi_value* argv = new napi_value[2];
+  shared_ptr<napi_value> argv(new napi_value[2]);
 
   std::vector<napi_valuetype> argTypes = {
     napi_string,
@@ -151,8 +148,6 @@ napi_value pauseSession(napi_env env, napi_callback_info args) {
 
   Util::getArguments(env, args, argc, argv, argTypes);
   sessionManager->pauseSession(env, argv);
-
-  delete argv;
 
   return nullptr;
 }
@@ -165,7 +160,7 @@ napi_value pauseSession(napi_env env, napi_callback_info args) {
 **/
  napi_value addDownload(napi_env env, napi_callback_info args) {
   size_t argc = 3;
-  napi_value* argv = new napi_value[3];
+  shared_ptr<napi_value> argv(new napi_value[3]);
 
   std::vector<napi_valuetype> argTypes = {
     napi_string,
@@ -175,8 +170,6 @@ napi_value pauseSession(napi_env env, napi_callback_info args) {
 
   Util::getArguments(env, args, argc, argv, argTypes);
   downloadManager->addDownload(env, argv);
-
-  delete argv;
 
   return nullptr;
 } 
@@ -222,7 +215,7 @@ napi_value pauseSession(napi_env env, napi_callback_info args) {
 
 napi_value startMonitoring(napi_env env, napi_callback_info args) {
   size_t argc = 1;
-  napi_value* argv = new napi_value[1];
+  shared_ptr<napi_value> argv(new napi_value[1]);
 
   std::vector<napi_valuetype> argTypes = {
     napi_function
@@ -230,8 +223,6 @@ napi_value startMonitoring(napi_env env, napi_callback_info args) {
 
   Util::getArguments(env, args, argc, argv, argTypes);
   napi_value result = monitoringManager->startMonitoring(env, argv);
-
-  delete argv;
 
   return result;
 }

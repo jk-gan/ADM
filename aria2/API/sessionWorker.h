@@ -8,6 +8,8 @@
 
 #include <sessionContainer.h>
 
+using std::shared_ptr;
+
 int downloadEventCallback(aria2::Session*, aria2::DownloadEvent, aria2::A2Gid, void*);
 
 void ExecuteSessionInit(napi_env env, void *data);

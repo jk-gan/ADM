@@ -3,12 +3,14 @@
 
 #include <string>
 #include <vector>
+#include <future>
 
 #include "node_api.h"
 
 #include "common.h"
 
-
+using std::unique_ptr;
+using std::shared_ptr;
 
 namespace monitoring {
   struct SessionGStatData {
@@ -47,16 +49,20 @@ class MonitoringManager {
     friend void ExecuteMonitoring(napi_env env, void *data);
     friend void CompleteMonitoring(napi_env env, napi_status status, void *data);
 
-    napi_value startMonitoring(napi_env &env, napi_value *&argv);
+    napi_value startMonitoring(napi_env &env, shared_ptr<napi_value> argv);
     napi_value stopMonitoring(napi_env &env);
 
     void listenAria2();
 
   private:
-    MonitoringManager() { isStopMonitoring = true; }
+    MonitoringManager() { 
+      isStopMonitoring = true;
+      futureObj = completeSignal.get_future();
+    }
     ~MonitoringManager() {}
 
-    static MonitoringManager* instance;
+    std::promise<void> completeSignal;
+    std::future<void> futureObj;
     
     napi_env env;
     napi_ref eventHandler;

@@ -7,11 +7,10 @@ const { app, BrowserWindow } = electron;
 const path = require('path');
 const url = require('url');
 
-// const ipcMain = electron.ipcMain;
 const Aria2Module = require('./aria2/API/build/Release/main');
 
 // Initialize Aria2
-Aria2Module.ariaInit();
+console.log(Aria2Module.ariaInit());
 
 
 global.Aria2Module = Aria2Module;
@@ -44,6 +43,7 @@ function createWindow() {
     //   mainWindow.hide();
 
     // save data and quit
+    Aria2Module.stopMonitoring();
     Aria2Module.killAllSession();
     Aria2Module.ariaDeInit();
     app.quit();

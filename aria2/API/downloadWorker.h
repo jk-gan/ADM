@@ -4,9 +4,12 @@
 #include <iostream>
 #include <vector>
 #include <string>
+#include <memory>
 
 #include <aria2/aria2.h>
 #include <node_api.h>
+
+using std::shared_ptr;
 
 void ExecuteDownload(napi_env env, void *data);
 

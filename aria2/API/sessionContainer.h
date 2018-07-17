@@ -4,6 +4,7 @@
 #include <thread>
 #include <future>
 #include <aria2/aria2.h>
+#include <iostream>
 
 class SessionContainer {
   public:

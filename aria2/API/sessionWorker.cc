@@ -5,6 +5,7 @@
 #include <algorithm>
 #include <thread>
 #include <chrono>
+#include <memory>
 
 napi_value AriaSessionWorker::createSession(std::string sesId, napi_ref callback) {
   napi_value resource_name;
@@ -23,8 +24,6 @@ napi_value AriaSessionWorker::createSession(std::string sesId, napi_ref callback
 }
 
 napi_value AriaSessionWorker::killAllSession() {
-  napi_value resource_name;
-
   std::map<std::string, aria2::Session*>::iterator it;
   std::map<std::string, aria2::Session*> sessionMap = SessionManager::getInstance()->getSessionMap();
   
@@ -99,7 +98,8 @@ void ExecuteSessionInit(napi_env env, void *data) {
   config.keepRunning = true;
   worker->session = aria2::sessionNew(aria2::KeyVals(), config);
 
-  SessionManager::getInstance()->addSession(std::pair<std::string, SessionContainer*>(worker->sesId, new SessionContainer(worker->session)));
+  SessionManager::getInstance()->addSession(worker->sesId, SessionContainer(worker->session));
+
   SessionManager::getInstance()->addSessionRunWorker(worker->sesId, std::thread([=]() {
     aria2::Session* session = SessionManager::getInstance()->getSession(worker->sesId);
 
@@ -121,12 +121,10 @@ void ExecuteKillSession(napi_env env, void *data) {
   std::map<std::string, aria2::Session*> sessionMap = SessionManager::getInstance()->getSessionMap();
 
   it = sessionMap.find(worker->sesId);
-  aria2::Session* session = it->second;
 
   aria2::sessionFinal(it->second);
 
   SessionManager::getInstance()->clearSession(it->first);
-  session = nullptr;
 }
 
 void ExecutePauseAllSession(napi_env env, void *data) {
@@ -159,9 +157,8 @@ void CompleteSessionInit(napi_env env, napi_status status, void *data) {
 
   napi_value argv[2];
 
-  std::cerr << "Session Init";
-
   NAPI_CALL_RETURN_VOID(env, napi_get_null(env, &argv[0]));
+
   NAPI_CALL_RETURN_VOID(env, napi_create_string_utf8(env, worker->sesId.c_str(), worker->sesId.length() , &argv[1]));
 
   napi_value localCallback;
