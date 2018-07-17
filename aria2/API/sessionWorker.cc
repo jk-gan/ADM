@@ -7,6 +7,8 @@
 #include <chrono>
 #include <memory>
 
+std::promise<void> threadDoneSignal;
+
 napi_value AriaSessionWorker::createSession(std::string sesId, napi_ref callback) {
   napi_value resource_name;
 
@@ -96,22 +98,29 @@ void ExecuteSessionInit(napi_env env, void *data) {
 
   config.downloadEventCallback = downloadEventCallback;
   config.keepRunning = true;
+  
   worker->session = aria2::sessionNew(aria2::KeyVals(), config);
 
   SessionManager::getInstance()->addSession(worker->sesId, SessionContainer(worker->session));
 
+  std::future<void> threadFuture = threadDoneSignal.get_future();
+
   SessionManager::getInstance()->addSessionRunWorker(worker->sesId, std::thread([=]() {
-    aria2::Session* session = SessionManager::getInstance()->getSession(worker->sesId);
+    aria2::Session* session = worker->session;
 
     std::promise<void> exitSignal;
     std::future<void> futureObj = exitSignal.get_future();
 
+    threadDoneSignal.set_value();
+
     SessionManager::getInstance()->addExitSignal(worker->sesId, move(exitSignal));
 
-    while (futureObj.wait_for(std::chrono::milliseconds(1)) == std::future_status::timeout) {
+    while (futureObj.wait_for(std::chrono::milliseconds(50)) == std::future_status::timeout) {
       aria2::run(session, aria2::RUN_ONCE);
     } 
   }));
+
+  threadFuture.wait();
 }
 
 void ExecuteKillSession(napi_env env, void *data) {
