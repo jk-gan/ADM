@@ -67,7 +67,7 @@ napi_value ariaDeInit(napi_env env, napi_callback_info args) {
 **/
 napi_value createSession(napi_env env, napi_callback_info args) {
   size_t argc = 2;
-  shared_ptr<napi_value> argv(new napi_value[2]);
+  shared_ptr<napi_value[]> argv(new napi_value[2]);
 
   std::vector<napi_valuetype> argTypes = {
     napi_string,
@@ -101,7 +101,7 @@ napi_value killAllSession(napi_env env, napi_callback_info args) {
 **/
 napi_value killSession(napi_env env, napi_callback_info args) {
   size_t argc = 2;
-  shared_ptr<napi_value> argv(new napi_value[2]);
+  shared_ptr<napi_value[]> argv(new napi_value[2]);
 
   std::vector<napi_valuetype> argTypes = {
     napi_string,
@@ -120,7 +120,7 @@ napi_value killSession(napi_env env, napi_callback_info args) {
 **/
 napi_value pauseAllSession(napi_env env, napi_callback_info args) {
   size_t argc = 1;
-  shared_ptr<napi_value> argv(new napi_value[1]);
+  shared_ptr<napi_value[]> argv(new napi_value[1]);
 
   std::vector<napi_valuetype> argTypes = {
     napi_function
@@ -139,7 +139,7 @@ napi_value pauseAllSession(napi_env env, napi_callback_info args) {
 **/
 napi_value pauseSession(napi_env env, napi_callback_info args) {
   size_t argc = 2;
-  shared_ptr<napi_value> argv(new napi_value[2]);
+  shared_ptr<napi_value[]> argv(new napi_value[2]);
 
   std::vector<napi_valuetype> argTypes = {
     napi_string,
@@ -160,7 +160,7 @@ napi_value pauseSession(napi_env env, napi_callback_info args) {
 **/
  napi_value addDownload(napi_env env, napi_callback_info args) {
   size_t argc = 3;
-  shared_ptr<napi_value> argv(new napi_value[3]);
+  shared_ptr<napi_value[]> argv(new napi_value[3]);
 
   std::vector<napi_valuetype> argTypes = {
     napi_string,
@@ -215,7 +215,7 @@ napi_value pauseSession(napi_env env, napi_callback_info args) {
 
 napi_value startMonitoring(napi_env env, napi_callback_info args) {
   size_t argc = 1;
-  shared_ptr<napi_value> argv(new napi_value[1]);
+  shared_ptr<napi_value[]> argv(new napi_value[1]);
 
   std::vector<napi_valuetype> argTypes = {
     napi_function

@@ -115,7 +115,7 @@ void ExecuteSessionInit(napi_env env, void *data) {
 
     SessionManager::getInstance()->addExitSignal(worker->sesId, move(exitSignal));
 
-    while (futureObj.wait_for(std::chrono::milliseconds(50)) == std::future_status::timeout) {
+    while (futureObj.wait_for(std::chrono::milliseconds(5)) == std::future_status::timeout) {
       aria2::run(session, aria2::RUN_ONCE);
     } 
   }));

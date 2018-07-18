@@ -9,7 +9,7 @@ DownloadManager* DownloadManager::getInstance() {
   return &instance;
 }
 
-napi_value DownloadManager::addDownload(napi_env &env, shared_ptr<napi_value> argv) {
+napi_value DownloadManager::addDownload(napi_env &env, shared_ptr<napi_value[]> argv) {
   size_t result;
 
   napi_ref callback;

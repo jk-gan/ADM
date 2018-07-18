@@ -18,7 +18,7 @@ int SessionManager::ariaDeInit() {
   return aria2::libraryDeinit();
 }
 
-napi_value SessionManager::createSession(napi_env &env, shared_ptr<napi_value> argv) {
+napi_value SessionManager::createSession(napi_env &env, shared_ptr<napi_value[]> argv) {
   napi_ref callback;
   size_t result;
   char * sessionBuffer = new char[100];
@@ -45,7 +45,7 @@ napi_value SessionManager::killAllSession(napi_env &env) {
   return nullptr;
 }
 
-napi_value SessionManager::killSession(napi_env &env, shared_ptr<napi_value> argv) {
+napi_value SessionManager::killSession(napi_env &env, shared_ptr<napi_value[]> argv) {
   napi_ref callback;
   size_t result;
   char * sessionBuffer = new char[100];
@@ -62,7 +62,7 @@ napi_value SessionManager::killSession(napi_env &env, shared_ptr<napi_value> arg
   return nullptr;
 }
 
-napi_value SessionManager::pauseAllSession(napi_env &env, shared_ptr<napi_value> argv) {
+napi_value SessionManager::pauseAllSession(napi_env &env, shared_ptr<napi_value[]> argv) {
   napi_ref callback;
 
   NAPI_CALL(env, napi_create_reference(env, argv.get()[0], 1, &callback));
@@ -74,7 +74,7 @@ napi_value SessionManager::pauseAllSession(napi_env &env, shared_ptr<napi_value>
   return nullptr;
 }
 
-napi_value SessionManager::pauseSession(napi_env &env, shared_ptr<napi_value> argv) {
+napi_value SessionManager::pauseSession(napi_env &env, shared_ptr<napi_value[]> argv) {
   napi_ref callback;
   size_t result;
   char * sessionBuffer = new char[100];

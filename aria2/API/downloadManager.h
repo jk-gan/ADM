@@ -14,7 +14,7 @@ class DownloadManager {
   public:
     static DownloadManager* getInstance();
   
-    napi_value addDownload(napi_env &env, shared_ptr<napi_value> argv);
+    napi_value addDownload(napi_env &env, shared_ptr<napi_value[]> argv);
 
   private:
     DownloadManager() {}

@@ -49,7 +49,7 @@ class MonitoringManager {
     friend void ExecuteMonitoring(napi_env env, void *data);
     friend void CompleteMonitoring(napi_env env, napi_status status, void *data);
 
-    napi_value startMonitoring(napi_env &env, shared_ptr<napi_value> argv);
+    napi_value startMonitoring(napi_env &env, shared_ptr<napi_value[]> argv);
     napi_value stopMonitoring(napi_env &env);
 
     void listenAria2();

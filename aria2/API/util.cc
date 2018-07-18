@@ -3,7 +3,7 @@
 #include <vector>
 
 // Static function for getArguments of functions
-napi_value Util::getArguments(napi_env env, napi_callback_info args, size_t argc, shared_ptr<napi_value> argv, std::vector<napi_valuetype> argumentsType) {
+napi_value Util::getArguments(napi_env env, napi_callback_info args, size_t argc, shared_ptr<napi_value[]> argv, std::vector<napi_valuetype> argumentsType) {
   size_t localArgc = argc;
   napi_value _this;
   void *data; 

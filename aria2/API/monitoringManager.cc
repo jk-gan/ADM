@@ -44,7 +44,7 @@ MonitoringManager* MonitoringManager::getInstance() {
   return &instance;
 }
 
-napi_value MonitoringManager::startMonitoring(napi_env &env, shared_ptr<napi_value> argv) {
+napi_value MonitoringManager::startMonitoring(napi_env &env, shared_ptr<napi_value[]> argv) {
   napi_ref callback;
   napi_status status;
   napi_value isSuccess;
