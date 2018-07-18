@@ -98,7 +98,7 @@ void ExecuteSessionInit(napi_env env, void *data) {
 
   config.downloadEventCallback = downloadEventCallback;
   config.keepRunning = true;
-  
+
   worker->session = aria2::sessionNew(aria2::KeyVals(), config);
 
   SessionManager::getInstance()->addSession(worker->sesId, SessionContainer(worker->session));

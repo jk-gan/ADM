@@ -14,8 +14,8 @@ napi_value DownloadManager::addDownload(napi_env &env, shared_ptr<napi_value[]> 
 
   napi_ref callback;
 
-  unique_ptr<char> buffer(new char[1000]);
-  unique_ptr<char> sessionBuffer(new char[100]);
+  unique_ptr<char[]> buffer(new char[1000]);
+  unique_ptr<char[]> sessionBuffer(new char[100]);
 
   NAPI_CALL(env, napi_get_value_string_utf8(env, argv.get()[0], buffer.get(), 1000, &result));
   NAPI_CALL(env, napi_get_value_string_utf8(env, argv.get()[1], sessionBuffer.get(), 100, &result));

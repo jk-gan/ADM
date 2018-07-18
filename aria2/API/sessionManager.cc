@@ -38,7 +38,7 @@ napi_value SessionManager::createSession(napi_env &env, shared_ptr<napi_value[]>
 }
 
 napi_value SessionManager::killAllSession(napi_env &env) {
-  shared_ptr<AriaSessionWorker> worker(new AriaSessionWorker(env));
+  shared_ptr<AriaSessionWorker> worker = std::make_shared<AriaSessionWorker>(AriaSessionWorker(env));
 
   worker.get()->killAllSession();
 
