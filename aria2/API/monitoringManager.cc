@@ -148,6 +148,12 @@ void CompleteMonitoring(napi_env env, napi_status status, void *data) {
     NAPI_CALL_RETURN_VOID(env, napi_call_function(env, global, localCallback, 1, argv, &result));
   }
 
+  // Check complete event signal
+  if(monitoringMgr->completeSignalQueue.size() > 0) {
+    std::cerr << completeSignalQueue.front().gid << std::endl << std::endl;
+    completeSignalQueue.pop();
+  }
+
   if(MonitoringManager::isStopMonitoring) {
     NAPI_CALL_RETURN_VOID(env, napi_delete_reference(env, monitoringMgr->eventHandler));
     NAPI_CALL_RETURN_VOID(env, napi_delete_async_work(env, monitoringMgr->request));
@@ -155,6 +161,16 @@ void CompleteMonitoring(napi_env env, napi_status status, void *data) {
   else {
     NAPI_CALL_RETURN_VOID(env, napi_queue_async_work(env, monitoringMgr->request));
   }
+}
+
+void MonitoringManager::addDownloadEventSignal(aria2::DownloadEvent evt, std::string gid, std::string fileName) {
+  monitoring::DownloadCallbackSignal signal = {
+    evt,
+    gid,
+    fileName
+  };
+
+  completeSignalQueue.push(signal);
 }
 
 void MonitoringManager::listenAria2() {

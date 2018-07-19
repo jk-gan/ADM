@@ -4,6 +4,7 @@
 #include <string>
 #include <vector>
 #include <future>
+#include <queue>
 
 #include "node_api.h"
 
@@ -34,6 +35,12 @@ namespace monitoring {
     SessionGStatData gStat;
     std::vector<DownloadStatData> dStat;
   };
+
+  struct DownloadCallbackSignal {
+    aria2::DownloadEvent evt;
+    std::string gid;
+    std::string fileName;
+  };
 }
 
 void ExecuteMonitoring(napi_env env, void *data);
@@ -53,6 +60,7 @@ class MonitoringManager {
     napi_value stopMonitoring(napi_env &env);
 
     void listenAria2();
+    void addDownloadEventSignal(aria2::DownloadEvent evt, std::string gid, std::string fileName);
 
   private:
     MonitoringManager() { 
@@ -63,6 +71,7 @@ class MonitoringManager {
 
     std::promise<void> completeSignal;
     std::future<void> futureObj;
+    std::queue<monitoring::DownloadCallbackSignal> completeSignalQueue;
     
     napi_env env;
     napi_ref eventHandler;

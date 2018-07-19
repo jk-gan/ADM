@@ -1,5 +1,6 @@
 #include "sessionWorker.h"
 #include "sessionManager.h"
+#include "monitoringManager.h"
 #include "common.h"
 
 #include <algorithm>
@@ -275,7 +276,8 @@ int downloadEventCallback(aria2::Session* session, aria2::DownloadEvent event,
     return 0;
   if (dh->getNumFiles() > 0) {
     aria2::FileData f = dh->getFile(1);
-
+    MonitoringManager::getInstance()->addDownloadEventSignal(event, aria2::gidToHex(gid), f.path);
+    
     // Path may be empty if the file name has not been determined yet.
     if (f.path.empty()) {
       if (!f.uris.empty()) {
