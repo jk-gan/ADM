@@ -75,6 +75,7 @@ class MonitoringManager {
     
     napi_env env;
     napi_ref eventHandler;
+    napi_ref completeHandler;
     napi_async_work request;
 
     std::string ariaDataSerialized;

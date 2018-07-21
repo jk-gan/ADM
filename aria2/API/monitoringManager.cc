@@ -34,6 +34,29 @@ namespace monitoring {
           );
         }
     }
+
+    void to_json(json& j, const DownloadCallbackSignal& p) {
+      std::string eventStr;
+
+      switch (p.evt) {
+        case aria2::EVENT_ON_DOWNLOAD_COMPLETE:
+          eventStr = "COMPLETE";
+          break;
+        case aria2::EVENT_ON_DOWNLOAD_ERROR:
+          eventStr = "ERROR";
+          break;
+        default:
+          eventStr = "UNHANDLED";
+      }
+
+      j = {
+        {"DownloadCompleteEvent", {
+          {"event", eventStr},
+          {"gid", p.gid},
+          {"filename", p.fileName}
+        }}
+      };
+    }
 }
 
 bool MonitoringManager::isStopMonitoring;
@@ -45,7 +68,8 @@ MonitoringManager* MonitoringManager::getInstance() {
 }
 
 napi_value MonitoringManager::startMonitoring(napi_env &env, shared_ptr<napi_value[]> argv) {
-  napi_ref callback;
+  napi_ref listenerCallback, completeCallback;
+
   napi_status status;
   napi_value isSuccess;
 
@@ -61,10 +85,13 @@ napi_value MonitoringManager::startMonitoring(napi_env &env, shared_ptr<napi_val
   }
   
   try {
-    NAPI_CALL(env, napi_create_reference(env, argv.get()[0], 1, &callback));
+    NAPI_CALL(env, napi_create_reference(env, argv.get()[0], 1, &listenerCallback));
+    NAPI_CALL(env, napi_create_reference(env, argv.get()[0], 1, &completeCallback));
 
-    this->eventHandler = callback;
+    this->eventHandler = listenerCallback;
+    this->completeHandler = completeCallback;
     this->env = env;
+
     isStopMonitoring = false;
     
     napi_value resource_name;
@@ -137,6 +164,7 @@ void CompleteMonitoring(napi_env env, napi_status status, void *data) {
   NAPI_CALL_RETURN_VOID(env, napi_get_global(env, &global));
 
   napi_value localCallback;
+  napi_value result;
   NAPI_CALL_RETURN_VOID(env, napi_get_reference_value(env, monitoringMgr->eventHandler, &localCallback));
 
   if(monitoringMgr->ariaDataSerialized != "null") {
@@ -144,18 +172,28 @@ void CompleteMonitoring(napi_env env, napi_status status, void *data) {
     NAPI_CALL_RETURN_VOID(env, napi_create_string_utf8(env, monitoringMgr->ariaDataSerialized.c_str(), str_len , &argv[0]));
 
     // Call the deligate function from nodejs
-    napi_value result;
     NAPI_CALL_RETURN_VOID(env, napi_call_function(env, global, localCallback, 1, argv, &result));
   }
 
   // Check complete event signal
   if(monitoringMgr->completeSignalQueue.size() > 0) {
-    std::cerr << completeSignalQueue.front().gid << std::endl << std::endl;
-    completeSignalQueue.pop();
+    napi_value completeArgv[1];
+
+    json completeDataJson = monitoringMgr->completeSignalQueue.front();
+    std::string completeDataSerialized = completeDataJson.dump();
+    size_t completeDataLength = completeDataSerialized.length();
+
+    NAPI_CALL_RETURN_VOID(env, napi_create_string_utf8(env, completeDataSerialized.c_str(), completeDataLength , &completeArgv[0]));
+
+    NAPI_CALL_RETURN_VOID(env, napi_get_reference_value(env, monitoringMgr->completeHandler, &localCallback));
+    NAPI_CALL_RETURN_VOID(env, napi_call_function(env, global, localCallback, 1, completeArgv, &result));
+
+    monitoringMgr->completeSignalQueue.pop();
   }
 
   if(MonitoringManager::isStopMonitoring) {
     NAPI_CALL_RETURN_VOID(env, napi_delete_reference(env, monitoringMgr->eventHandler));
+    NAPI_CALL_RETURN_VOID(env, napi_delete_reference(env, monitoringMgr->completeHandler));
     NAPI_CALL_RETURN_VOID(env, napi_delete_async_work(env, monitoringMgr->request));
   }
   else {
@@ -177,10 +215,7 @@ void MonitoringManager::listenAria2() {
   std::map<std::string, aria2::Session*>::iterator it;
   SessionManager* sesMgr = SessionManager::getInstance();
 
-  // Reset json data
-  json ariaDataJson = {
-          {"Downloads", {}}
-        };
+  json ariaDataJson;
 
   // Get latest session collection
   std::map<std::string, aria2::Session*> sessionMap = sesMgr->getSessionMap();

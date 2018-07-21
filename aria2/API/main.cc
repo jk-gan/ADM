@@ -174,54 +174,17 @@ napi_value pauseSession(napi_env env, napi_callback_info args) {
   return nullptr;
 } 
 
-/**
- * Function param:
- * [1] : callback function : function
-**/
-/* napi_value deleteAllDownload(napi_env env, napi_callback_info args) {
-  size_t argc = 1;
-  napi_value argv[1];
-
-  std::vector<napi_valuetype> argTypes = {
-    napi_function
-  };
-
-  Util.GetArguments(env, args, argc, argv, argTypes);
-  downloadManager.deleteAllDownload(env, argv);
-
-  return nullptr;
-} */
-
-/**
- * Function param:
- * [1] : session ID : int
- * [2] : callback function : function
-**/
-/* napi_value deleteDownload(napi_env env, napi_callback_info args) {
-  size_t argc = 2;
-  napi_value argv[2];
-
-  std::vector<napi_valuetype> argTypes = {
-    napi_number,
-    napi_function
-  };
-
-  Util.GetArguments(env, args, argc, argv, argTypes);
-  downloadManager.deleteAllDownload(env, argv);
-
-  return nullptr;
-}*/
-
-
 napi_value startMonitoring(napi_env env, napi_callback_info args) {
-  size_t argc = 1;
-  shared_ptr<napi_value[]> argv(new napi_value[1]);
+  size_t argc = 2;
+  shared_ptr<napi_value[]> argv(new napi_value[2]);
 
   std::vector<napi_valuetype> argTypes = {
+    napi_function,
     napi_function
   };
 
   Util::getArguments(env, args, argc, argv, argTypes);
+
   napi_value result = monitoringManager->startMonitoring(env, argv);
 
   return result;
