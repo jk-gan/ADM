@@ -222,8 +222,8 @@ void MonitoringManager::listenAria2() {
 
   int gNumActive = 0;
   int gNumWaiting = 0;
-  double gDownloadSpeed = 0;
-  double gUploadSpeed = 0;
+  int gDownloadSpeed = 0;
+  int gUploadSpeed = 0;
 
   // Loop all the session
   for(it = sessionMap.begin(); it != sessionMap.end(); it++) {

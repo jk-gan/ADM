@@ -9,7 +9,7 @@ napi_value Util::getArguments(napi_env env, napi_callback_info args, size_t argc
   void *data; 
 
   NAPI_CALL(env, napi_get_cb_info(env, args, &localArgc, argv.get(), &_this, &data));
-  NAPI_ASSERT(env, localArgc >= (int)argumentsType.size(), "Arguments number wrong");
+  NAPI_ASSERT(env, localArgc >= (size_t)argumentsType.size(), "Arguments number wrong");
 
   short counter = 0;
 
