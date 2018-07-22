@@ -12,7 +12,8 @@ export const downloadState = {
 };
 
 export const Download = types.model('Download', {
-  gid: types.identifier(),
+  id: types.identifier(),
+  gid: types.string,
   sessionId: types.string,
   fileName: types.string,
   completedLength: types.number,
@@ -30,14 +31,16 @@ export const GlobalState = types.model('GlobalState', {
 
 export const Session = types.model('Session', {
   id: types.identifier(),
-  downloads: types.map(Download),
-  gState: GlobalState,
 });
 
 export const DownloadStore = types
   .model('DownloadStore', {
+    downloads: types.map(Download),
     sessions: types.map(Session),
   })
+  .volatile(self => ({
+    gStat: GlobalState,
+  }))
   .views(self => ({
     get ADM() {
       return getParent(self);
@@ -70,8 +73,9 @@ export const DownloadStore = types
 
     function createDownload(sessionId, downloadJSON) {
       downloadJSON.forEach(download => {
-        download['id'] = sessionId;
-        self.sessions.get(sessionId).downloads.put(download);
+        download['sessionId'] = sessionId;
+        download['id'] = generate();
+        self.downloads.put(download);
       })
     }
 
@@ -84,12 +88,35 @@ export const DownloadStore = types
     }
 
     function updateDownloads(dlStatesJson) {
-      console.log(dlStatesJson);
-      //self.sessions.put(dlStatesJson);
+      self.gStat = dlStatesJson.gStats;
+
+      if (dlStatesJson.Downloads === undefined) {
+        return;
+      }
+
+      dlStatesJson.Downloads.forEach(download => {
+        let downloadFind = [...self.downloads].find(([, x]) => x.gid == download.gid);
+
+        if (downloadFind === undefined) {
+          return;
+        }
+
+        download['id'] = downloadFind[0];
+
+        self.downloads.put(download);
+      })
     }
 
     function completeDownload(completeEventJson) {
-      console.log(completeEventJson);
+      if (completeEventJson.event == "COMPLETE") {
+        let downloadFind = [...self.downloads].find(([, x]) => x.gid == completeEventJson.gid);
+
+        if (downloadFind === undefined) {
+          return;
+        }
+
+        self.downloads.delete(downloadFind[0]);
+      }
     }
 
     function loadDownloads() {
