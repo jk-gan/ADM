@@ -2,22 +2,27 @@
 // Import React and ReactDOM
 import React, { Component } from 'react';
 import ReactDOM from 'react-dom';
+import { Provider } from 'mobx-react';
+import { observable, reaction } from 'mobx';
 
 import Main from './views/Main';
 
+import { ADMStore } from './stores/ADMStore';
+
+const ADM = ADMStore.create(
+  {},
+  {
+    // Injection
+  }
+);
+
 class App extends Component {
-  // constructor() {
-  //   super();
-
-  // // Will be move to redux after v0.1
-  // this.rem = require('electron').remote;
-  // this.Aria2Module = this.rem.getGlobal('Aria2Module');
-  // }
-
-  // render method is most important
-  // render method returns JSX template
   render() {
-    return <Main />;
+    return (
+      <Provider ADM={ADM}>
+        <Main />
+      </Provider>
+    );
   }
 }
 

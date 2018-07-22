@@ -1,29 +1,42 @@
 #ifndef DOWNLOADWORKER_H
 #define DOWNLOADWORKER_H
 
+#include <iostream>
+#include <vector>
+#include <string>
+#include <memory>
 
+#include <aria2/aria2.h>
+#include <node_api.h>
 
-extern std::map<int, aria2::Session*> sessionMap;
+using std::shared_ptr;
 
-class AriaDownloadWorker : public Nan::AsyncWorker {
+void ExecuteDownload(napi_env env, void *data);
+
+void CompleteDownload(napi_env env, napi_status status, void *data);
+
+class AriaDownloadWorker {
   public:
-      AriaDownloadWorker(Nan::Callback *callback, std::vector<std::string> uris, int sesMapNum)
-      : Nan::AsyncWorker(callback), uris(uris), sesMapNum(sesMapNum) {
-          session = sessionMap[sesMapNum];
-      }
+    friend void ExecuteDownload(napi_env env, void *data);
+    friend void CompleteDownload(napi_env env, napi_status status, void *data);
 
-      ~AriaDownloadWorker() {}
+    AriaDownloadWorker(napi_env env)
+    : env(env) {}
 
-      void Execute ();
+    ~AriaDownloadWorker() {}
 
-      void HandleOKCallback ();
-
-      void download(std::vector<std::string>);
+    napi_value download(std::string uri, std::string sesId, napi_ref callback);
 
   private:
-      std::vector<std::string> uris;
-      aria2::Session* session;
-      int sesMapNum;
+    std::string sesId;
+
+    std::vector<std::string> uris;
+
+    aria2::Session* session;
+
+    napi_ref callback;
+    napi_async_work request;
+    napi_env env;
 };
 
 
