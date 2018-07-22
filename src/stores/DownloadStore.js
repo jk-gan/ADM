@@ -12,12 +12,13 @@ export const downloadState = {
 };
 
 export const Download = types.model('Download', {
-  id: types.identifier(),
+  gid: types.identifier(),
+  sessionId: types.string,
   fileName: types.string,
-  url: types.string,
+  completedLength: types.number,
   downloadSpeed: types.number,
   uploadSpeed: types.number,
-  state: types.string,
+  totalLength: types.number,
 });
 
 export const GlobalState = types.model('GlobalState', {
@@ -50,8 +51,10 @@ export const DownloadStore = types
         if (err) {
           console.err(err);
         }
-        console.log("asd");
-        //self.sessions.get(sessionId).downloads.put(download);
+
+        let downloadJSON = JSON.parse(download);
+
+        self.createDownload(sessionId, downloadJSON);
       });
     }
 
@@ -63,6 +66,13 @@ export const DownloadStore = types
 
         self.updateSession(sessionId);
       });
+    }
+
+    function createDownload(sessionId, downloadJSON) {
+      downloadJSON.forEach(download => {
+        download['id'] = sessionId;
+        self.sessions.get(sessionId).downloads.put(download);
+      })
     }
 
     function updateSession(sessionId) {
@@ -109,6 +119,7 @@ export const DownloadStore = types
       startMonitoring,
       addDownload,
       createSession,
+      createDownload,
       completeDownload
     };
   });

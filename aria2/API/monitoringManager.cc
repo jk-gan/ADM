@@ -232,6 +232,9 @@ void MonitoringManager::listenAria2() {
       monitoring::SessionData sessionData;
       json sessionDataJson;
 
+      // Set Id
+      sessionData.sessionID = it->first;
+
       // Get global stat
       aria2::GlobalStat gstat = aria2::getGlobalStat(it->second);
 
