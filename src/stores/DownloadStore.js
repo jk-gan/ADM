@@ -9,6 +9,8 @@ export const downloadState = {
   running: 'running',
   pausing: 'pausing',
   stopped: 'stopped',
+  completed: 'completed',
+  error: 'error',
 };
 
 export const Download = types.model('Download', {
@@ -20,6 +22,13 @@ export const Download = types.model('Download', {
   downloadSpeed: types.number,
   uploadSpeed: types.number,
   totalLength: types.number,
+  state: types.enumeration('DownloadState', [
+    'RUNNING',
+    'PAUSING',
+    'IDLE',
+    'COMPLETED',
+    'ERROR'
+  ])
 });
 
 export const GlobalState = types.model('GlobalState', {
@@ -75,6 +84,7 @@ export const DownloadStore = types
       downloadJSON.forEach(download => {
         download['sessionId'] = sessionId;
         download['id'] = generate();
+        download['state'] = 'RUNNING';
         self.downloads.put(download);
       })
     }
@@ -115,7 +125,7 @@ export const DownloadStore = types
           return;
         }
 
-        self.downloads.delete(downloadFind[0]);
+        self.downloads.get(downloadFind[0]).state = 'COMPLETED';
       }
     }
 
