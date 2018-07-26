@@ -6,6 +6,7 @@ import { observer, inject } from 'mobx-react'
 
 import Input from '../components/Input';
 import Button from '../components/Button';
+import { configure, action, observable } from 'mobx';
 
 const Container = styled.div`
   padding: 10px;
@@ -20,12 +21,36 @@ const Title = styled.div`
   font-size: 100px;
 `;
 
+configure({ enforceActions: true })
+
 @inject('ADM')
 @observer
 class Main extends Component {
-  constructor() {
-    super();
+  constructor(props) {
+    super(props);
+
+    this.addLink = React.createRef();
   }
+
+  @action
+  onChange = (event) => {
+    this.newLink = event.target.value
+  }
+
+  @action
+  onKeyUp = (event) => {
+    if (event.key === 'Enter') {
+      console.log(this.addLink)
+      this.addLink.current.click();
+    }
+  }
+
+  @action
+  addDownload = () => {
+    this.props.ADM.downloadStore.addDownload(this.newLink)
+  }
+
+  @observable newLink = ``;
 
   // render method is most important
   // render method returns JSX template
@@ -33,11 +58,9 @@ class Main extends Component {
     return (
       <Container>
         <Title>ADMz</Title>
-        <Input />
-        <Button onClick={() => this.props.ADM.downloadStore.addDownload('http://103.1.138.206/files2.codecguide.com/K-Lite_Codec_Pack_1425_Mega.exe')}>Download</Button>
-        {/* <PauseAllButton Aria2Module={this.Aria2Module}/>
-            <PauseButton Aria2Module={this.Aria2Module} downloadId={1}/>
-            <PauseButton Aria2Module={this.Aria2Module} downloadId={2}/> */}
+        <Input newLink={this.newLink} onChange={this.onChange} onKeyUp={this.onKeyUp} />
+        <Button innerRef={this.addLink} onClick={this.addDownload}>Download</Button>
+        {/* http://103.1.138.206/files2.codecguide.com/K-Lite_Codec_Pack_1425_Mega.exe */}
       </Container>
     );
   }

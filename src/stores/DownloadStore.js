@@ -99,6 +99,7 @@ export const DownloadStore = types
 
     function updateDownloads(dlStatesJson) {
       self.gStat = dlStatesJson.gStats;
+      console.log(dlStatesJson)
 
       if (dlStatesJson.Downloads === undefined) {
         return;
@@ -112,7 +113,8 @@ export const DownloadStore = types
         }
 
         download['id'] = downloadFind[0];
-
+        download['state'] = 'RUNNING';
+        console.log(download)
         self.downloads.put(download);
       })
     }
