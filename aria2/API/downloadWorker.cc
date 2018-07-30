@@ -112,7 +112,15 @@ void CompleteDownload(napi_env env, napi_status status, void *data) {
 
   napi_value argv[2];
 
-  NAPI_CALL_RETURN_VOID(env, napi_get_null(env, &argv[0]));
+  // Throw error
+  if(worker->downloadStatSerialized == "null") {
+    std::string errorMsg = "Error: URL is not correct!";
+    NAPI_CALL_RETURN_VOID(env, napi_create_string_utf8(env, errorMsg.c_str(), errorMsg.length(), &argv[0]));
+  }
+  else {
+    NAPI_CALL_RETURN_VOID(env, napi_get_null(env, &argv[0]));
+  }
+  
   NAPI_CALL_RETURN_VOID(env, napi_create_string_utf8(env, worker->downloadStatSerialized.c_str(), worker->downloadStatSerialized.length() , &argv[1]));
 
   napi_value localCallback;
