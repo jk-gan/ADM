@@ -224,8 +224,6 @@ void MonitoringManager::listenAria2() {
   // Loop all the session
   for(it = sessionMap.begin(); it != sessionMap.end(); it++) {
     try {
-      
-
       // Set Id
       sessionData.sessionID = it->first;
 

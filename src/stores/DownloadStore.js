@@ -64,7 +64,9 @@ export const DownloadStore = types
 
       Aria2Module.addDownload(url, sessionId, (err, download) => {
         if (err) {
-          console.err(err);
+          console.error(err);
+
+          return;
         }
 
         let downloadJSON = JSON.parse(download);
@@ -76,7 +78,7 @@ export const DownloadStore = types
     function createSession() {
       Aria2Module.createSession(generate(), (err, sessionId) => {
         if (err) {
-          console.err(err);
+          console.error(err);
         }
 
         self.updateSession(sessionId);
