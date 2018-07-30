@@ -54,6 +54,9 @@ export const DownloadStore = types
     get ADM() {
       return getParent(self);
     },
+    get downloadList() {
+      return values(self.downloads);
+    },
   }))
   .actions(self => {
     function addDownload(url) {
@@ -99,7 +102,6 @@ export const DownloadStore = types
 
     function updateDownloads(dlStatesJson) {
       self.gStat = dlStatesJson.gStats;
-      console.log(dlStatesJson)
 
       if (dlStatesJson.Downloads === undefined) {
         return;
@@ -114,7 +116,7 @@ export const DownloadStore = types
 
         download['id'] = downloadFind[0];
         download['state'] = 'RUNNING';
-        console.log(download)
+
         self.downloads.put(download);
       })
     }
@@ -127,7 +129,12 @@ export const DownloadStore = types
           return;
         }
 
-        self.downloads.get(downloadFind[0]).state = 'COMPLETED';
+        let currDownload = self.downloads.get(downloadFind[0]);
+
+        currDownload.state = 'COMPLETED';
+        currDownload.completedLength = currDownload.totalLength;
+        currDownload.downloadSpeed = 0;
+        currDownload.uploadSpeed = 0;
       }
     }
 

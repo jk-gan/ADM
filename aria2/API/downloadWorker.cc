@@ -58,12 +58,6 @@ void ExecuteDownload(napi_env env, void *data) {
   worker->uris.push_back(worker->uris[0]);
 
   int rv;
-  if (worker->uris.size() < 2) {
-    std::cerr << "Usage: libaria2ex URI [URI...]\n"
-              << "\n"
-              << "  Download given URIs in parallel in the current directory."
-              << std::endl;
-  }
 
   json downloadStatJson;
 
