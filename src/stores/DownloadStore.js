@@ -5,14 +5,6 @@ import { generate } from 'shortid';
 
 export const Aria2Module = remote.getGlobal('Aria2Module');
 
-export const downloadState = {
-  running: 'running',
-  pausing: 'pausing',
-  stopped: 'stopped',
-  completed: 'completed',
-  error: 'error',
-};
-
 export const Download = types.model('Download', {
   id: types.identifier(),
   gid: types.string,
@@ -134,6 +126,19 @@ export const DownloadStore = types
         let currDownload = self.downloads.get(downloadFind[0]);
 
         currDownload.state = 'COMPLETED';
+        currDownload.completedLength = currDownload.totalLength;
+        currDownload.downloadSpeed = 0;
+        currDownload.uploadSpeed = 0;
+      } else if (completeEventJson.event == "ERROR") {
+        let downloadFind = [...self.downloads].find(([, x]) => x.gid == completeEventJson.gid);
+
+        if (downloadFind === undefined) {
+          return;
+        }
+
+        let currDownload = self.downloads.get(downloadFind[0]);
+
+        currDownload.state = 'ERROR';
         currDownload.completedLength = currDownload.totalLength;
         currDownload.downloadSpeed = 0;
         currDownload.uploadSpeed = 0;
