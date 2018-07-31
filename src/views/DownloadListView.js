@@ -74,6 +74,9 @@ class DownloadListView extends Component {
       Header: 'Upload',
       width: 80,
       accessor: d => this.convertSize(d.uploadSpeed),
+    }, {
+      accessor: 'state',
+      show: false,
     }]
 
     const data = Object.values(getSnapshot(this.props.ADM.downloadStore.downloads));
@@ -84,6 +87,18 @@ class DownloadListView extends Component {
         resolveData={data => data.map(row => row)}
         columns={columns}
         defaultPageSize={10}
+        noDataText={'No download found'}
+        getTrProps={(state, rowInfo, column) => {
+          if (rowInfo === undefined) {
+            return {};
+          }
+
+          return {
+            style: {
+              background: rowInfo.row.state == 'ERROR' ? "#fdd9d7" : ""
+            }
+          };
+        }}
       />
     );
   }
