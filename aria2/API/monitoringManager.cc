@@ -16,12 +16,8 @@ using json = nlohmann::json;
 
 namespace monitoring {
     void to_json(json& j, const SessionData& p) {
-        j = {
-          {"Downloads", {}}
-        };
-
         for(auto download : p.dStat) {
-          j["Downloads"].push_back(
+          j.push_back(
             {
               {"gid", download.gid},
               {"fileName", download.fileName},
@@ -29,7 +25,7 @@ namespace monitoring {
               {"totalLength", download.totalLength},
               {"downloadSpeed", download.downloadSpeed},
               {"uploadSpeed", download.uploadSpeed},
-              {"id", p.sessionID}
+              {"sessionId", p.sessionID}
             }
           );
         }
@@ -50,11 +46,9 @@ namespace monitoring {
       }
 
       j = {
-        {"DownloadCompleteEvent", {
-          {"event", eventStr},
-          {"gid", p.gid},
-          {"filename", p.fileName}
-        }}
+        {"event", eventStr},
+        {"gid", p.gid},
+        {"filename", p.fileName}
       };
     }
 }
@@ -86,7 +80,7 @@ napi_value MonitoringManager::startMonitoring(napi_env &env, shared_ptr<napi_val
   
   try {
     NAPI_CALL(env, napi_create_reference(env, argv.get()[0], 1, &listenerCallback));
-    NAPI_CALL(env, napi_create_reference(env, argv.get()[0], 1, &completeCallback));
+    NAPI_CALL(env, napi_create_reference(env, argv.get()[1], 1, &completeCallback));
 
     this->eventHandler = listenerCallback;
     this->completeHandler = completeCallback;
@@ -215,6 +209,8 @@ void MonitoringManager::listenAria2() {
   std::map<std::string, aria2::Session*>::iterator it;
   SessionManager* sesMgr = SessionManager::getInstance();
 
+  monitoring::SessionData sessionData;
+  json sessionDataJson;
   json ariaDataJson;
 
   // Get latest session collection
@@ -228,9 +224,8 @@ void MonitoringManager::listenAria2() {
   // Loop all the session
   for(it = sessionMap.begin(); it != sessionMap.end(); it++) {
     try {
-      // Reset data
-      monitoring::SessionData sessionData;
-      json sessionDataJson;
+      // Set Id
+      sessionData.sessionID = it->first;
 
       // Get global stat
       aria2::GlobalStat gstat = aria2::getGlobalStat(it->second);
@@ -278,22 +273,23 @@ void MonitoringManager::listenAria2() {
           aria2::deleteDownloadHandle(dh);
         }
       }
-      // implement tojson
-      sessionDataJson = sessionData;
-      // Push into json container
-      ariaDataJson["Downloads"].push_back(sessionDataJson["Downloads"]);
     }
     catch(std::exception ex) {
       std::cout << ex.what();
     }
   }
 
-  ariaDataJson["gStats"].push_back({
+  ariaDataJson["gStats"] = {
     {"gNumActive", gNumActive},
     {"gNumWaiting", gNumWaiting},
     {"gDownloadSpeed", gDownloadSpeed},
     {"gUploadSpeed", gUploadSpeed}
-  });
+  };
+
+  if(!sessionData.dStat.empty()) {
+    // Push into json container
+    ariaDataJson["Downloads"] = sessionData;
+  }
 
   // Serialize json data
   ariaDataSerialized = ariaDataJson.dump();

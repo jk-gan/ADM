@@ -29,6 +29,7 @@ class AriaDownloadWorker {
 
   private:
     std::string sesId;
+    std::string downloadStatSerialized;
 
     std::vector<std::string> uris;
 

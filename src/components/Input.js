@@ -22,28 +22,15 @@ configure({ enforceActions: true })
 
 @observer
 class Input extends Component {
-  @action
-  onChange = (event) => {
-    this.newLink = event.target.value
-  }
-
-  @action
-  onKeyUp = (event) => {
-    if (event.key === 'Enter') {
-      console.log('Enter')
-    }
-  }
-
-  @observable newLink = ''
 
   render() {
     return (
       <StyledInput
         type="text"
         placeholder="e.g. www.abc.com"
-        value={this.newLink}
-        onChange={this.onChange}
-        onKeyUp={this.onKeyUp}
+        value={this.props.newLink}
+        onChange={this.props.onChange}
+        onKeyUp={this.props.onKeyUp}
       />
     )
   }
