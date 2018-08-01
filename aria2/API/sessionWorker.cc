@@ -37,7 +37,7 @@ napi_value AriaSessionWorker::killAllSession() {
   }
 
   for(it = sessionMap.begin(); it != sessionMap.end(); it++){
-    aria2::sessionFinal(it->second);
+    std::cerr << aria2::sessionFinal(it->second) << std::endl << std::endl;
   }
 
   SessionManager::getInstance()->clearAllSession();

@@ -33,6 +33,14 @@ class Main extends Component {
     this.addLink = React.createRef();
   }
 
+  componentDidMount() {
+    window.addEventListener("beforeunload", (event) => this.onUnload(event))
+  }
+
+  componentWillUnmount() {
+    window.removeEventListener("beforeunload", (event) => this.onUnload(event))
+  }
+
   @action
   onChange = (event) => {
     this.newLink = event.target.value
@@ -44,6 +52,11 @@ class Main extends Component {
       console.log(this.addLink)
       this.addLink.current.click();
     }
+  }
+
+  @action
+  onUnload(event) { // the method that will be used for both add and remove event
+    this.props.ADM.downloadStore.saveDownloads();
   }
 
   @action

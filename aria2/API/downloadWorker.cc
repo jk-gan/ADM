@@ -67,6 +67,9 @@ void ExecuteDownload(napi_env env, void *data) {
     shared_ptr<aria2::A2Gid[]> gidPtr(new aria2::A2Gid[1]);
     aria2::KeyVals options;
     std::string fileName = "";
+
+    // Set options
+    options.push_back(std::pair<std::string, std::string>("auto-save-interval", "1"));
     
     rv = aria2::addUri(session, gidPtr.get(), worker->uris, options);
 
