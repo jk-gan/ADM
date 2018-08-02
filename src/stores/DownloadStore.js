@@ -173,8 +173,16 @@ export const DownloadStore = types
     }
 
     function removeSelectedDownload() {
-      self.downloads.map(download => {
+      self.downloads.forEach(download => {
         if (download.selected) {
+          self.downloads.delete(download.id);
+        }
+      });
+    }
+
+    function removeCompletedDownload() {
+      self.downloads.forEach(download => {
+        if (download.completedLength == download.totalLength) {
           self.downloads.delete(download.id);
         }
       });
@@ -214,6 +222,7 @@ export const DownloadStore = types
       loadDownloads,
       saveDownloads,
       removeSelectedDownload,
-      toggleSelectedRow
+      removeCompletedDownload,
+      toggleSelectedRow,
     };
   });

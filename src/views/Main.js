@@ -16,6 +16,13 @@ const Container = styled.div`
   align-items: center;
   justify-content: center;
 `;
+
+const OptionsContainer = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+`;
+
 const Title = styled.div`
   font-family: 'Slabo 27px', serif;
   color: #2c3e50;
@@ -64,16 +71,28 @@ class Main extends Component {
     this.props.ADM.downloadStore.addDownload(this.newLink)
   }
 
+  @action
+  removeDownload = () => {
+    this.props.ADM.downloadStore.removeSelectedDownload()
+  }
+
+  @action
+  removeCompletedDownload = () => {
+    this.props.ADM.downloadStore.removeCompletedDownload()
+  }
+
   @observable newLink = `http://103.1.138.206/files2.codecguide.com/K-Lite_Codec_Pack_1425_Mega.exe`;
 
-  // render method is most important
-  // render method returns JSX template
   render() {
     return (
       <Container>
         <Title>ADMz</Title>
         <Input newLink={this.newLink} onChange={this.onChange} onKeyUp={this.onKeyUp} />
-        <Button innerRef={this.addLink} onClick={this.addDownload}>Download</Button>
+        <OptionsContainer>
+          <Button innerRef={this.addLink} onClick={this.addDownload}>Download</Button>
+          <Button innerRef={this.addLink} onClick={this.removeDownload}>Delete Selected</Button>
+          <Button innerRef={this.addLink} onClick={this.removeCompletedDownload}>Delete Completed</Button>
+        </OptionsContainer>
         <DownloadListView />
         {/* http://103.1.138.206/files2.codecguide.com/K-Lite_Codec_Pack_1425_Mega.exe */}
       </Container>
