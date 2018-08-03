@@ -14,6 +14,7 @@ export const Download = types.model('Download', {
   downloadSpeed: types.number,
   uploadSpeed: types.number,
   totalLength: types.number,
+  selected: types.optional(types.boolean, false),
   state: types.enumeration('DownloadState', [
     'RUNNING',
     'PAUSING',
@@ -37,7 +38,7 @@ export const Session = types.model('Session', {
 export const DownloadStore = types
   .model('DownloadStore', {
     downloads: types.map(Download),
-    sessions: types.map(Session),
+    sessions: types.map(Session)
   })
   .volatile(self => ({
     gStat: GlobalState,
@@ -48,7 +49,7 @@ export const DownloadStore = types
     },
     get downloadList() {
       return values(self.downloads);
-    },
+    }
   }))
   .actions(self => {
     function addDownload(url) {
@@ -63,7 +64,9 @@ export const DownloadStore = types
 
         let downloadJSON = JSON.parse(download);
 
-        self.createDownload(sessionId, downloadJSON);
+        downloadJSON.forEach(download => {
+          self.createDownload(sessionId, download, 'RUNNING');
+        })
       });
     }
 
@@ -77,13 +80,11 @@ export const DownloadStore = types
       });
     }
 
-    function createDownload(sessionId, downloadJSON) {
-      downloadJSON.forEach(download => {
-        download['sessionId'] = sessionId;
-        download['id'] = generate();
-        download['state'] = 'RUNNING';
-        self.downloads.put(download);
-      })
+    function createDownload(sessionId, download, state) {
+      download['sessionId'] = sessionId;
+      download['id'] = generate();
+      download['state'] = state;
+      self.downloads.put(download);
     }
 
     function updateSession(sessionId) {
@@ -146,7 +147,52 @@ export const DownloadStore = types
     }
 
     function loadDownloads() {
-      // Load from database
+      let downloadsArray = JSON.parse(localStorage.getItem("downloads"));
+
+      downloadsArray.forEach(download => {
+        self.createDownload('null', download, download.completedLength == download.totalLength ? 'COMPLETED' : 'IDLE');
+      });
+    }
+
+    function saveDownloads() {
+      if (typeof (Storage) !== "undefined") {
+        let downloadsArray = values(self.downloads);
+
+        downloadsArray.forEach(download => {
+          download.selected = false;
+          download.downloadSpeed = 0;
+          download.uploadSpeed = 0;
+        })
+
+        let stringifiedDownloads = JSON.stringify(downloadsArray);
+
+        localStorage.setItem("downloads", stringifiedDownloads);
+      } else {
+        console.error("ERROR: Web Storage is not avaialble.");
+      }
+    }
+
+    function removeSelectedDownload() {
+      self.downloads.forEach(download => {
+        if (download.selected) {
+          self.downloads.delete(download.id);
+        }
+      });
+    }
+
+    function removeCompletedDownload() {
+      self.downloads.forEach(download => {
+        if (download.completedLength == download.totalLength) {
+          self.downloads.delete(download.id);
+        }
+      });
+    }
+
+    function toggleSelectedRow(id) {
+      let download = self.downloads.get(id);
+      download.selected = !download.selected;
+
+      self.downloads.put(download);
     }
 
     function startMonitoring() {
@@ -168,11 +214,15 @@ export const DownloadStore = types
     return {
       updateDownloads,
       updateSession,
-      loadDownloads,
       startMonitoring,
       addDownload,
       createSession,
       createDownload,
-      completeDownload
+      completeDownload,
+      loadDownloads,
+      saveDownloads,
+      removeSelectedDownload,
+      removeCompletedDownload,
+      toggleSelectedRow,
     };
   });

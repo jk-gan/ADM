@@ -77,6 +77,12 @@ class DownloadListView extends Component {
     }, {
       accessor: 'state',
       show: false,
+    }, {
+      accessor: 'id',
+      show: false,
+    }, {
+      accessor: 'selected',
+      show: false,
     }]
 
     const data = Object.values(getSnapshot(this.props.ADM.downloadStore.downloads));
@@ -93,9 +99,23 @@ class DownloadListView extends Component {
             return {};
           }
 
+          let backgroundColor = "";
+          let selected = rowInfo.row.selected;
+
+          if (rowInfo.row.state == 'ERROR') {
+            backgroundColor = "fdd9d7";
+          }
+
           return {
             style: {
-              background: rowInfo.row.state == 'ERROR' ? "#fdd9d7" : ""
+              background: selected ? "#cdeefd" : backgroundColor
+            },
+            onClick: (e, handleOriginal) => {
+              this.props.ADM.downloadStore.toggleSelectedRow(rowInfo.row.id);
+
+              if (handleOriginal) {
+                handleOriginal();
+              }
             }
           };
         }}

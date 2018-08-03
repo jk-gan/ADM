@@ -6,7 +6,7 @@ export const ADMStore = types
   .model('ADMStore', {
     downloadStore: types.optional(DownloadStore, {
       sessions: {},
-      downloads: {},
+      downloads: {}
     }),
     view: types.optional(ViewStore, {}),
   })
@@ -17,7 +17,7 @@ export const ADMStore = types
   }))
   .actions(self => ({
     afterCreate() {
-      //self.downloadStore.loadDownloads();
+      self.downloadStore.loadDownloads();
       self.downloadStore.startMonitoring();
       self.downloadStore.createSession();
     },
