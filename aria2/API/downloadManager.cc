@@ -9,7 +9,7 @@ DownloadManager* DownloadManager::getInstance() {
   return &instance;
 }
 
-napi_value DownloadManager::addDownload(napi_env &env, shared_ptr<napi_value[]> argv) {
+napi_value DownloadManager::addDownload(napi_env &env, shared_ptr<napi_value[]> argv, DownloadOption option) {
   size_t result;
 
   napi_ref callback;
@@ -26,7 +26,7 @@ napi_value DownloadManager::addDownload(napi_env &env, shared_ptr<napi_value[]> 
   std::string uri(buffer.get());
   std::string sesId(sessionBuffer.get());
 
-  worker->download(uri, sesId, callback);
+  worker->download(uri, sesId, callback, option);
 
   return nullptr;
 }

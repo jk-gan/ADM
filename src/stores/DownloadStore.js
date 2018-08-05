@@ -70,6 +70,24 @@ export const DownloadStore = types
       });
     }
 
+    function resumeDownload(id, fileName, url) {
+      let sessionId = values(self.sessions)[0].id;
+
+      Aria2Module.resumeDownload(url, sessionId, (err, download) => {
+        if (err) {
+          console.error(err);
+
+          return;
+        }
+
+        let downloadJSON = JSON.parse(download);
+
+        downloadJSON.forEach(download => {
+          self.updateDownload(id, sessionId, download, 'RUNNING');
+        })
+      });
+    }
+
     function createSession() {
       Aria2Module.createSession(generate(), (err, sessionId) => {
         if (err) {
@@ -83,6 +101,13 @@ export const DownloadStore = types
     function createDownload(sessionId, download, state) {
       download['sessionId'] = sessionId;
       download['id'] = generate();
+      download['state'] = state;
+      self.downloads.put(download);
+    }
+
+    function updateDownload(id, sessionId, download, state) {
+      download['sessionId'] = sessionId;
+      download['id'] = id;
       download['state'] = state;
       self.downloads.put(download);
     }
@@ -221,9 +246,11 @@ export const DownloadStore = types
 
     return {
       updateDownloads,
+      updateDownload,
       updateSession,
       startMonitoring,
       addDownload,
+      resumeDownload,
       createSession,
       createDownload,
       completeDownload,

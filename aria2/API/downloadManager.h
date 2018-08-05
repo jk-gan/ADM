@@ -7,6 +7,11 @@
 #include <aria2/aria2.h>
 #include <node_api.h>
 
+enum DownloadOption {
+  NEW,
+  RESUME
+};
+
 using std::shared_ptr;
 using std::unique_ptr;
 
@@ -14,7 +19,7 @@ class DownloadManager {
   public:
     static DownloadManager* getInstance();
   
-    napi_value addDownload(napi_env &env, shared_ptr<napi_value[]> argv);
+    napi_value addDownload(napi_env &env, shared_ptr<napi_value[]> argv, DownloadOption option = NEW);
 
   private:
     DownloadManager() {}

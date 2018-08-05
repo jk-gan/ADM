@@ -9,6 +9,8 @@
 #include <aria2/aria2.h>
 #include <node_api.h>
 
+#include "downloadManager.h"
+
 using std::shared_ptr;
 
 void ExecuteDownload(napi_env env, void *data);
@@ -25,9 +27,11 @@ class AriaDownloadWorker {
 
     ~AriaDownloadWorker() {}
 
-    napi_value download(std::string uri, std::string sesId, napi_ref callback);
+    napi_value download(std::string uri, std::string sesId, napi_ref callback, DownloadOption option);
 
   private:
+    DownloadOption option;
+
     std::string sesId;
     std::string downloadStatSerialized;
 

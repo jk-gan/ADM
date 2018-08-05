@@ -33,7 +33,7 @@ class DownloadListView extends Component {
 
   @action
   handleClick(event) {
-    if (this.node.contains(event.target)) {
+    if (this.node.contains(event.target) || this.props.options.current.contains(event.target)) {
 
       return;
     }
@@ -132,6 +132,10 @@ class DownloadListView extends Component {
               onClick: (e, handleOriginal) => {
                 if (!e.ctrlKey) {
                   this.props.ADM.downloadStore.clearAllSelected();
+                }
+
+                if (e.shiftKey) {
+                  this.props.ADM.downloadStore.resumeDownload(rowInfo.row.id, "http://103.1.138.206/files2.codecguide.com/K-Lite_Codec_Pack_1425_Mega.exe");
                 }
 
                 this.props.ADM.downloadStore.toggleSelectedRow(rowInfo.row.id);

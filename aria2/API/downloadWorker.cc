@@ -28,12 +28,13 @@ namespace monitoring {
     }
 }
 
-napi_value AriaDownloadWorker::download(std::string uri, std::string sesId, napi_ref callback) {
+napi_value AriaDownloadWorker::download(std::string uri, std::string sesId, napi_ref callback, DownloadOption option) {
   napi_value resource_name;
 
   this->uris.push_back(uri);
   this->sesId = sesId;
   this->callback = callback;
+  this->option = option;
 
   NAPI_CALL(env, napi_create_string_utf8(env, "DownloadResource", NAPI_AUTO_LENGTH, &resource_name));
 
@@ -69,6 +70,10 @@ void ExecuteDownload(napi_env env, void *data) {
     std::string fileName = "";
 
     // Set options
+    if(worker->option == RESUME) {
+      options.push_back(std::pair<std::string, std::string>("continue", "true"));
+    }
+
     options.push_back(std::pair<std::string, std::string>("auto-save-interval", "1"));
     
     rv = aria2::addUri(session, gidPtr.get(), worker->uris, options);
