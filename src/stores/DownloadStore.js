@@ -99,16 +99,16 @@ export const DownloadStore = types
     }
 
     function createDownload(sessionId, download, state) {
-      download['sessionId'] = sessionId;
-      download['id'] = generate();
-      download['state'] = state;
+      download.sessionId = sessionId;
+      download.id = generate();
+      download.state = state;
       self.downloads.put(download);
     }
 
     function updateDownload(id, sessionId, download, state) {
-      download['sessionId'] = sessionId;
-      download['id'] = id;
-      download['state'] = state;
+      download.sessionId = sessionId;
+      download.id = id;
+      download.state = state;
       self.downloads.put(download);
     }
 
@@ -134,8 +134,11 @@ export const DownloadStore = types
           return;
         }
 
-        download['id'] = downloadFind[0];
-        download['state'] = 'RUNNING';
+        let currDownload = self.downloads.get(downloadFind[0]);
+
+        download.id = downloadFind[0];
+        download.state = 'RUNNING';
+        download.selected = currDownload.selected
 
         self.downloads.put(download);
       })
