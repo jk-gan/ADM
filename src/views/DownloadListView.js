@@ -23,6 +23,24 @@ class DownloadListView extends Component {
     super(props)
   }
 
+  componentDidMount() {
+    document.addEventListener("mousedown", (event) => this.handleClick(event), false)
+  }
+
+  componentWillUnmount() {
+    document.removeEventListener("mousedown", (event) => this.handleClick(event), false)
+  }
+
+  @action
+  handleClick(event) {
+    if (this.node.contains(event.target)) {
+
+      return;
+    }
+
+    this.props.ADM.downloadStore.clearAllSelected();
+  }
+
   convertSize(bytes) {
     let size = ``;
 
@@ -88,38 +106,44 @@ class DownloadListView extends Component {
     const data = Object.values(getSnapshot(this.props.ADM.downloadStore.downloads));
 
     return (
-      <ReactTable
-        data={data}
-        resolveData={data => data.map(row => row)}
-        columns={columns}
-        defaultPageSize={10}
-        noDataText={'No download found'}
-        getTrProps={(state, rowInfo, column) => {
-          if (rowInfo === undefined) {
-            return {};
-          }
-
-          let backgroundColor = "";
-          let selected = rowInfo.row.selected;
-
-          if (rowInfo.row.state == 'ERROR') {
-            backgroundColor = "fdd9d7";
-          }
-
-          return {
-            style: {
-              background: selected ? "#cdeefd" : backgroundColor
-            },
-            onClick: (e, handleOriginal) => {
-              this.props.ADM.downloadStore.toggleSelectedRow(rowInfo.row.id);
-
-              if (handleOriginal) {
-                handleOriginal();
-              }
+      <div ref={node => this.node = node}>
+        <ReactTable
+          data={data}
+          resolveData={data => data.map(row => row)}
+          columns={columns}
+          defaultPageSize={10}
+          noDataText={'No download found'}
+          getTrProps={(state, rowInfo, column) => {
+            if (rowInfo === undefined) {
+              return {};
             }
-          };
-        }}
-      />
+
+            let backgroundColor = "";
+            let selected = rowInfo.row.selected;
+
+            if (rowInfo.row.state == 'ERROR') {
+              backgroundColor = "fdd9d7";
+            }
+
+            return {
+              style: {
+                background: selected ? "#cdeefd" : backgroundColor
+              },
+              onClick: (e, handleOriginal) => {
+                if (!e.ctrlKey) {
+                  this.props.ADM.downloadStore.clearAllSelected();
+                }
+
+                this.props.ADM.downloadStore.toggleSelectedRow(rowInfo.row.id);
+
+                if (handleOriginal) {
+                  handleOriginal();
+                }
+              }
+            };
+          }}
+        />
+      </div>
     );
   }
 

@@ -127,9 +127,11 @@ export const DownloadStore = types
         let currDownload = self.downloads.get(downloadFind[0]);
 
         currDownload.state = 'COMPLETED';
+        currDownload.fileName = completeEventJson.filename;
         currDownload.completedLength = currDownload.totalLength;
         currDownload.downloadSpeed = 0;
         currDownload.uploadSpeed = 0;
+
       } else if (completeEventJson.event == "ERROR") {
         let downloadFind = [...self.downloads].find(([, x]) => x.gid == completeEventJson.gid);
 
@@ -195,6 +197,12 @@ export const DownloadStore = types
       self.downloads.put(download);
     }
 
+    function clearAllSelected() {
+      self.downloads.forEach(download => {
+        download.selected = false;
+      })
+    }
+
     function startMonitoring() {
       Aria2Module.startMonitoring(downloadStatsCallback, completeEventCallback);
     }
@@ -224,5 +232,6 @@ export const DownloadStore = types
       removeSelectedDownload,
       removeCompletedDownload,
       toggleSelectedRow,
+      clearAllSelected
     };
   });
