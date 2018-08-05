@@ -41,11 +41,11 @@ class Main extends Component {
   }
 
   componentDidMount() {
-    window.addEventListener("beforeunload", (event) => this.onUnload(event))
+    document.addEventListener("beforeunload", (event) => this.onUnload(event))
   }
 
   componentWillUnmount() {
-    window.removeEventListener("beforeunload", (event) => this.onUnload(event))
+    document.removeEventListener("beforeunload", (event) => this.onUnload(event))
   }
 
   @action
