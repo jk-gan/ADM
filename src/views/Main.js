@@ -73,6 +73,11 @@ class Main extends Component {
   }
 
   @action
+  resumeDownload = () => {
+    this.props.ADM.downloadStore.resumeSelectedDownload();
+  }
+
+  @action
   removeDownload = () => {
     this.props.ADM.downloadStore.removeSelectedDownload()
   }
@@ -91,6 +96,7 @@ class Main extends Component {
         <Input newLink={this.newLink} onChange={this.onChange} onKeyUp={this.onKeyUp} />
         <OptionsContainer innerRef={this.optionNode}>
           <Button innerRef={this.addLink} onClick={this.addDownload}>Download</Button>
+          <Button innerRef={this.addLink} onClick={this.resumeDownload}>Resume</Button>
           <Button innerRef={this.addLink} onClick={this.removeDownload}>Delete Selected</Button>
           <Button innerRef={this.addLink} onClick={this.removeCompletedDownload}>Delete Completed</Button>
         </OptionsContainer>

@@ -101,6 +101,9 @@ class DownloadListView extends Component {
     }, {
       accessor: 'selected',
       show: false,
+    }, {
+      accessor: 'uri',
+      show: false,
     }]
 
     const data = Object.values(getSnapshot(this.props.ADM.downloadStore.downloads));
@@ -135,7 +138,7 @@ class DownloadListView extends Component {
                 }
 
                 if (e.shiftKey) {
-                  this.props.ADM.downloadStore.resumeDownload(rowInfo.row.id, "http://103.1.138.206/files2.codecguide.com/K-Lite_Codec_Pack_1425_Mega.exe");
+                  this.props.ADM.downloadStore.resumeDownload(rowInfo.row.id, rowInfo.row.fileName, "http://103.1.138.206/files2.codecguide.com/K-Lite_Codec_Pack_1425_Mega.exe");
                 }
 
                 this.props.ADM.downloadStore.toggleSelectedRow(rowInfo.row.id);

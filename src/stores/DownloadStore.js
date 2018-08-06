@@ -10,6 +10,7 @@ export const Download = types.model('Download', {
   gid: types.string,
   sessionId: types.string,
   fileName: types.string,
+  uri: types.string,
   completedLength: types.number,
   downloadSpeed: types.number,
   uploadSpeed: types.number,
@@ -52,10 +53,11 @@ export const DownloadStore = types
     }
   }))
   .actions(self => {
+
     function addDownload(url) {
       let sessionId = values(self.sessions)[0].id;
 
-      Aria2Module.addDownload(url, sessionId, (err, download) => {
+      Aria2Module.addDownload(url, sessionId, "", (err, download) => {
         if (err) {
           console.error(err);
 
@@ -70,21 +72,25 @@ export const DownloadStore = types
       });
     }
 
-    function resumeDownload(id, fileName, url) {
+    function resumeSelectedDownload() {
       let sessionId = values(self.sessions)[0].id;
 
-      Aria2Module.resumeDownload(url, sessionId, (err, download) => {
-        if (err) {
-          console.error(err);
+      self.downloads.forEach(download => {
+        if (download.selected) {
+          Aria2Module.resumeDownload(download.uri, sessionId, download.fileName.replace(/^.*[\\\/]/, ''), (err, downloadData) => {
+            if (err) {
+              console.error(err);
 
-          return;
+              return;
+            }
+
+            let downloadJSONArray = JSON.parse(downloadData);
+
+            downloadJSONArray.forEach(downloadJSONData => {
+              self.updateDownload(download.id, sessionId, downloadJSONData, 'RUNNING');
+            })
+          });
         }
-
-        let downloadJSON = JSON.parse(download);
-
-        downloadJSON.forEach(download => {
-          self.updateDownload(id, sessionId, download, 'RUNNING');
-        })
       });
     }
 
@@ -179,6 +185,10 @@ export const DownloadStore = types
     function loadDownloads() {
       let downloadsArray = JSON.parse(localStorage.getItem("downloads"));
 
+      if (downloadsArray == undefined) {
+        return;
+      }
+
       downloadsArray.forEach(download => {
         self.createDownload('null', download, download.completedLength == download.totalLength ? 'COMPLETED' : 'IDLE');
       });
@@ -253,7 +263,7 @@ export const DownloadStore = types
       updateSession,
       startMonitoring,
       addDownload,
-      resumeDownload,
+      resumeSelectedDownload,
       createSession,
       createDownload,
       completeDownload,

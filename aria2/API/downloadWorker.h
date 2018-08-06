@@ -27,13 +27,14 @@ class AriaDownloadWorker {
 
     ~AriaDownloadWorker() {}
 
-    napi_value download(std::string uri, std::string sesId, napi_ref callback, DownloadOption option);
+    napi_value download(std::string uri, std::string sesId, std::string fileName, napi_ref callback, DownloadOption option);
 
   private:
     DownloadOption option;
 
     std::string sesId;
     std::string downloadStatSerialized;
+    std::string fileName;
 
     std::vector<std::string> uris;
 

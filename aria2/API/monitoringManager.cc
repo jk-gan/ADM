@@ -21,6 +21,7 @@ namespace monitoring {
             {
               {"gid", download.gid},
               {"fileName", download.fileName},
+              {"uri", download.uri},
               {"completedLength", download.completedLength},
               {"totalLength", download.totalLength},
               {"downloadSpeed", download.downloadSpeed},
@@ -249,21 +250,25 @@ void MonitoringManager::listenAria2() {
         aria2::DownloadHandle* dh = aria2::getDownloadHandle(it->second, gid);
 
         std::string fileName = "";
+        std::string uri = "";
         aria2::FileData f = dh->getFile(1);
 
         if (f.path.empty()) {
           if (!f.uris.empty()) {
             fileName = f.uris[0].uri;
+            uri = fileName;
           }
         }
         else {
           fileName = f.path;
+          uri = f.uris[0].uri;
         }
 
         if (dh) {
           sessionData.dStat.push_back({
             aria2::gidToHex(gid),
             fileName,
+            uri,
             dh->getCompletedLength(),
             dh->getTotalLength(),
             dh->getDownloadSpeed(),

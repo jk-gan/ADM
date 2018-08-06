@@ -156,13 +156,15 @@ napi_value pauseSession(napi_env env, napi_callback_info args) {
  * Function param:
  * [1] : uri : string
  * [2] : session ID : string
- * [3] : callback function : function
+ * [3] : filename : string optional
+ * [4] : callback function : function
 **/
  napi_value addDownload(napi_env env, napi_callback_info args) {
-  size_t argc = 3;
-  shared_ptr<napi_value[]> argv(new napi_value[3]);
+  size_t argc = 4;
+  shared_ptr<napi_value[]> argv(new napi_value[4]);
 
   std::vector<napi_valuetype> argTypes = {
+    napi_string,
     napi_string,
     napi_string,
     napi_function
@@ -178,13 +180,15 @@ napi_value pauseSession(napi_env env, napi_callback_info args) {
  * Function param:
  * [1] : uri : string
  * [2] : session ID : string
- * [3] : callback function : function
+ * [3] : filename : string optional
+ * [4] : callback function : function
 **/
 napi_value resumeDownload(napi_env env, napi_callback_info args) {
-  size_t argc = 3;
-  shared_ptr<napi_value[]> argv(new napi_value[3]);
+  size_t argc = 4;
+  shared_ptr<napi_value[]> argv(new napi_value[4]);
 
   std::vector<napi_valuetype> argTypes = {
+    napi_string,
     napi_string,
     napi_string,
     napi_function
