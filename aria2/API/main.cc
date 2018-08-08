@@ -200,6 +200,28 @@ napi_value resumeDownload(napi_env env, napi_callback_info args) {
   return nullptr;
 }
 
+/**
+ * Function param:
+ * [1] : session ID : string
+ * [2] : gid : string
+ * [3] : force : boolean
+**/
+napi_value stopDownload(napi_env env, napi_callback_info args) {
+  size_t argc = 3;
+  shared_ptr<napi_value[]> argv(new napi_value[3]);
+
+  std::vector<napi_valuetype> argTypes = {
+    napi_string,
+    napi_string,
+    napi_boolean
+  };
+
+  Util::getArguments(env, args, argc, argv, argTypes);
+  downloadManager->removeDownloadWithGid(env, argv);
+
+  return nullptr;
+}
+
 napi_value startMonitoring(napi_env env, napi_callback_info args) {
   size_t argc = 2;
   shared_ptr<napi_value[]> argv(new napi_value[2]);
@@ -235,6 +257,7 @@ napi_value Init(napi_env env, napi_value exports) {
       DECLARE_NAPI_PROPERTY("pauseSession", pauseSession),
       DECLARE_NAPI_PROPERTY("addDownload", addDownload),
       DECLARE_NAPI_PROPERTY("resumeDownload", resumeDownload),
+      DECLARE_NAPI_PROPERTY("stopDownload", stopDownload),
       //DECLARE_NAPI_PROPERTY("deleteAllDownload", deleteAllDownload),
       //DECLARE_NAPI_PROPERTY("deleteDownload", deleteDownload),
       DECLARE_NAPI_PROPERTY("startMonitoring", startMonitoring),

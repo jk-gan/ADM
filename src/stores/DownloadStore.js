@@ -7,7 +7,7 @@ export const Aria2Module = remote.getGlobal('Aria2Module');
 
 export const Download = types.model('Download', {
   id: types.identifier(),
-  gid: types.string,
+  gid: types.optional(types.string, ""),
   sessionId: types.string,
   fileName: types.string,
   uri: types.string,
@@ -150,6 +150,35 @@ export const DownloadStore = types
       })
     }
 
+    function stopSelectedDownload() {
+      let sessionId = values(self.sessions)[0].id;
+
+      self.downloads.forEach(download => {
+        if (download.selected) {
+          if (download.gid !== "") {
+            Aria2Module.stopDownload(download.sessionId, download.gid, false);
+          }
+        }
+      });
+    }
+
+    function removeSelectedDownload() {
+      let sessionId = values(self.sessions)[0].id;
+
+      self.downloads.forEach(download => {
+        if (download.selected) {
+          if (download.gid !== "") {
+            // Download session is running. Stop download first
+            Aria2Module.stopDownload(download.sessionId, download.gid, false);
+          }
+
+          // Remove physical file if ticked
+
+          self.downloads.delete(download.id);
+        }
+      });
+    }
+
     function completeDownload(completeEventJson) {
       if (completeEventJson.event == "COMPLETE") {
         let downloadFind = [...self.downloads].find(([, x]) => x.gid == completeEventJson.gid);
@@ -165,6 +194,7 @@ export const DownloadStore = types
         currDownload.completedLength = currDownload.totalLength;
         currDownload.downloadSpeed = 0;
         currDownload.uploadSpeed = 0;
+        currDownload.gid = "";
 
       } else if (completeEventJson.event == "ERROR") {
         let downloadFind = [...self.downloads].find(([, x]) => x.gid == completeEventJson.gid);
@@ -179,6 +209,7 @@ export const DownloadStore = types
         currDownload.completedLength = currDownload.totalLength;
         currDownload.downloadSpeed = 0;
         currDownload.uploadSpeed = 0;
+        currDownload.gid = "";
       }
     }
 
@@ -190,7 +221,7 @@ export const DownloadStore = types
       }
 
       downloadsArray.forEach(download => {
-        self.createDownload('null', download, download.completedLength == download.totalLength ? 'COMPLETED' : 'IDLE');
+        self.createDownload('', download, download.completedLength == download.totalLength ? 'COMPLETED' : 'IDLE');
       });
     }
 
@@ -202,6 +233,7 @@ export const DownloadStore = types
           download.selected = false;
           download.downloadSpeed = 0;
           download.uploadSpeed = 0;
+          download.gid = "";
         })
 
         let stringifiedDownloads = JSON.stringify(downloadsArray);
@@ -210,14 +242,6 @@ export const DownloadStore = types
       } else {
         console.error("ERROR: Web Storage is not avaialble.");
       }
-    }
-
-    function removeSelectedDownload() {
-      self.downloads.forEach(download => {
-        if (download.selected) {
-          self.downloads.delete(download.id);
-        }
-      });
     }
 
     function removeCompletedDownload() {
