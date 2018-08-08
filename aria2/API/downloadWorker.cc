@@ -19,6 +19,7 @@ namespace monitoring {
           {
             {"gid", p.gid},
             {"fileName", p.fileName},
+            {"uri", p.uri},
             {"completedLength", p.completedLength},
             {"totalLength", p.totalLength},
             {"downloadSpeed", p.downloadSpeed},
@@ -28,12 +29,14 @@ namespace monitoring {
     }
 }
 
-napi_value AriaDownloadWorker::download(std::string uri, std::string sesId, napi_ref callback) {
+napi_value AriaDownloadWorker::download(std::string uri, std::string sesId, std::string fileName, napi_ref callback, DownloadOption option) {
   napi_value resource_name;
 
   this->uris.push_back(uri);
   this->sesId = sesId;
   this->callback = callback;
+  this->option = option;
+  this->fileName = fileName;
 
   NAPI_CALL(env, napi_create_string_utf8(env, "DownloadResource", NAPI_AUTO_LENGTH, &resource_name));
 
@@ -67,8 +70,17 @@ void ExecuteDownload(napi_env env, void *data) {
     shared_ptr<aria2::A2Gid[]> gidPtr(new aria2::A2Gid[1]);
     aria2::KeyVals options;
     std::string fileName = "";
+    std::string uri = "";
 
     // Set options
+    if(worker->fileName != "") {
+      options.push_back(std::pair<std::string, std::string>("out", worker->fileName));
+    }
+
+    if(worker->option == RESUME) {
+      options.push_back(std::pair<std::string, std::string>("continue", "true"));
+    }
+
     options.push_back(std::pair<std::string, std::string>("auto-save-interval", "1"));
     
     rv = aria2::addUri(session, gidPtr.get(), worker->uris, options);
@@ -86,15 +98,18 @@ void ExecuteDownload(napi_env env, void *data) {
       if (f.path.empty()) {
         if (!f.uris.empty()) {
           fileName = f.uris[0].uri;
+          uri = fileName;
         }
       }
       else {
         fileName = f.path;
+        uri = f.uris[0].uri;
       }
 
       dStateData = {
         aria2::gidToHex(gidPtr[0]),
         fileName,
+        uri,
         dh->getCompletedLength(),
         dh->getTotalLength(),
         dh->getDownloadSpeed(),

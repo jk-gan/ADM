@@ -24,6 +24,7 @@ namespace monitoring {
   struct DownloadStatData {
     std::string gid;
     std::string fileName;
+    std::string uri;
     int64_t completedLength;
     int64_t totalLength;
     int64_t downloadSpeed;

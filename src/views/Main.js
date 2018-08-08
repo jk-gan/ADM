@@ -38,14 +38,15 @@ class Main extends Component {
     super(props);
 
     this.addLink = React.createRef();
+    this.optionNode = React.createRef();
   }
 
   componentDidMount() {
-    document.addEventListener("beforeunload", (event) => this.onUnload(event))
+    window.addEventListener("beforeunload", (event) => this.onUnload(event))
   }
 
   componentWillUnmount() {
-    document.removeEventListener("beforeunload", (event) => this.onUnload(event))
+    window.removeEventListener("beforeunload", (event) => this.onUnload(event))
   }
 
   @action
@@ -72,6 +73,11 @@ class Main extends Component {
   }
 
   @action
+  resumeDownload = () => {
+    this.props.ADM.downloadStore.resumeSelectedDownload();
+  }
+
+  @action
   removeDownload = () => {
     this.props.ADM.downloadStore.removeSelectedDownload()
   }
@@ -88,12 +94,13 @@ class Main extends Component {
       <Container>
         <Title>ADMz</Title>
         <Input newLink={this.newLink} onChange={this.onChange} onKeyUp={this.onKeyUp} />
-        <OptionsContainer>
+        <OptionsContainer innerRef={this.optionNode}>
           <Button innerRef={this.addLink} onClick={this.addDownload}>Download</Button>
+          <Button innerRef={this.addLink} onClick={this.resumeDownload}>Resume</Button>
           <Button innerRef={this.addLink} onClick={this.removeDownload}>Delete Selected</Button>
           <Button innerRef={this.addLink} onClick={this.removeCompletedDownload}>Delete Completed</Button>
         </OptionsContainer>
-        <DownloadListView />
+        <DownloadListView options={this.optionNode} />
         {/* http://103.1.138.206/files2.codecguide.com/K-Lite_Codec_Pack_1425_Mega.exe */}
       </Container>
     );

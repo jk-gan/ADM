@@ -10,6 +10,7 @@ export const Download = types.model('Download', {
   gid: types.string,
   sessionId: types.string,
   fileName: types.string,
+  uri: types.string,
   completedLength: types.number,
   downloadSpeed: types.number,
   uploadSpeed: types.number,
@@ -52,10 +53,11 @@ export const DownloadStore = types
     }
   }))
   .actions(self => {
+
     function addDownload(url) {
       let sessionId = values(self.sessions)[0].id;
 
-      Aria2Module.addDownload(url, sessionId, (err, download) => {
+      Aria2Module.addDownload(url, sessionId, "", (err, download) => {
         if (err) {
           console.error(err);
 
@@ -70,6 +72,28 @@ export const DownloadStore = types
       });
     }
 
+    function resumeSelectedDownload() {
+      let sessionId = values(self.sessions)[0].id;
+
+      self.downloads.forEach(download => {
+        if (download.selected) {
+          Aria2Module.resumeDownload(download.uri, sessionId, download.fileName.replace(/^.*[\\\/]/, ''), (err, downloadData) => {
+            if (err) {
+              console.error(err);
+
+              return;
+            }
+
+            let downloadJSONArray = JSON.parse(downloadData);
+
+            downloadJSONArray.forEach(downloadJSONData => {
+              self.updateDownload(download.id, sessionId, downloadJSONData, 'RUNNING');
+            })
+          });
+        }
+      });
+    }
+
     function createSession() {
       Aria2Module.createSession(generate(), (err, sessionId) => {
         if (err) {
@@ -81,9 +105,16 @@ export const DownloadStore = types
     }
 
     function createDownload(sessionId, download, state) {
-      download['sessionId'] = sessionId;
-      download['id'] = generate();
-      download['state'] = state;
+      download.sessionId = sessionId;
+      download.id = generate();
+      download.state = state;
+      self.downloads.put(download);
+    }
+
+    function updateDownload(id, sessionId, download, state) {
+      download.sessionId = sessionId;
+      download.id = id;
+      download.state = state;
       self.downloads.put(download);
     }
 
@@ -109,8 +140,11 @@ export const DownloadStore = types
           return;
         }
 
-        download['id'] = downloadFind[0];
-        download['state'] = 'RUNNING';
+        let currDownload = self.downloads.get(downloadFind[0]);
+
+        download.id = downloadFind[0];
+        download.state = 'RUNNING';
+        download.selected = currDownload.selected
 
         self.downloads.put(download);
       })
@@ -150,6 +184,10 @@ export const DownloadStore = types
 
     function loadDownloads() {
       let downloadsArray = JSON.parse(localStorage.getItem("downloads"));
+
+      if (downloadsArray == undefined) {
+        return;
+      }
 
       downloadsArray.forEach(download => {
         self.createDownload('null', download, download.completedLength == download.totalLength ? 'COMPLETED' : 'IDLE');
@@ -221,9 +259,11 @@ export const DownloadStore = types
 
     return {
       updateDownloads,
+      updateDownload,
       updateSession,
       startMonitoring,
       addDownload,
+      resumeSelectedDownload,
       createSession,
       createDownload,
       completeDownload,
