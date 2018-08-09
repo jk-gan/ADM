@@ -3,11 +3,13 @@ import { types, getParent, flow } from 'mobx-state-tree';
 import { remote } from 'electron';
 import { generate } from 'shortid';
 
+const fs = remote.getGlobal('fs');
+
 export const Aria2Module = remote.getGlobal('Aria2Module');
 
 export const Download = types.model('Download', {
   id: types.identifier(),
-  gid: types.string,
+  gid: types.optional(types.string, ""),
   sessionId: types.string,
   fileName: types.string,
   uri: types.string,
@@ -59,7 +61,7 @@ export const DownloadStore = types
 
       Aria2Module.addDownload(url, sessionId, "", (err, download) => {
         if (err) {
-          console.error(err);
+          throw err;
 
           return;
         }
@@ -79,7 +81,7 @@ export const DownloadStore = types
         if (download.selected) {
           Aria2Module.resumeDownload(download.uri, sessionId, download.fileName.replace(/^.*[\\\/]/, ''), (err, downloadData) => {
             if (err) {
-              console.error(err);
+              throw err;
 
               return;
             }
@@ -97,7 +99,7 @@ export const DownloadStore = types
     function createSession() {
       Aria2Module.createSession(generate(), (err, sessionId) => {
         if (err) {
-          console.error(err);
+          throw err;
         }
 
         self.updateSession(sessionId);
@@ -150,6 +152,18 @@ export const DownloadStore = types
       })
     }
 
+    function stopSelectedDownload() {
+      let sessionId = values(self.sessions)[0].id;
+
+      self.downloads.forEach(download => {
+        if (download.selected) {
+          if (download.gid !== "") {
+            Aria2Module.stopDownload(download.sessionId, download.gid, false);
+          }
+        }
+      });
+    }
+
     function completeDownload(completeEventJson) {
       if (completeEventJson.event == "COMPLETE") {
         let downloadFind = [...self.downloads].find(([, x]) => x.gid == completeEventJson.gid);
@@ -165,6 +179,7 @@ export const DownloadStore = types
         currDownload.completedLength = currDownload.totalLength;
         currDownload.downloadSpeed = 0;
         currDownload.uploadSpeed = 0;
+        currDownload.gid = "";
 
       } else if (completeEventJson.event == "ERROR") {
         let downloadFind = [...self.downloads].find(([, x]) => x.gid == completeEventJson.gid);
@@ -179,6 +194,7 @@ export const DownloadStore = types
         currDownload.completedLength = currDownload.totalLength;
         currDownload.downloadSpeed = 0;
         currDownload.uploadSpeed = 0;
+        currDownload.gid = "";
       }
     }
 
@@ -190,7 +206,7 @@ export const DownloadStore = types
       }
 
       downloadsArray.forEach(download => {
-        self.createDownload('null', download, download.completedLength == download.totalLength ? 'COMPLETED' : 'IDLE');
+        self.createDownload('', download, download.completedLength == download.totalLength ? 'COMPLETED' : 'IDLE');
       });
     }
 
@@ -202,27 +218,59 @@ export const DownloadStore = types
           download.selected = false;
           download.downloadSpeed = 0;
           download.uploadSpeed = 0;
+          download.gid = "";
         })
 
         let stringifiedDownloads = JSON.stringify(downloadsArray);
 
         localStorage.setItem("downloads", stringifiedDownloads);
       } else {
-        console.error("ERROR: Web Storage is not avaialble.");
+        throw ("ERROR: Web Storage is not avaialble.");
       }
-    }
-
-    function removeSelectedDownload() {
-      self.downloads.forEach(download => {
-        if (download.selected) {
-          self.downloads.delete(download.id);
-        }
-      });
     }
 
     function removeCompletedDownload() {
       self.downloads.forEach(download => {
         if (download.completedLength == download.totalLength) {
+          self.downloads.delete(download.id);
+        }
+      });
+    }
+
+    function removeSelectedDownload(checked) {
+      let sessionId = values(self.sessions)[0].id;
+
+      self.downloads.forEach(download => {
+        if (download.selected) {
+          if (download.gid !== "") {
+            // Download session is running. Stop download first
+            Aria2Module.stopDownload(download.sessionId, download.gid, false);
+          }
+
+          let path = download.fileName;
+
+          if (checked || download.state !== 'COMPLETED') {
+            // Remove physical file if ticked
+            fs.unlink(path, (err) => {
+              if (err) {
+                throw (err);
+              }
+
+              fs.stat(`${path}.aria2`, (err, state) => {
+                if (err) {
+                  // File not exist
+                  return;
+                }
+
+                fs.unlink(`${path}.aria2`, (err) => {
+                  if (err) {
+                    throw err;
+                  }
+                })
+              })
+            })
+          }
+
           self.downloads.delete(download.id);
         }
       });
