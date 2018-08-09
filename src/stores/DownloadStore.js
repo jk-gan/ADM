@@ -164,45 +164,6 @@ export const DownloadStore = types
       });
     }
 
-    function removeSelectedDownload(checked) {
-      let sessionId = values(self.sessions)[0].id;
-
-      self.downloads.forEach(download => {
-        if (download.selected) {
-          if (download.gid !== "") {
-            // Download session is running. Stop download first
-            Aria2Module.stopDownload(download.sessionId, download.gid, false);
-          }
-
-          let path = download.fileName;
-
-          if (checked || download.state !== 'COMPLETED') {
-            // Remove physical file if ticked
-            fs.unlink(path, (err) => {
-              if (err) {
-                throw (err);
-              }
-
-              fs.stat(`${path}.aria2`, (err, state) => {
-                if (err) {
-                  // File not exist
-                  return;
-                }
-
-                fs.unlink(`${path}.aria2`, (err) => {
-                  if (err) {
-                    throw err;
-                  }
-                })
-              })
-            })
-          }
-
-          self.downloads.delete(download.id);
-        }
-      });
-    }
-
     function completeDownload(completeEventJson) {
       if (completeEventJson.event == "COMPLETE") {
         let downloadFind = [...self.downloads].find(([, x]) => x.gid == completeEventJson.gid);
@@ -271,6 +232,45 @@ export const DownloadStore = types
     function removeCompletedDownload() {
       self.downloads.forEach(download => {
         if (download.completedLength == download.totalLength) {
+          self.downloads.delete(download.id);
+        }
+      });
+    }
+
+    function removeSelectedDownload(checked) {
+      let sessionId = values(self.sessions)[0].id;
+
+      self.downloads.forEach(download => {
+        if (download.selected) {
+          if (download.gid !== "") {
+            // Download session is running. Stop download first
+            Aria2Module.stopDownload(download.sessionId, download.gid, false);
+          }
+
+          let path = download.fileName;
+
+          if (checked || download.state !== 'COMPLETED') {
+            // Remove physical file if ticked
+            fs.unlink(path, (err) => {
+              if (err) {
+                throw (err);
+              }
+
+              fs.stat(`${path}.aria2`, (err, state) => {
+                if (err) {
+                  // File not exist
+                  return;
+                }
+
+                fs.unlink(`${path}.aria2`, (err) => {
+                  if (err) {
+                    throw err;
+                  }
+                })
+              })
+            })
+          }
+
           self.downloads.delete(download.id);
         }
       });
