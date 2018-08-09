@@ -93,11 +93,13 @@ class Main extends Component {
       dialog.showMessageBox({
         type: 'question',
         title: 'Remove Download',
-        buttons: ['ok'],
+        buttons: ['ok', 'cancel'],
         message: '',
         checkboxLabel: 'Delete Completed File on Disk',
       }, (response, checkboxCheck) => {
-        this.props.ADM.downloadStore.removeSelectedDownload(checkboxCheck)
+        if (response === 0) {
+          this.props.ADM.downloadStore.removeSelectedDownload(checkboxCheck)
+        }
       })
     )
   }
