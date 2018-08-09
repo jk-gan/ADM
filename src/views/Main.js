@@ -4,6 +4,7 @@ import React, { Component } from 'react';
 import styled from 'styled-components';
 import { observer, inject } from 'mobx-react'
 import { configure, action, observable } from 'mobx';
+import { remote } from 'electron';
 
 import Input from '../components/Input';
 import Button from '../components/Button';
@@ -31,6 +32,8 @@ const Title = styled.div`
 
 configure({ enforceActions: true })
 
+const dialog = remote.getGlobal('dialog');
+
 @inject('ADM')
 @observer
 class Main extends Component {
@@ -47,6 +50,13 @@ class Main extends Component {
 
   componentWillUnmount() {
     window.removeEventListener("beforeunload", (event) => this.onUnload(event))
+  }
+
+  @action
+  selectedDecorator(functionCall) {
+    if (this.props.ADM.downloadStore.downloadList.find(d => d.selected)) {
+      functionCall();
+    }
   }
 
   @action
@@ -74,12 +84,22 @@ class Main extends Component {
 
   @action
   resumeDownload = () => {
-    this.props.ADM.downloadStore.resumeSelectedDownload();
+    this.selectedDecorator(this.props.ADM.downloadStore.resumeSelectedDownload)
   }
 
   @action
   removeDownload = () => {
-    this.props.ADM.downloadStore.removeSelectedDownload()
+    this.selectedDecorator(() =>
+      dialog.showMessageBox({
+        type: 'question',
+        title: 'Remove Download',
+        buttons: ['ok'],
+        message: '',
+        checkboxLabel: 'Delete Completed File on Disk',
+      }, (response, checkboxCheck) => {
+        this.props.ADM.downloadStore.removeSelectedDownload(checkboxCheck)
+      })
+    )
   }
 
   @action
@@ -98,7 +118,7 @@ class Main extends Component {
           <Button innerRef={this.addLink} onClick={this.addDownload}>Download</Button>
           <Button innerRef={this.addLink} onClick={this.resumeDownload}>Resume</Button>
           <Button innerRef={this.addLink} onClick={this.removeDownload}>Delete Selected</Button>
-          <Button innerRef={this.addLink} onClick={this.removeCompletedDownload}>Delete Completed</Button>
+          <Button innerRef={this.addLink} onClick={this.removeCompletedDownload}>Clear Completed</Button>
         </OptionsContainer>
         <DownloadListView options={this.optionNode} />
         {/* http://103.1.138.206/files2.codecguide.com/K-Lite_Codec_Pack_1425_Mega.exe */}

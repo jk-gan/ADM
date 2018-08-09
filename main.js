@@ -2,7 +2,7 @@ const electron = require('electron');
 
 // Module to control application life.
 // Module to create native browser window.
-const { app, BrowserWindow } = electron;
+const { app, BrowserWindow, dialog } = electron;
 
 const path = require('path');
 const url = require('url');
@@ -15,6 +15,7 @@ Aria2Module.ariaInit();
 
 global.Aria2Module = Aria2Module;
 global.fs = fs;
+global.dialog = dialog;
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.

@@ -164,7 +164,7 @@ export const DownloadStore = types
       });
     }
 
-    function removeSelectedDownload() {
+    function removeSelectedDownload(checked) {
       let sessionId = values(self.sessions)[0].id;
 
       self.downloads.forEach(download => {
@@ -174,24 +174,29 @@ export const DownloadStore = types
             Aria2Module.stopDownload(download.sessionId, download.gid, false);
           }
 
-          // Remove physical file if ticked
-          fs.unlink(download.fileName, (err) => {
-            if (err) {
-              throw (err);
-            }
+          let path = download.fileName;
 
-            fs.state(`${download.fileName}.aria2`, (err, state) => {
+          if (checked || download.state !== 'COMPLETED') {
+            // Remove physical file if ticked
+            fs.unlink(path, (err) => {
               if (err) {
-                throw err;
+                throw (err);
               }
 
-              fs.unlink(`${download.fileName}.aria2`, (err) => {
+              fs.stat(`${path}.aria2`, (err, state) => {
                 if (err) {
-                  throw err;
+                  // File not exist
+                  return;
                 }
+
+                fs.unlink(`${path}.aria2`, (err) => {
+                  if (err) {
+                    throw err;
+                  }
+                })
               })
             })
-          })
+          }
 
           self.downloads.delete(download.id);
         }
