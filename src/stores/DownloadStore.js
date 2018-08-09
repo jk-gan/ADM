@@ -3,6 +3,8 @@ import { types, getParent, flow } from 'mobx-state-tree';
 import { remote } from 'electron';
 import { generate } from 'shortid';
 
+const fs = remote.getGlobal('fs');
+
 export const Aria2Module = remote.getGlobal('Aria2Module');
 
 export const Download = types.model('Download', {
@@ -59,7 +61,7 @@ export const DownloadStore = types
 
       Aria2Module.addDownload(url, sessionId, "", (err, download) => {
         if (err) {
-          console.error(err);
+          throw err;
 
           return;
         }
@@ -79,7 +81,7 @@ export const DownloadStore = types
         if (download.selected) {
           Aria2Module.resumeDownload(download.uri, sessionId, download.fileName.replace(/^.*[\\\/]/, ''), (err, downloadData) => {
             if (err) {
-              console.error(err);
+              throw err;
 
               return;
             }
@@ -97,7 +99,7 @@ export const DownloadStore = types
     function createSession() {
       Aria2Module.createSession(generate(), (err, sessionId) => {
         if (err) {
-          console.error(err);
+          throw err;
         }
 
         self.updateSession(sessionId);
@@ -173,6 +175,23 @@ export const DownloadStore = types
           }
 
           // Remove physical file if ticked
+          fs.unlink(download.fileName, (err) => {
+            if (err) {
+              throw (err);
+            }
+
+            fs.state(`${download.fileName}.aria2`, (err, state) => {
+              if (err) {
+                throw err;
+              }
+
+              fs.unlink(`${download.fileName}.aria2`, (err) => {
+                if (err) {
+                  throw err;
+                }
+              })
+            })
+          })
 
           self.downloads.delete(download.id);
         }
@@ -240,7 +259,7 @@ export const DownloadStore = types
 
         localStorage.setItem("downloads", stringifiedDownloads);
       } else {
-        console.error("ERROR: Web Storage is not avaialble.");
+        throw ("ERROR: Web Storage is not avaialble.");
       }
     }
 
