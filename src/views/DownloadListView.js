@@ -133,12 +133,12 @@ class DownloadListView extends Component {
                 background: selected ? "#cdeefd" : backgroundColor
               },
               onClick: (e, handleOriginal) => {
-                if (!e.ctrlKey) {
+                if (!e.ctrlKey && !e.shiftKey) {
                   this.props.ADM.downloadStore.clearAllSelected();
                 }
 
                 if (e.shiftKey) {
-                  this.props.ADM.downloadStore.resumeDownload(rowInfo.row.id, rowInfo.row.fileName, "http://103.1.138.206/files2.codecguide.com/K-Lite_Codec_Pack_1425_Mega.exe");
+
                 }
 
                 this.props.ADM.downloadStore.toggleSelectedRow(rowInfo.row.id);
