@@ -88,6 +88,16 @@ class Main extends Component {
   }
 
   @action
+  stopSelectedDownload = () => {
+    this.props.ADM.downloadStore.stopDownloads();
+  }
+
+  @action
+  stopAllDownload = () => {
+    this.props.ADM.downloadStore.stopDownloads(false);
+  }
+
+  @action
   removeDownload = () => {
     this.selectedDecorator(() =>
       dialog.showMessageBox({
@@ -118,9 +128,11 @@ class Main extends Component {
         <Input newLink={this.newLink} onChange={this.onChange} onKeyUp={this.onKeyUp} />
         <OptionsContainer innerRef={this.optionNode}>
           <Button innerRef={this.addLink} onClick={this.addDownload}>Download</Button>
-          <Button innerRef={this.addLink} onClick={this.resumeDownload}>Resume</Button>
-          <Button innerRef={this.addLink} onClick={this.removeDownload}>Delete Selected</Button>
-          <Button innerRef={this.addLink} onClick={this.removeCompletedDownload}>Clear Completed</Button>
+          <Button onClick={this.resumeDownload}>Resume</Button>
+          <Button onClick={this.stopSelectedDownload}>Stop</Button>
+          <Button onClick={this.stopAllDownload}>Stop All</Button>
+          <Button onClick={this.removeDownload}>Delete Selected</Button>
+          <Button onClick={this.removeCompletedDownload}>Clear Completed</Button>
         </OptionsContainer>
         <DownloadListView options={this.optionNode} />
         {/* http://103.1.138.206/files2.codecguide.com/K-Lite_Codec_Pack_1425_Mega.exe */}

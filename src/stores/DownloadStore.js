@@ -152,11 +152,11 @@ export const DownloadStore = types
       })
     }
 
-    function stopSelectedDownload() {
+    function stopDownloads(selected = true) {
       let sessionId = values(self.sessions)[0].id;
 
       self.downloads.forEach(download => {
-        if (download.selected) {
+        if (download.selected || !selected) {
           if (download.gid !== "") {
             Aria2Module.stopDownload(download.sessionId, download.gid, false);
           }
@@ -319,6 +319,7 @@ export const DownloadStore = types
       saveDownloads,
       removeSelectedDownload,
       removeCompletedDownload,
+      stopDownloads,
       toggleSelectedRow,
       clearAllSelected
     };
