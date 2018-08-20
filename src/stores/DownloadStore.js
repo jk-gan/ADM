@@ -7,12 +7,6 @@ const fs = remote.getGlobal('fs');
 const menu = remote.getGlobal('menu');
 const MenuItem = remote.getGlobal('MenuItem');
 
-const contextMenu = {
-  resume: new MenuItem({ label: 'Resume', click() { console.log('item 1 clicked') } }),
-  stop: new MenuItem({ label: 'Stop', click() { console.log('item 1 clicked') } }),
-  properties: new MenuItem({ label: 'Properties', click() { console.log('item 1 clicked') } })
-};
-
 export const Aria2Module = remote.getGlobal('Aria2Module');
 
 export const Download = types.model('Download', {
@@ -42,6 +36,12 @@ export const GlobalState = types.model('GlobalState', {
   gUploadSpeed: types.number,
 });
 
+export const ContextMenu = types.model('ContextMenu', {
+  resume: types.number,
+  stop: types.number,
+  properties: types.number
+});
+
 export const Session = types.model('Session', {
   id: types.identifier(),
 });
@@ -53,7 +53,7 @@ export const DownloadStore = types
   })
   .volatile(self => ({
     gStat: GlobalState,
-
+    contextMenu: ContextMenu,
   }))
   .views(self => ({
     get ADM() {
@@ -87,12 +87,10 @@ export const DownloadStore = types
       let sessionId = values(self.sessions)[0].id;
 
       self.downloads.forEach(download => {
-        if (download.selected) {
+        if (download.selected && download.state !== 'RUNNING' && download.state !== 'COMPLETED') {
           Aria2Module.resumeDownload(download.uri, sessionId, download.fileName.replace(/^.*[\\\/]/, ''), (err, downloadData) => {
             if (err) {
               throw err;
-
-              return;
             }
 
             let downloadJSONArray = JSON.parse(downloadData);
@@ -303,20 +301,20 @@ export const DownloadStore = types
 
       // Change context menu options
       // Set resume and stop disable first
-      contextMenu.resume.enabled = false;
-      contextMenu.stop.enabled = false;
+      self.contextMenu.resume.enabled = false;
+      self.contextMenu.stop.enabled = false;
 
       self.downloads.forEach(download => {
         if (download.selected) {
           switch (download.state) {
             case 'RUNNING':
-              contextMenu.stop.enabled = true;
+              self.contextMenu.stop.enabled = true;
               break;
 
             case 'PAUSING':
             case 'IDLE':
             case 'ERROR':
-              contextMenu.resume.enabled = true;
+              self.contextMenu.resume.enabled = true;
           }
         }
       })
@@ -347,9 +345,13 @@ export const DownloadStore = types
     }
 
     function createDownloadContextMenu() {
-      menu.append(contextMenu.resume)
-      menu.append(contextMenu.stop)
-      menu.append(contextMenu.properties)
+      self.contextMenu.resume = new MenuItem({ label: 'Resume', click() { self.resumeSelectedDownload() } })
+      self.contextMenu.stop = new MenuItem({ label: 'Stop', click() { self.stopDownloads(true) } })
+      self.contextMenu.properties = new MenuItem({ label: 'Properties', click() { console.log('properties') } })
+
+      menu.append(self.contextMenu.resume)
+      menu.append(self.contextMenu.stop)
+      menu.append(self.contextMenu.properties)
     }
 
     return {
