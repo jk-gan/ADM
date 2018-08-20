@@ -4,6 +4,14 @@ import { remote } from 'electron';
 import { generate } from 'shortid';
 
 const fs = remote.getGlobal('fs');
+const menu = remote.getGlobal('menu');
+const MenuItem = remote.getGlobal('MenuItem');
+
+const contextMenu = {
+  resume: new MenuItem({ label: 'Resume', click() { console.log('item 1 clicked') } }),
+  stop: new MenuItem({ label: 'Stop', click() { console.log('item 1 clicked') } }),
+  properties: new MenuItem({ label: 'Properties', click() { console.log('item 1 clicked') } })
+};
 
 export const Aria2Module = remote.getGlobal('Aria2Module');
 
@@ -45,6 +53,7 @@ export const DownloadStore = types
   })
   .volatile(self => ({
     gStat: GlobalState,
+
   }))
   .views(self => ({
     get ADM() {
@@ -283,6 +292,38 @@ export const DownloadStore = types
       self.downloads.put(download);
     }
 
+    function contextMenuSelection(id) {
+      let download = self.downloads.get(id);
+
+      if (!download.selected) {
+        self.clearAllSelected();
+
+        download.selected = !download.selected;
+      }
+
+      // Change context menu options
+      // Set resume and stop disable first
+      contextMenu.resume.enabled = false;
+      contextMenu.stop.enabled = false;
+
+      self.downloads.forEach(download => {
+        if (download.selected) {
+          switch (download.state) {
+            case 'RUNNING':
+              contextMenu.stop.enabled = true;
+              break;
+
+            case 'PAUSING':
+            case 'IDLE':
+            case 'ERROR':
+              contextMenu.resume.enabled = true;
+          }
+        }
+      })
+
+      self.downloads.put(download);
+    }
+
     function clearAllSelected() {
       self.downloads.forEach(download => {
         download.selected = false;
@@ -305,6 +346,12 @@ export const DownloadStore = types
       self.completeDownload(JSON.parse(completeEvent));
     }
 
+    function createDownloadContextMenu() {
+      menu.append(contextMenu.resume)
+      menu.append(contextMenu.stop)
+      menu.append(contextMenu.properties)
+    }
+
     return {
       updateDownloads,
       updateDownload,
@@ -321,6 +368,8 @@ export const DownloadStore = types
       removeCompletedDownload,
       stopDownloads,
       toggleSelectedRow,
-      clearAllSelected
+      clearAllSelected,
+      createDownloadContextMenu,
+      contextMenuSelection
     };
   });

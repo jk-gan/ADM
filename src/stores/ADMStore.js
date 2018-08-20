@@ -20,5 +20,6 @@ export const ADMStore = types
       self.downloadStore.loadDownloads();
       self.downloadStore.startMonitoring();
       self.downloadStore.createSession();
+      self.downloadStore.createDownloadContextMenu();
     },
   }));
