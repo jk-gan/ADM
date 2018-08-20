@@ -4,6 +4,8 @@ import { remote } from 'electron';
 import { generate } from 'shortid';
 
 const fs = remote.getGlobal('fs');
+const menu = remote.getGlobal('menu');
+const MenuItem = remote.getGlobal('MenuItem');
 
 export const Aria2Module = remote.getGlobal('Aria2Module');
 
@@ -34,6 +36,12 @@ export const GlobalState = types.model('GlobalState', {
   gUploadSpeed: types.number,
 });
 
+export const ContextMenu = types.model('ContextMenu', {
+  resume: types.number,
+  stop: types.number,
+  properties: types.number
+});
+
 export const Session = types.model('Session', {
   id: types.identifier(),
 });
@@ -45,6 +53,7 @@ export const DownloadStore = types
   })
   .volatile(self => ({
     gStat: GlobalState,
+    contextMenu: ContextMenu,
   }))
   .views(self => ({
     get ADM() {
@@ -78,12 +87,10 @@ export const DownloadStore = types
       let sessionId = values(self.sessions)[0].id;
 
       self.downloads.forEach(download => {
-        if (download.selected) {
+        if (download.selected && download.state !== 'RUNNING' && download.state !== 'COMPLETED') {
           Aria2Module.resumeDownload(download.uri, sessionId, download.fileName.replace(/^.*[\\\/]/, ''), (err, downloadData) => {
             if (err) {
               throw err;
-
-              return;
             }
 
             let downloadJSONArray = JSON.parse(downloadData);
@@ -283,6 +290,38 @@ export const DownloadStore = types
       self.downloads.put(download);
     }
 
+    function contextMenuSelection(id) {
+      let download = self.downloads.get(id);
+
+      if (!download.selected) {
+        self.clearAllSelected();
+
+        download.selected = !download.selected;
+      }
+
+      // Change context menu options
+      // Set resume and stop disable first
+      self.contextMenu.resume.enabled = false;
+      self.contextMenu.stop.enabled = false;
+
+      self.downloads.forEach(download => {
+        if (download.selected) {
+          switch (download.state) {
+            case 'RUNNING':
+              self.contextMenu.stop.enabled = true;
+              break;
+
+            case 'PAUSING':
+            case 'IDLE':
+            case 'ERROR':
+              self.contextMenu.resume.enabled = true;
+          }
+        }
+      })
+
+      self.downloads.put(download);
+    }
+
     function clearAllSelected() {
       self.downloads.forEach(download => {
         download.selected = false;
@@ -305,6 +344,16 @@ export const DownloadStore = types
       self.completeDownload(JSON.parse(completeEvent));
     }
 
+    function createDownloadContextMenu() {
+      self.contextMenu.resume = new MenuItem({ label: 'Resume', click() { self.resumeSelectedDownload() } })
+      self.contextMenu.stop = new MenuItem({ label: 'Stop', click() { self.stopDownloads(true) } })
+      self.contextMenu.properties = new MenuItem({ label: 'Properties', click() { console.log('properties') } })
+
+      menu.append(self.contextMenu.resume)
+      menu.append(self.contextMenu.stop)
+      menu.append(self.contextMenu.properties)
+    }
+
     return {
       updateDownloads,
       updateDownload,
@@ -321,6 +370,8 @@ export const DownloadStore = types
       removeCompletedDownload,
       stopDownloads,
       toggleSelectedRow,
-      clearAllSelected
+      clearAllSelected,
+      createDownloadContextMenu,
+      contextMenuSelection
     };
   });

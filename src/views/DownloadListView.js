@@ -2,11 +2,14 @@ import React, { Component } from 'react';
 import { observer, inject } from 'mobx-react'
 import { configure, action, observable } from 'mobx';
 import { getSnapshot } from 'mobx-state-tree';
+import { remote } from 'electron';
 
 import ReactTable from "react-table";
 import 'react-table/react-table.css'
 
 configure({ enforceActions: true })
+
+const menu = remote.getGlobal('menu');
 
 @observer
 class MyCell extends React.Component {
@@ -146,6 +149,11 @@ class DownloadListView extends Component {
                 if (handleOriginal) {
                   handleOriginal();
                 }
+              },
+              onContextMenu: (e, handleOriginal) => {
+                this.props.ADM.downloadStore.contextMenuSelection(rowInfo.row.id);
+
+                menu.popup({});
               }
             };
           }}
