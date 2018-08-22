@@ -17,9 +17,6 @@ export const ADMStore = types
   }))
   .actions(self => ({
     afterCreate() {
-      self.downloadStore.loadDownloads();
-      self.downloadStore.startMonitoring();
-      self.downloadStore.createSession();
-      self.downloadStore.createDownloadContextMenu();
+      self.downloadStore.init();
     },
   }));

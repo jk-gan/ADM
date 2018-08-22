@@ -10,6 +10,7 @@ import 'react-table/react-table.css'
 configure({ enforceActions: true })
 
 const menu = remote.getGlobal('menu');
+const MenuItem = remote.getGlobal('MenuItem');
 
 @observer
 class MyCell extends React.Component {
@@ -24,6 +25,9 @@ class MyCell extends React.Component {
 class DownloadListView extends Component {
   constructor(props) {
     super(props)
+
+    this.downloadStore = this.props.ADM.downloadStore;
+    this.createDownloadContextMenu();
   }
 
   componentDidMount() {
@@ -42,6 +46,16 @@ class DownloadListView extends Component {
     }
 
     this.props.ADM.downloadStore.clearAllSelected();
+  }
+
+  createDownloadContextMenu() {
+    this.resume = new MenuItem({ label: 'Resume', click: () => { this.downloadStore.resumeSelectedDownload() } })
+    this.stop = new MenuItem({ label: 'Stop', click: () => { this.downloadStore.stopDownloads(true) } })
+    this.renewUri = new MenuItem({ label: 'Renew URI', click: () => { console.log('no implementation') } })
+
+    menu.append(this.resume)
+    menu.append(this.stop)
+    menu.append(this.renewUri)
   }
 
   convertSize(bytes) {
@@ -137,21 +151,26 @@ class DownloadListView extends Component {
               },
               onClick: (e, handleOriginal) => {
                 if (!e.ctrlKey && !e.shiftKey) {
-                  this.props.ADM.downloadStore.clearAllSelected();
+                  this.downloadStore.clearAllSelected();
                 }
 
                 if (e.shiftKey) {
 
                 }
 
-                this.props.ADM.downloadStore.toggleSelectedRow(rowInfo.row.id);
+                this.downloadStore.toggleSelectedRow(rowInfo.row.id);
 
                 if (handleOriginal) {
                   handleOriginal();
                 }
               },
               onContextMenu: (e, handleOriginal) => {
-                this.props.ADM.downloadStore.contextMenuSelection(rowInfo.row.id);
+                this.downloadStore.contextMenuSelection(rowInfo.row.id);
+
+                let contextState = this.downloadStore.contextMenuOptions;
+
+                this.resume.enabled = contextState.resume;
+                this.stop.enabled = contextState.stop;
 
                 menu.popup({});
               }

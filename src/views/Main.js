@@ -42,6 +42,7 @@ class Main extends Component {
 
     this.addLink = React.createRef();
     this.optionNode = React.createRef();
+    this.downloadStore = this.props.ADM.downloadStore;
   }
 
   componentDidMount() {
@@ -54,7 +55,7 @@ class Main extends Component {
 
   @action
   selectedDecorator(functionCall) {
-    if (this.props.ADM.downloadStore.downloadList.find(d => d.selected)) {
+    if (this.downloadStore.downloadList.find(d => d.selected)) {
       functionCall();
     }
   }
@@ -74,27 +75,27 @@ class Main extends Component {
 
   @action
   onUnload(event) { // the method that will be used for both add and remove event
-    this.props.ADM.downloadStore.saveDownloads();
+    this.downloadStore.saveDownloads();
   }
 
   @action
   addDownload = () => {
-    this.props.ADM.downloadStore.addDownload(this.newLink)
+    this.downloadStore.addDownload(this.newLink)
   }
 
   @action
   resumeDownload = () => {
-    this.selectedDecorator(this.props.ADM.downloadStore.resumeSelectedDownload)
+    this.selectedDecorator(this.downloadStore.resumeSelectedDownload)
   }
 
   @action
   stopSelectedDownload = () => {
-    this.props.ADM.downloadStore.stopDownloads();
+    this.downloadStore.stopDownloads();
   }
 
   @action
   stopAllDownload = () => {
-    this.props.ADM.downloadStore.stopDownloads(false);
+    this.downloadStore.stopDownloads(false);
   }
 
   @action
@@ -108,7 +109,7 @@ class Main extends Component {
         checkboxLabel: 'Delete Completed File on Disk',
       }, (response, checkboxCheck) => {
         if (response === 0) {
-          this.props.ADM.downloadStore.removeSelectedDownload(checkboxCheck)
+          this.downloadStore.removeSelectedDownload(checkboxCheck)
         }
       })
     )
@@ -116,7 +117,7 @@ class Main extends Component {
 
   @action
   removeCompletedDownload = () => {
-    this.props.ADM.downloadStore.removeCompletedDownload()
+    this.downloadStore.removeCompletedDownload()
   }
 
   @observable newLink = `http://103.1.138.206/files2.codecguide.com/K-Lite_Codec_Pack_1425_Mega.exe`;
@@ -135,7 +136,6 @@ class Main extends Component {
           <Button onClick={this.removeCompletedDownload}>Clear Completed</Button>
         </OptionsContainer>
         <DownloadListView options={this.optionNode} />
-        {/* http://103.1.138.206/files2.codecguide.com/K-Lite_Codec_Pack_1425_Mega.exe */}
       </Container>
     );
   }

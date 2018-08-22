@@ -4,8 +4,7 @@ import { remote } from 'electron';
 import { generate } from 'shortid';
 
 const fs = remote.getGlobal('fs');
-const menu = remote.getGlobal('menu');
-const MenuItem = remote.getGlobal('MenuItem');
+const prompt = remote.getGlobal('prompt');
 
 export const Aria2Module = remote.getGlobal('Aria2Module');
 
@@ -36,12 +35,6 @@ export const GlobalState = types.model('GlobalState', {
   gUploadSpeed: types.number,
 });
 
-export const ContextMenu = types.model('ContextMenu', {
-  resume: types.number,
-  stop: types.number,
-  properties: types.number
-});
-
 export const Session = types.model('Session', {
   id: types.identifier(),
 });
@@ -52,8 +45,7 @@ export const DownloadStore = types
     sessions: types.map(Session)
   })
   .volatile(self => ({
-    gStat: GlobalState,
-    contextMenu: ContextMenu,
+    gStat: GlobalState
   }))
   .views(self => ({
     get ADM() {
@@ -61,6 +53,33 @@ export const DownloadStore = types
     },
     get downloadList() {
       return values(self.downloads);
+    },
+    get contextMenuOptions() {
+      // Return context menu options
+      // Set resume and stop disable first
+      let resumeState = false;
+      let stopState = false;
+
+      self.downloads.forEach(download => {
+        if (download.selected) {
+          switch (download.state) {
+            case 'RUNNING':
+              stopState = true;
+              break;
+
+            case 'PAUSING':
+            case 'IDLE':
+            case 'ERROR':
+              resumeState = true;
+              break;
+          }
+        }
+      })
+
+      return {
+        resume: resumeState,
+        stop: stopState
+      };
     }
   }))
   .actions(self => {
@@ -152,7 +171,8 @@ export const DownloadStore = types
         let currDownload = self.downloads.get(downloadFind[0]);
 
         download.id = downloadFind[0];
-        download.state = 'RUNNING';
+        download.gid = currDownload.gid;
+        download.state = currDownload.state;
         download.selected = currDownload.selected
 
         self.downloads.put(download);
@@ -166,6 +186,10 @@ export const DownloadStore = types
         if (download.selected || !selected) {
           if (download.gid !== "") {
             Aria2Module.stopDownload(download.sessionId, download.gid, false);
+
+            // Change download state back to IDLE
+            download.state = 'IDLE';
+            self.downloads.put(download);
           }
         }
       });
@@ -299,26 +323,6 @@ export const DownloadStore = types
         download.selected = !download.selected;
       }
 
-      // Change context menu options
-      // Set resume and stop disable first
-      self.contextMenu.resume.enabled = false;
-      self.contextMenu.stop.enabled = false;
-
-      self.downloads.forEach(download => {
-        if (download.selected) {
-          switch (download.state) {
-            case 'RUNNING':
-              self.contextMenu.stop.enabled = true;
-              break;
-
-            case 'PAUSING':
-            case 'IDLE':
-            case 'ERROR':
-              self.contextMenu.resume.enabled = true;
-          }
-        }
-      })
-
       self.downloads.put(download);
     }
 
@@ -344,17 +348,14 @@ export const DownloadStore = types
       self.completeDownload(JSON.parse(completeEvent));
     }
 
-    function createDownloadContextMenu() {
-      self.contextMenu.resume = new MenuItem({ label: 'Resume', click() { self.resumeSelectedDownload() } })
-      self.contextMenu.stop = new MenuItem({ label: 'Stop', click() { self.stopDownloads(true) } })
-      self.contextMenu.properties = new MenuItem({ label: 'Properties', click() { console.log('properties') } })
-
-      menu.append(self.contextMenu.resume)
-      menu.append(self.contextMenu.stop)
-      menu.append(self.contextMenu.properties)
+    function init() {
+      self.loadDownloads();
+      self.startMonitoring();
+      self.createSession();
     }
 
     return {
+      init,
       updateDownloads,
       updateDownload,
       updateSession,
@@ -371,7 +372,6 @@ export const DownloadStore = types
       stopDownloads,
       toggleSelectedRow,
       clearAllSelected,
-      createDownloadContextMenu,
       contextMenuSelection
     };
   });
