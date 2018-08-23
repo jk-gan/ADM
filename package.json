@@ -41,6 +41,7 @@
   },
   "dependencies": {
     "electron": "^2.0.2",
+    "electron-prompt": "^1.1.0-1",
     "mobx": "^5.0.3",
     "mobx-react": "^5.2.3",
     "mobx-state-tree": "^2.2.0",
