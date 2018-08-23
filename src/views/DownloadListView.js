@@ -11,14 +11,7 @@ configure({ enforceActions: true })
 
 const menu = remote.getGlobal('menu');
 const MenuItem = remote.getGlobal('MenuItem');
-
-@observer
-class MyCell extends React.Component {
-  render() {
-    return this.props.value;
-  }
-}
-
+const prompt = remote.getGlobal('prompt');
 
 @inject('ADM')
 @observer
@@ -48,10 +41,28 @@ class DownloadListView extends Component {
     this.props.ADM.downloadStore.clearAllSelected();
   }
 
+  handleRenewUri(store) {
+    prompt({
+      title: 'Renew Uri',
+      label: 'Uri:',
+      value: store.getSelectedUri,
+      inputAttrs: {
+        type: 'url'
+      },
+      type: 'input'
+    })
+      .then((result) => {
+        if (result !== null) {
+          store.changeSelectedUri(result);
+        }
+      })
+      .catch(console.error);
+  }
+
   createDownloadContextMenu() {
     this.resume = new MenuItem({ label: 'Resume', click: () => { this.downloadStore.resumeSelectedDownload() } })
     this.stop = new MenuItem({ label: 'Stop', click: () => { this.downloadStore.stopDownloads(true) } })
-    this.renewUri = new MenuItem({ label: 'Renew URI', click: () => { console.log('no implementation') } })
+    this.renewUri = new MenuItem({ label: 'Renew URI', click: () => this.handleRenewUri(this.downloadStore) })
 
     menu.append(this.resume)
     menu.append(this.stop)
@@ -171,6 +182,7 @@ class DownloadListView extends Component {
 
                 this.resume.enabled = contextState.resume;
                 this.stop.enabled = contextState.stop;
+                this.renewUri.enabled = contextState.renewUri;
 
                 menu.popup({});
               }

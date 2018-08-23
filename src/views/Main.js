@@ -120,7 +120,7 @@ class Main extends Component {
     this.downloadStore.removeCompletedDownload()
   }
 
-  @observable newLink = `http://103.1.138.206/files2.codecguide.com/K-Lite_Codec_Pack_1425_Mega.exe`;
+  @observable newLink = ``;
 
   render() {
     return (

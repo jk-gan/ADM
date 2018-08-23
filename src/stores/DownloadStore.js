@@ -60,6 +60,8 @@ export const DownloadStore = types
       let resumeState = false;
       let stopState = false;
 
+      let renewUriStateCounter = 0;
+
       self.downloads.forEach(download => {
         if (download.selected) {
           switch (download.state) {
@@ -73,13 +75,27 @@ export const DownloadStore = types
               resumeState = true;
               break;
           }
+
+          renewUriStateCounter++;
         }
       })
 
       return {
         resume: resumeState,
-        stop: stopState
+        stop: stopState,
+        renewUri: renewUriStateCounter === 1
       };
+    },
+    get getSelectedUri() {
+      let uri = '';
+
+      self.downloads.forEach(download => {
+        if (download.selected) {
+          uri = download.uri;
+        }
+      });
+
+      return uri;
     }
   }))
   .actions(self => {
@@ -307,6 +323,16 @@ export const DownloadStore = types
       });
     }
 
+    function changeSelectedUri(uri) {
+      let selectedDownload = self.downloads.forEach(download => {
+        if (download.selected) {
+          download.uri = uri;
+
+          self.downloads.put(download);
+        }
+      });
+    }
+
     function toggleSelectedRow(id) {
       let download = self.downloads.get(id);
       download.selected = !download.selected;
@@ -369,6 +395,7 @@ export const DownloadStore = types
       saveDownloads,
       removeSelectedDownload,
       removeCompletedDownload,
+      changeSelectedUri,
       stopDownloads,
       toggleSelectedRow,
       clearAllSelected,
