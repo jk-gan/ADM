@@ -1,7 +1,7 @@
-import React, { Component } from 'react'
-import { configure, action, observable } from 'mobx'
-import { observer } from 'mobx-react'
-import styled from 'styled-components'
+import React, { Component } from 'react';
+import { configure, action, observable } from 'mobx';
+import { observer } from 'mobx-react';
+import styled from 'styled-components';
 
 const StyledInput = styled.input`
   font-family: 'Slabo 27px', serif;
@@ -16,13 +16,12 @@ const StyledInput = styled.input`
   &:focus {
     border: 1px solid #3498db;
   }
-`
+`;
 
-configure({ enforceActions: true })
+configure({ enforceActions: true });
 
 @observer
 class Input extends Component {
-
   render() {
     return (
       <StyledInput
@@ -32,8 +31,8 @@ class Input extends Component {
         onChange={this.props.onChange}
         onKeyUp={this.props.onKeyUp}
       />
-    )
+    );
   }
 }
 
-export default Input
+export default Input;

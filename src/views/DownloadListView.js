@@ -1,13 +1,13 @@
 import React, { Component } from 'react';
-import { observer, inject } from 'mobx-react'
+import { observer, inject } from 'mobx-react';
 import { configure, action, observable } from 'mobx';
 import { getSnapshot } from 'mobx-state-tree';
 import { remote } from 'electron';
 
-import ReactTable from "react-table";
-import 'react-table/react-table.css'
+import ReactTable from 'react-table';
+import 'react-table/react-table.css';
 
-configure({ enforceActions: true })
+configure({ enforceActions: true });
 
 const menu = remote.getGlobal('menu');
 const MenuItem = remote.getGlobal('MenuItem');
@@ -17,24 +17,34 @@ const prompt = remote.getGlobal('prompt');
 @observer
 class DownloadListView extends Component {
   constructor(props) {
-    super(props)
+    super(props);
 
     this.downloadStore = this.props.ADM.downloadStore;
     this.createDownloadContextMenu();
   }
 
   componentDidMount() {
-    document.addEventListener("mousedown", (event) => this.handleClick(event), false)
+    document.addEventListener(
+      'mousedown',
+      event => this.handleClick(event),
+      false
+    );
   }
 
   componentWillUnmount() {
-    document.removeEventListener("mousedown", (event) => this.handleClick(event), false)
+    document.removeEventListener(
+      'mousedown',
+      event => this.handleClick(event),
+      false
+    );
   }
 
   @action
   handleClick(event) {
-    if (this.node.contains(event.target) || this.props.options.current.contains(event.target)) {
-
+    if (
+      this.node.contains(event.target) ||
+      this.props.options.current.contains(event.target)
+    ) {
       return;
     }
 
@@ -47,11 +57,11 @@ class DownloadListView extends Component {
       label: 'Uri:',
       value: store.getSelectedUri,
       inputAttrs: {
-        type: 'url'
+        type: 'url',
       },
-      type: 'input'
+      type: 'input',
     })
-      .then((result) => {
+      .then(result => {
         if (result !== null) {
           store.changeSelectedUri(result);
         }
@@ -60,13 +70,26 @@ class DownloadListView extends Component {
   }
 
   createDownloadContextMenu() {
-    this.resume = new MenuItem({ label: 'Resume', click: () => { this.downloadStore.resumeSelectedDownload() } })
-    this.stop = new MenuItem({ label: 'Stop', click: () => { this.downloadStore.stopDownloads(true) } })
-    this.renewUri = new MenuItem({ label: 'Renew URI', click: () => this.handleRenewUri(this.downloadStore) })
+    this.resume = new MenuItem({
+      label: 'Resume',
+      click: () => {
+        this.downloadStore.resumeSelectedDownload();
+      },
+    });
+    this.stop = new MenuItem({
+      label: 'Stop',
+      click: () => {
+        this.downloadStore.stopDownloads(true);
+      },
+    });
+    this.renewUri = new MenuItem({
+      label: 'Renew URI',
+      click: () => this.handleRenewUri(this.downloadStore),
+    });
 
-    menu.append(this.resume)
-    menu.append(this.stop)
-    menu.append(this.renewUri)
+    menu.append(this.resume);
+    menu.append(this.stop);
+    menu.append(this.renewUri);
   }
 
   convertSize(bytes) {
@@ -74,70 +97,78 @@ class DownloadListView extends Component {
 
     if (bytes / 1000 < 1) {
       // bytes
-      size = `${bytes}B`
-    }
-    else if (bytes / 1000 < 1000) {
+      size = `${bytes}B`;
+    } else if (bytes / 1000 < 1000) {
       // kB
-      size = `${(bytes / 1000).toFixed(3)}KB`
-    }
-    else if (bytes / 1000 / 1000 < 1000) {
+      size = `${(bytes / 1000).toFixed(3)}KB`;
+    } else if (bytes / 1000 / 1000 < 1000) {
       // mB
-      size = `${(bytes / 1000 / 1000).toFixed(3)}MB`
-    }
-    else {
+      size = `${(bytes / 1000 / 1000).toFixed(3)}MB`;
+    } else {
       // gB
-      size = `${(bytes / 1000 / 1000 / 1000).toFixed(3)}GB`
+      size = `${(bytes / 1000 / 1000 / 1000).toFixed(3)}GB`;
     }
 
     return size;
   }
 
   render() {
-    const columns = [{
-      id: 'FileName',
-      Header: 'File Name',
-      width: 350,
-      accessor: d =>
-        d.fileName.replace(/^.*[\\\/]/, '')
-    }, {
-      id: 'TotalLength',
-      Header: 'File Size',
-      width: 80,
-      accessor: d => this.convertSize(d.totalLength),
-    }, {
-      id: 'Percentage',
-      Header: 'Percentage',
-      width: 80,
-      accessor: d =>
-        `${(d.completedLength / d.totalLength * 100).toFixed(2)}%`,
-    }, {
-      id: 'DownloadSpeed',
-      Header: 'Download',
-      width: 80,
-      accessor: d => this.convertSize(d.downloadSpeed),
-    }, {
-      id: 'UploadSpeed',
-      Header: 'Upload',
-      width: 80,
-      accessor: d => this.convertSize(d.uploadSpeed),
-    }, {
-      accessor: 'state',
-      show: false,
-    }, {
-      accessor: 'id',
-      show: false,
-    }, {
-      accessor: 'selected',
-      show: false,
-    }, {
-      accessor: 'uri',
-      show: false,
-    }]
+    const columns = [
+      {
+        id: 'FileName',
+        Header: 'File Name',
+        width: 350,
+        accessor: d => d.fileName.replace(/^.*[\\\/]/, ''),
+      },
+      {
+        id: 'TotalLength',
+        Header: 'File Size',
+        width: 80,
+        accessor: d => this.convertSize(d.totalLength),
+      },
+      {
+        id: 'Percentage',
+        Header: 'Percentage',
+        width: 80,
+        accessor: d =>
+          `${(d.completedLength / d.totalLength * 100).toFixed(2)}%`,
+      },
+      {
+        id: 'DownloadSpeed',
+        Header: 'Download',
+        width: 80,
+        accessor: d => this.convertSize(d.downloadSpeed),
+      },
+      {
+        id: 'UploadSpeed',
+        Header: 'Upload',
+        width: 80,
+        accessor: d => this.convertSize(d.uploadSpeed),
+      },
+      {
+        accessor: 'state',
+        show: false,
+      },
+      {
+        accessor: 'id',
+        show: false,
+      },
+      {
+        accessor: 'selected',
+        show: false,
+      },
+      {
+        accessor: 'uri',
+        show: false,
+      },
+    ];
 
-    const data = Object.values(getSnapshot(this.props.ADM.downloadStore.downloads));
+    const data = Object.values(
+      getSnapshot(this.props.ADM.downloadStore.downloads)
+    );
 
     return (
-      <div ref={node => this.node = node}>
+      <div ref={node => (this.node = node)}>
         <ReactTable
           data={data}
           resolveData={data => data.map(row => row)}
@@ -149,16 +180,16 @@ class DownloadListView extends Component {
               return {};
             }
 
-            let backgroundColor = "";
+            let backgroundColor = '';
             let selected = rowInfo.row.selected;
 
             if (rowInfo.row.state == 'ERROR') {
-              backgroundColor = "fdd9d7";
+              backgroundColor = 'fdd9d7';
             }
 
             return {
               style: {
-                background: selected ? "#cdeefd" : backgroundColor
+                background: selected ? '#cdeefd' : backgroundColor,
               },
               onClick: (e, handleOriginal) => {
                 if (!e.ctrlKey && !e.shiftKey) {
@@ -166,7 +197,6 @@ class DownloadListView extends Component {
                 }
 
                 if (e.shiftKey) {
-
                 }
 
                 this.downloadStore.toggleSelectedRow(rowInfo.row.id);
@@ -185,14 +215,13 @@ class DownloadListView extends Component {
                 this.renewUri.enabled = contextState.renewUri;
 
                 menu.popup({});
-              }
+              },
             };
           }}
         />
       </div>
     );
   }
-
 }
 
-export default DownloadListView
+export default DownloadListView;

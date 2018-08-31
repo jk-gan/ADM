@@ -2,7 +2,7 @@
 // Import React and ReactDOM
 import React, { Component } from 'react';
 import styled from 'styled-components';
-import { observer, inject } from 'mobx-react'
+import { observer, inject } from 'mobx-react';
 import { configure, action, observable } from 'mobx';
 import { remote } from 'electron';
 
@@ -30,7 +30,7 @@ const Title = styled.div`
   font-size: 100px;
 `;
 
-configure({ enforceActions: true })
+configure({ enforceActions: true });
 
 const dialog = remote.getGlobal('dialog');
 
@@ -46,11 +46,11 @@ class Main extends Component {
   }
 
   componentDidMount() {
-    window.addEventListener("beforeunload", (event) => this.onUnload(event))
+    window.addEventListener('beforeunload', event => this.onUnload(event));
   }
 
   componentWillUnmount() {
-    window.removeEventListener("beforeunload", (event) => this.onUnload(event))
+    window.removeEventListener('beforeunload', event => this.onUnload(event));
   }
 
   @action
@@ -61,64 +61,68 @@ class Main extends Component {
   }
 
   @action
-  onChange = (event) => {
-    this.newLink = event.target.value
-  }
+  onChange = event => {
+    this.newLink = event.target.value;
+  };
 
   @action
-  onKeyUp = (event) => {
+  onKeyUp = event => {
     if (event.key === 'Enter') {
-      console.log(this.addLink)
+      console.log(this.addLink);
       this.addLink.current.click();
     }
-  }
+  };
 
   @action
-  onUnload(event) { // the method that will be used for both add and remove event
+  onUnload(event) {
+    // the method that will be used for both add and remove event
     this.downloadStore.saveDownloads();
   }
 
   @action
   addDownload = () => {
-    this.downloadStore.addDownload(this.newLink)
-  }
+    this.downloadStore.addDownload(this.newLink);
+  };
 
   @action
   resumeDownload = () => {
-    this.selectedDecorator(this.downloadStore.resumeSelectedDownload)
-  }
+    this.selectedDecorator(this.downloadStore.resumeSelectedDownload);
+  };
 
   @action
   stopSelectedDownload = () => {
     this.downloadStore.stopDownloads();
-  }
+  };
 
   @action
   stopAllDownload = () => {
     this.downloadStore.stopDownloads(false);
-  }
+  };
 
   @action
   removeDownload = () => {
     this.selectedDecorator(() =>
-      dialog.showMessageBox({
-        type: 'question',
-        title: 'Remove Download',
-        buttons: ['ok', 'cancel'],
-        message: '',
-        checkboxLabel: 'Delete Completed File on Disk',
-      }, (response, checkboxCheck) => {
-        if (response === 0) {
-          this.downloadStore.removeSelectedDownload(checkboxCheck)
+      dialog.showMessageBox(
+        {
+          type: 'question',
+          title: 'Remove Download',
+          buttons: ['ok', 'cancel'],
+          message: '',
+          checkboxLabel: 'Delete Completed File on Disk',
+        },
+        (response, checkboxCheck) => {
+          if (response === 0) {
+            this.downloadStore.removeSelectedDownload(checkboxCheck);
+          }
         }
-      })
-    )
-  }
+      )
+    );
+  };
 
   @action
   removeCompletedDownload = () => {
-    this.downloadStore.removeCompletedDownload()
-  }
+    this.downloadStore.removeCompletedDownload();
+  };
 
   @observable newLink = ``;
 
@@ -126,14 +130,22 @@ class Main extends Component {
     return (
       <Container>
         <Title>ADMz</Title>
-        <Input newLink={this.newLink} onChange={this.onChange} onKeyUp={this.onKeyUp} />
+        <Input
+          newLink={this.newLink}
+          onChange={this.onChange}
+          onKeyUp={this.onKeyUp}
+        />
         <OptionsContainer innerRef={this.optionNode}>
-          <Button innerRef={this.addLink} onClick={this.addDownload}>Download</Button>
+          <Button innerRef={this.addLink} onClick={this.addDownload}>
+            Download
+          </Button>
           <Button onClick={this.resumeDownload}>Resume</Button>
           <Button onClick={this.stopSelectedDownload}>Stop</Button>
           <Button onClick={this.stopAllDownload}>Stop All</Button>
           <Button onClick={this.removeDownload}>Delete Selected</Button>
-          <Button onClick={this.removeCompletedDownload}>Clear Completed</Button>
+          <Button onClick={this.removeCompletedDownload}>
+            Clear Completed
+          </Button>
         </OptionsContainer>
         <DownloadListView options={this.optionNode} />
       </Container>

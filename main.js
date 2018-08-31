@@ -9,13 +9,13 @@ const url = require('url');
 const fs = require('fs');
 const prompt = require('electron-prompt');
 
-const Aria2Module = require('./aria2/API/build/Release/main');
+const Aria2Module = require('./build/Release/main');
 
 // Initialize Aria2
 Aria2Module.ariaInit();
 
 // Construct right click menu
-const menu = new Menu()
+const menu = new Menu();
 
 global.Aria2Module = Aria2Module;
 global.fs = fs;
@@ -25,6 +25,8 @@ global.menu = menu;
 global.prompt = prompt;
 
 let mainWindow;
+
+app.disableHardwareAcceleration();
 
 function createWindow() {
   // Create the browser window.
@@ -40,7 +42,9 @@ function createWindow() {
   );
 
   // Open the DevTools.
-  mainWindow.webContents.openDevTools();
+  if (!app.isPackaged) {
+    //mainWindow.webContents.openDevTools();
+  }
 
   // // Emitted when the window is closed.
   mainWindow.on('close', e => {
@@ -52,7 +56,6 @@ function createWindow() {
   });
 
   mainWindow.on('closed', e => {
-
     mainWindow = null;
   });
 }

@@ -1,5 +1,5 @@
-import React from 'react'
-import styled from 'styled-components'
+import React from 'react';
+import styled from 'styled-components';
 
 const StyledButton = styled.button`
   font-family: 'Slabo 27px', serif;
@@ -7,7 +7,7 @@ const StyledButton = styled.button`
   outline: none;
   height: 40px;
   width: 100px;
-  background: #FFF;
+  background: #fff;
   border: 1px solid #bdc3c7;
   margin: 8px;
   border-radius: 5px;
@@ -20,10 +20,12 @@ const StyledButton = styled.button`
     border: 1px solid red;
     color: red;
   }
-`
+`;
 
 const Button = ({ children, onClick, innerRef }) => (
-  <StyledButton innerRef={innerRef} onClick={onClick}>{children}</StyledButton>
-)
+  <StyledButton innerRef={innerRef} onClick={onClick}>
+    {children}
+  </StyledButton>
+);
 
-export default Button
+export default Button;

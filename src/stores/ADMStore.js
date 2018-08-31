@@ -6,7 +6,7 @@ export const ADMStore = types
   .model('ADMStore', {
     downloadStore: types.optional(DownloadStore, {
       sessions: {},
-      downloads: {}
+      downloads: {},
     }),
     view: types.optional(ViewStore, {}),
   })
