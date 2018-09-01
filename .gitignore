@@ -1,8 +1,13 @@
 node_modules
 dist/
-npm-debug.log
-aria2/aria2/
-aria2/API/build/
+build/
+static/
+
+# For shared library
+lib/
+lib64/
+
+*.log
 
 # For macOS
 *.DS_Store

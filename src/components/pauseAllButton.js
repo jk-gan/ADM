@@ -8,15 +8,15 @@ class PauseAllButton extends React.Component {
   }
 
   pauseAll() {
-    this.props.Aria2Module.pause(-9999, (err, result) => { console.log(result); });
+    this.props.Aria2Module.pause(-9999, (err, result) => {
+      console.log(result);
+    });
   }
 
   render() {
     // Return JSX via render()
-    return (
-      <button onClick={this.pauseAll}>Pause All</button>
-    );
+    return <button onClick={this.pauseAll}>Pause All</button>;
   }
 }
 
-export default PauseAllButton
+export default PauseAllButton;

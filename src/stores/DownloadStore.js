@@ -10,7 +10,7 @@ export const Aria2Module = remote.getGlobal('Aria2Module');
 
 export const Download = types.model('Download', {
   id: types.identifier(),
-  gid: types.optional(types.string, ""),
+  gid: types.optional(types.string, ''),
   sessionId: types.string,
   fileName: types.string,
   uri: types.string,
@@ -24,8 +24,8 @@ export const Download = types.model('Download', {
     'PAUSING',
     'IDLE',
     'COMPLETED',
-    'ERROR'
-  ])
+    'ERROR',
+  ]),
 });
 
 export const GlobalState = types.model('GlobalState', {
@@ -42,10 +42,10 @@ export const Session = types.model('Session', {
 export const DownloadStore = types
   .model('DownloadStore', {
     downloads: types.map(Download),
-    sessions: types.map(Session)
+    sessions: types.map(Session),
   })
   .volatile(self => ({
-    gStat: GlobalState
+    gStat: GlobalState,
   }))
   .views(self => ({
     get ADM() {
@@ -78,12 +78,12 @@ export const DownloadStore = types
 
           renewUriStateCounter++;
         }
-      })
+      });
 
       return {
         resume: resumeState,
         stop: stopState,
-        renewUri: renewUriStateCounter === 1
+        renewUri: renewUriStateCounter === 1,
       };
     },
     get getSelectedUri() {
@@ -96,14 +96,13 @@ export const DownloadStore = types
       });
 
       return uri;
-    }
+    },
   }))
   .actions(self => {
-
     function addDownload(url) {
       let sessionId = values(self.sessions)[0].id;
 
-      Aria2Module.addDownload(url, sessionId, "", (err, download) => {
+      Aria2Module.addDownload(url, sessionId, '', (err, download) => {
         if (err) {
           throw err;
 
@@ -114,7 +113,7 @@ export const DownloadStore = types
 
         downloadJSON.forEach(download => {
           self.createDownload(sessionId, download, 'RUNNING');
-        })
+        });
       });
     }
 
@@ -122,18 +121,32 @@ export const DownloadStore = types
       let sessionId = values(self.sessions)[0].id;
 
       self.downloads.forEach(download => {
-        if (download.selected && download.state !== 'RUNNING' && download.state !== 'COMPLETED') {
-          Aria2Module.resumeDownload(download.uri, sessionId, download.fileName.replace(/^.*[\\\/]/, ''), (err, downloadData) => {
-            if (err) {
-              throw err;
+        if (
+          download.selected &&
+          download.state !== 'RUNNING' &&
+          download.state !== 'COMPLETED'
+        ) {
+          Aria2Module.resumeDownload(
+            download.uri,
+            sessionId,
+            download.fileName.replace(/^.*[\\\/]/, ''),
+            (err, downloadData) => {
+              if (err) {
+                throw err;
+              }
+
+              let downloadJSONArray = JSON.parse(downloadData);
+
+              downloadJSONArray.forEach(downloadJSONData => {
+                self.updateDownload(
+                  download.id,
+                  sessionId,
+                  downloadJSONData,
+                  'RUNNING'
+                );
+              });
             }
-
-            let downloadJSONArray = JSON.parse(downloadData);
-
-            downloadJSONArray.forEach(downloadJSONData => {
-              self.updateDownload(download.id, sessionId, downloadJSONData, 'RUNNING');
-            })
-          });
+          );
         }
       });
     }
@@ -178,7 +191,9 @@ export const DownloadStore = types
       }
 
       dlStatesJson.Downloads.forEach(download => {
-        let downloadFind = [...self.downloads].find(([, x]) => x.gid == download.gid);
+        let downloadFind = [...self.downloads].find(
+          ([, x]) => x.gid == download.gid
+        );
 
         if (downloadFind === undefined) {
           return;
@@ -189,10 +204,10 @@ export const DownloadStore = types
         download.id = downloadFind[0];
         download.gid = currDownload.gid;
         download.state = currDownload.state;
-        download.selected = currDownload.selected
+        download.selected = currDownload.selected;
 
         self.downloads.put(download);
-      })
+      });
     }
 
     function stopDownloads(selected = true) {
@@ -200,7 +215,7 @@ export const DownloadStore = types
 
       self.downloads.forEach(download => {
         if (download.selected || !selected) {
-          if (download.gid !== "") {
+          if (download.gid !== '') {
             Aria2Module.stopDownload(download.sessionId, download.gid, false);
 
             // Change download state back to IDLE
@@ -212,8 +227,10 @@ export const DownloadStore = types
     }
 
     function completeDownload(completeEventJson) {
-      if (completeEventJson.event == "COMPLETE") {
-        let downloadFind = [...self.downloads].find(([, x]) => x.gid == completeEventJson.gid);
+      if (completeEventJson.event == 'COMPLETE') {
+        let downloadFind = [...self.downloads].find(
+          ([, x]) => x.gid == completeEventJson.gid
+        );
 
         if (downloadFind === undefined) {
           return;
@@ -226,10 +243,11 @@ export const DownloadStore = types
         currDownload.completedLength = currDownload.totalLength;
         currDownload.downloadSpeed = 0;
         currDownload.uploadSpeed = 0;
-        currDownload.gid = "";
-
-      } else if (completeEventJson.event == "ERROR") {
-        let downloadFind = [...self.downloads].find(([, x]) => x.gid == completeEventJson.gid);
+        currDownload.gid = '';
+      } else if (completeEventJson.event == 'ERROR') {
+        let downloadFind = [...self.downloads].find(
+          ([, x]) => x.gid == completeEventJson.gid
+        );
 
         if (downloadFind === undefined) {
           return;
@@ -241,38 +259,44 @@ export const DownloadStore = types
         currDownload.completedLength = currDownload.totalLength;
         currDownload.downloadSpeed = 0;
         currDownload.uploadSpeed = 0;
-        currDownload.gid = "";
+        currDownload.gid = '';
       }
     }
 
     function loadDownloads() {
-      let downloadsArray = JSON.parse(localStorage.getItem("downloads"));
+      let downloadsArray = JSON.parse(localStorage.getItem('downloads'));
 
       if (downloadsArray == undefined) {
         return;
       }
 
       downloadsArray.forEach(download => {
-        self.createDownload('', download, download.completedLength == download.totalLength ? 'COMPLETED' : 'IDLE');
+        self.createDownload(
+          '',
+          download,
+          download.completedLength == download.totalLength
+            ? 'COMPLETED'
+            : 'IDLE'
+        );
       });
     }
 
     function saveDownloads() {
-      if (typeof (Storage) !== "undefined") {
+      if (typeof Storage !== 'undefined') {
         let downloadsArray = values(self.downloads);
 
         downloadsArray.forEach(download => {
           download.selected = false;
           download.downloadSpeed = 0;
           download.uploadSpeed = 0;
-          download.gid = "";
-        })
+          download.gid = '';
+        });
 
         let stringifiedDownloads = JSON.stringify(downloadsArray);
 
-        localStorage.setItem("downloads", stringifiedDownloads);
+        localStorage.setItem('downloads', stringifiedDownloads);
       } else {
-        throw ("ERROR: Web Storage is not avaialble.");
+        throw 'ERROR: Web Storage is not avaialble.';
       }
     }
 
@@ -289,7 +313,7 @@ export const DownloadStore = types
 
       self.downloads.forEach(download => {
         if (download.selected) {
-          if (download.gid !== "") {
+          if (download.gid !== '') {
             // Download session is running. Stop download first
             Aria2Module.stopDownload(download.sessionId, download.gid, false);
           }
@@ -298,9 +322,9 @@ export const DownloadStore = types
 
           if (checked || download.state !== 'COMPLETED') {
             // Remove physical file if ticked
-            fs.unlink(path, (err) => {
+            fs.unlink(path, err => {
               if (err) {
-                throw (err);
+                throw err;
               }
 
               fs.stat(`${path}.aria2`, (err, state) => {
@@ -309,13 +333,13 @@ export const DownloadStore = types
                   return;
                 }
 
-                fs.unlink(`${path}.aria2`, (err) => {
+                fs.unlink(`${path}.aria2`, err => {
                   if (err) {
                     throw err;
                   }
-                })
-              })
-            })
+                });
+              });
+            });
           }
 
           self.downloads.delete(download.id);
@@ -355,7 +379,7 @@ export const DownloadStore = types
     function clearAllSelected() {
       self.downloads.forEach(download => {
         download.selected = false;
-      })
+      });
     }
 
     function startMonitoring() {
@@ -399,6 +423,6 @@ export const DownloadStore = types
       stopDownloads,
       toggleSelectedRow,
       clearAllSelected,
-      contextMenuSelection
+      contextMenuSelection,
     };
   });
