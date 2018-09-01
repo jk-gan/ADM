@@ -5,7 +5,7 @@
       "include_dirs": [ "/usr/local/include/node/", "<(module_root_dir)/aria2/API" ],
       "conditions": [
         ['OS=="linux"', {
-          "libraries": ["-laria2"],
+          "libraries": ["-laria2", "-Wl,-rpath,./usr/lib"],
         }]
       ],
       "cflags": [ "-Wall -O2 -g -std=c++11" ],

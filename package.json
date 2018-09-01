@@ -20,6 +20,7 @@
   "build": {
     "appId": "com.electron.ADM",
     "nodeGypRebuild": "true",
+    "productName": "ADM",
     "files": [
       "**/*",
       "!lib/*",
@@ -39,7 +40,8 @@
     "linux": {
       "target": [
         "AppImage"
-      ]
+      ],
+      "category": "Network"
     }
   },
   "repository": "https://github.com/jk-gan/ADM",
