@@ -1,3 +1,13 @@
 node_modules
-bundle.js
-npm-debug.log
+dist/
+build/
+static/
+
+# For shared library
+lib/
+lib64/
+
+*.log
+
+# For macOS
+*.DS_Store

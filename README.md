@@ -1,8 +1,28 @@
-#Aria2 Download Manager
+# Aria2 Download Manager
 
-This is a download manager is built with [electron](http://electron.atom.io) and [aria2](https://aria2.github.io).
+This is a download manager is built with [electron](http://electron.atom.io), [react](https://facebook.github.io/react/) and [aria2](https://aria2.github.io).
 
 ## To Use
+
+### Linux
+
+Download appimage or unpacked executable in [Release](https://github.com/jk-gan/ADM/releases) and just run it.
+
+### OSX
+
+TBD
+
+### Windows
+
+TBD
+
+## Development Build
+
+### Pre-requisite
+
+Follow guide from [aria2](https://github.com/aria2/aria2) to build libaria2.
+
+### ADM Build
 
 To clone and run this repository you'll need [Git](https://git-scm.com) and [Node.js](https://nodejs.org/en/download/) (which comes with [npm](http://npmjs.com)) installed on your computer. From your command line:
 
@@ -12,41 +32,11 @@ git clone git@github.com:jk-gan/ADM.git
 # Go into the repository
 cd ADM
 # Install dependencies and run the app
-npm install -g browserify 
-sudo npm install -g watchify
-npm install && npm start
+yarn install && yarn gyp-rebuild && yarn build && yarn start
 ```
 
-## Directory Structure
-```
-|---app #All React projects goes here
-|----components # Presentation Component Directory
-|----containers # Container Component Directory
-|----app.js
-|---public # Client Files here
-|----css
-|----js
-|------bundle.js
-|---index.html # Electron Default View
-|---main.js # Electron entry point
-|---package.json
-```
+## Packaging
 
-## Before start the app
-```bash
-# Use browserify to bundle up js file into single bundle.js
-# Everytime there is a new change
-browserify -t [ babelify ] app/app.jsx -o public/js/bundle.js 
-
-# or you can use watchify - just waites for change and re-creates the bundle
-npm run watch
-```
-
-## Start the app
-```bash
-npm start
-```
-
-Learn more about Electron and its API in the [documentation](http://electron.atom.io/docs/latest).
+Check [wiki](https://github.com/jk-gan/ADM/wiki) for more information.
 
 #### License [MIT](LICENSE.md)
