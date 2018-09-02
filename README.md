@@ -1,6 +1,11 @@
 # Aria2 Download Manager
 
-This is a download manager is built with [electron](http://electron.atom.io), [react](https://facebook.github.io/react/) and [aria2](https://aria2.github.io).
+<p align="center">
+  <img alt="ADM Screenshot" src="./screenshot/adm.PNG" height="450" width="600">
+</p>
+
+
+Aria2 Download Manager is a download manager built with [electron](http://electron.atom.io), [react](https://facebook.github.io/react/) and [aria2](https://aria2.github.io).
 
 ## To Use
 

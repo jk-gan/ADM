@@ -25,6 +25,7 @@
       "**/*",
       "!lib/*",
       "!lib64/*",
+      "!screenshot/*",
       "build/Release/**/*"
     ],
     "extraFiles": [
