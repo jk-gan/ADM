@@ -1,14 +1,14 @@
-// ES6 Component
-// Import React and ReactDOM
-import React, { Component } from 'react';
+// @flow
+
+import React, {Component} from 'react';
 import styled from 'styled-components';
-import { observer, inject } from 'mobx-react';
-import { configure, action, observable } from 'mobx';
-import { remote } from 'electron';
+import {observer, inject} from 'mobx-react';
+import {configure, action, observable} from 'mobx';
+import {remote} from 'electron'; // eslint-disable-line import/no-extraneous-dependencies
 
 import Input from '../components/Input';
 import Button from '../components/Button';
-import DownloadListView from '../views/DownloadListView';
+import DownloadListView from './DownloadListView';
 
 const Container = styled.div`
   padding: 10px;
@@ -30,19 +30,28 @@ const Title = styled.div`
   font-size: 100px;
 `;
 
-configure({ enforceActions: true });
+configure({enforceActions: true});
 
 const dialog = remote.getGlobal('dialog');
+
+type Props = {
+  ADM: any,
+};
 
 @inject('ADM')
 @observer
 class Main extends Component {
+  @observable
+  newLink = '';
+
   constructor(props) {
     super(props);
 
+    const {ADM} = this.props;
+
     this.addLink = React.createRef();
     this.optionNode = React.createRef();
-    this.downloadStore = this.props.ADM.downloadStore;
+    this.downloadStore = ADM.downloadStore;
   }
 
   componentDidMount() {
@@ -54,30 +63,24 @@ class Main extends Component {
   }
 
   @action
-  selectedDecorator(functionCall) {
-    if (this.downloadStore.downloadList.find(d => d.selected)) {
-      functionCall();
-    }
-  }
-
-  @action
   onChange = event => {
     this.newLink = event.target.value;
   };
 
   @action
+  // eslint-disable-next-line no-unused-vars
   onKeyUp = event => {
     if (event.key === 'Enter') {
-      console.log(this.addLink);
       this.addLink.current.click();
     }
   };
 
   @action
-  onUnload(event) {
+  // eslint-disable-next-line no-unused-vars
+  onUnload = event => {
     // the method that will be used for both add and remove event
     this.downloadStore.saveDownloads();
-  }
+  };
 
   @action
   addDownload = () => {
@@ -114,8 +117,8 @@ class Main extends Component {
           if (response === 0) {
             this.downloadStore.removeSelectedDownload(checkboxCheck);
           }
-        }
-      )
+        },
+      ),
     );
   };
 
@@ -124,13 +127,22 @@ class Main extends Component {
     this.downloadStore.removeCompletedDownload();
   };
 
-  @observable newLink = ``;
+  props: Props;
+
+  @action
+  selectedDecorator(functionCall) {
+    if (this.downloadStore.downloadList.find(d => d.selected)) {
+      functionCall();
+    }
+  }
 
   render() {
     return (
       <Container>
         <Title>ADMz</Title>
         <Input
+          type="text"
+          placeholder="e.g. www.abc.com"
           newLink={this.newLink}
           onChange={this.onChange}
           onKeyUp={this.onKeyUp}

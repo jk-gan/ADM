@@ -1,6 +1,8 @@
-import React, { Component } from 'react';
-import { configure, action, observable } from 'mobx';
-import { observer } from 'mobx-react';
+// @flow
+
+import React, {Component} from 'react';
+import {configure} from 'mobx';
+import {observer} from 'mobx-react';
 import styled from 'styled-components';
 
 const StyledInput = styled.input`
@@ -18,18 +20,30 @@ const StyledInput = styled.input`
   }
 `;
 
-configure({ enforceActions: true });
+configure({enforceActions: true});
+
+type Props = {
+  type: string,
+  placeholder: string,
+  newLink: string,
+  onChange: Function,
+  onKeyUp: Function,
+};
 
 @observer
 class Input extends Component {
+  props: Props;
+
   render() {
+    const {type, placeholder, newLink, onChange, onKeyUp} = this.props;
+
     return (
       <StyledInput
-        type="text"
-        placeholder="e.g. www.abc.com"
-        value={this.props.newLink}
-        onChange={this.props.onChange}
-        onKeyUp={this.props.onKeyUp}
+        type={type}
+        placeholder={placeholder}
+        value={newLink}
+        onChange={onChange}
+        onKeyUp={onKeyUp}
       />
     );
   }

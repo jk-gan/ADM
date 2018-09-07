@@ -1,15 +1,13 @@
-const electron = require('electron');
+const electron = require('electron'); // eslint-disable-line import/no-extraneous-dependencies
 
-// Module to control application life.
-// Module to create native browser window.
-const { app, BrowserWindow, dialog, Menu, MenuItem } = electron;
+const {app, BrowserWindow, dialog, Menu, MenuItem} = electron;
 
 const path = require('path');
 const url = require('url');
 const fs = require('fs');
 const prompt = require('electron-prompt');
 
-const Aria2Module = require('./build/Release/main');
+const Aria2Module = require('./build/Release/main'); // eslint-disable-line
 
 // Initialize Aria2
 Aria2Module.ariaInit();
@@ -30,7 +28,7 @@ app.disableHardwareAcceleration();
 
 function createWindow() {
   // Create the browser window.
-  mainWindow = new BrowserWindow({ width: 1000, height: 700 });
+  mainWindow = new BrowserWindow({width: 1000, height: 700});
 
   // and load the index.html of the app.
   mainWindow.loadURL(
@@ -38,15 +36,14 @@ function createWindow() {
       pathname: path.join(__dirname, 'index.html'),
       protocol: 'file:',
       slashes: true,
-    })
+    }),
   );
 
   // Open the DevTools.
-  if (!app.isPackaged) {
-    //mainWindow.webContents.openDevTools();
-  }
+  // mainWindow.webContents.openDevTools();
 
-  // // Emitted when the window is closed.
+  // Emitted when the window is closed.
+  // eslint-disable-next-line no-unused-vars
   mainWindow.on('close', e => {
     // save data and quit
     Aria2Module.stopMonitoring();
@@ -55,6 +52,7 @@ function createWindow() {
     app.quit();
   });
 
+  // eslint-disable-next-line no-unused-vars
   mainWindow.on('closed', e => {
     mainWindow = null;
   });
