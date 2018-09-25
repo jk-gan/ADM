@@ -1,3 +1,5 @@
+// @flow
+
 import React from 'react';
 import styled from 'styled-components';
 
@@ -22,7 +24,13 @@ const StyledButton = styled.button`
   }
 `;
 
-const Button = ({ children, onClick, innerRef }) => (
+type Props = {
+  children: string,
+  onClick: Function,
+  innerRef: ?HTMLButtonElement,
+};
+
+const Button = ({children, onClick, innerRef}: Props) => (
   <StyledButton innerRef={innerRef} onClick={onClick}>
     {children}
   </StyledButton>
