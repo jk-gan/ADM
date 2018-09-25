@@ -1,6 +1,6 @@
 {
   "name": "adm",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Aria download manager",
   "main": "main.js",
   "scripts": {
